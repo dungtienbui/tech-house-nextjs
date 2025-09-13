@@ -29,7 +29,7 @@ export default function RootLayout({
         <div className="h-screen">
           <Header />
           <NavBar />
-          <div className="flex-grow mt-32">{children}</div>
+          <div className="bg-slate-50 flex justify-center">{children}</div>
         </div>
       </body>
     </html>
