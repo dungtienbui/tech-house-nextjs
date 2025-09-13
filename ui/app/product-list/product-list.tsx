@@ -4,7 +4,7 @@ import ProductCard from "./product-card";
 export default function ProductList() {
     const exProducts = products.concat(products);
     return (
-        <div className="overflow-auto grid grid-cols-2 md:grid-cols-6 gap-4 justify-items-center px-4 xl:px-6">
+        <div className="overflow-auto grid grid-cols-2 min-[600px]:grid-cols-3 md:grid-cols-4 min-[800px]:grid-cols-5 lg:grid-cols-6 gap-4 justify-items-center px-4 xl:px-6">
             {exProducts.map((product, index) => {
                 return <ProductCard key={`${product.id}-${index}`} product={product} />
             })}

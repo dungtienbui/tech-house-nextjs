@@ -27,11 +27,11 @@ export default function NavBar() {
     return (
         <div
             className={clsx(
-                "fixed top-16 left-0 right-0 z-40 bg-white shadow-md transition-transform duration-300",
+                "fixed top-24 min-[800px]:top-16 left-0 right-0 z-40 bg-white shadow-md transition-transform duration-300",
                 show ? "translate-y-0" : "-translate-y-full"
             )}
         >
-            <div className="flex flex-row gap-2 px-2 py-1 justify-start md:gap-3 md:pl-20">
+            <div className="flex flex-row gap-2 px-2 py-1 max-[450px]:pb-2 justify-start md:gap-3 md:pl-20 max-[450px]:overflow-auto">
                 <NavLinks />
             </div>
         </div>

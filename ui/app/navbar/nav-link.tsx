@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import clsx from 'clsx';
+import { Headphones, Keyboard } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -29,12 +30,12 @@ const links = [
       {
         name: 'Tai nghe',
         href: '/headphone',
-        icon: MicrophoneIcon,
+        icon: Headphones,
       },
       {
         name: 'Bàn phím',
         href: '/keyboard',
-        icon: MicrophoneIcon,
+        icon: Keyboard,
       },
 
     ]
@@ -68,9 +69,9 @@ export default function NavLinks() {
               >
                 <LinkIcon className="w-6" />
                 <p className="hidden md:block">{link.name}</p>
-                <ChevronDownIcon className='w-4' />
+                <ChevronDownIcon className="w-4 hidden min-[450]:block" />
               </Link>
-              <div className="absolute top-full right-0 md:left-0 hidden group-hover:block pt-2 bg-none border-none">
+              <div className="absolute top-full right-0 md:left-0 hidden min-[450px]:group-hover:block pt-2 bg-none border-none">
                 <div className="min-w-[200px] flex flex-col rounded-xl overflow-clip border border-gray-200 bg-white shadow-md">
                   {link.menu.map((item) => {
                     const ItemIcon = item.icon;
