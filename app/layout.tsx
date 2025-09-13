@@ -24,12 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${roboto.className} antialiased`}
+        className={`${roboto.className} antialiased bg-slate-50`}
       >
         <div className="h-screen">
           <Header />
           <NavBar />
-          <div className="bg-slate-50 flex justify-center">{children}</div>
+          <div className="w-screen h-full pt-40 min-[800px]:pt-32">{children}</div>
         </div>
       </body>
     </html>
