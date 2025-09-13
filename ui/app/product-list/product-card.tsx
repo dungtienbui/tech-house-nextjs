@@ -8,7 +8,7 @@ export default function ProductCard({
 }) {
 
     return (
-        <div className="group w-[170px] lg:w-[175px] xl:w-[185px] border border-slate-200 rounded-xl flex flex-col justify-between items-center gap-2 px-3 pb-2 pt-3 overflow-clip shadow-sm">
+        <div className="group min-w-[160px] max-w-[180px] border border-slate-200 rounded-xl flex flex-col justify-between items-center gap-2 px-3 pb-2 pt-3 overflow-clip">
             <Image
                 src={product.featuredImageLink.link}
                 alt={product.name}
