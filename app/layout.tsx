@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/ui/app/navbar/navbar";
-import Header from "@/ui/app/header/header";
+import Header from "@/ui/app/header-footer/header";
+import Footer from "@/ui/app/header-footer/footer";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -29,7 +30,8 @@ export default function RootLayout({
         <div className="h-screen">
           <Header />
           <NavBar />
-          <div className="w-screen h-full pt-40 min-[800px]:pt-32">{children}</div>
+          <div className="w-screen pt-40 min-[800px]:pt-32">{children}</div>
+          <Footer />
         </div>
       </body>
     </html>

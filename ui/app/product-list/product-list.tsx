@@ -5,7 +5,7 @@ import { ChevronRightIcon } from "lucide-react";
 export default function ProductList() {
     const exProducts = products.concat(products);
     return (
-        <div className="w-full py-5 px-10">
+        <div className="w-full py-3 lg:py-5 px-4 lg:px-10">
             <div className="mb-3">
                 <div className="flex flex-row justify-between items-end">
                     <div className="font-bold">Điện thoại nổi bật</div>
