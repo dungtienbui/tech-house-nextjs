@@ -3,7 +3,7 @@ import { PhoneCall } from "lucide-react";
 export default function Footer() {
     return (
         <div className="w-full bg-sky-500 text-white flex flex-col pt-5 lg:pt-10 relative overflow-clip">
-            <div className="flex flex-row flex-1 mb-20">
+            <div className="flex flex-row flex-1 mb-20 z-1">
                 <div className="flex-1 flex flex-col justify-center items-center">
                     <div className="flex flex-col justify-start gap-3">
                         <div className="font-bold">Tổng đài hỗ trợ</div>
@@ -66,10 +66,10 @@ export default function Footer() {
                     </div>
                 </div>
             </div>
-            <div className="font-bold italic text-sm py-5 text-center">
+            <div className="font-bold italic text-sm py-5 text-center z-1">
                 © 2025 All rights reserved. Reliance Retail Ltd.
             </div>
-            <div className="absolute w-full h-full max-lg:hidden lg:rotate-x-180 xl:rotate-x-0">
+            <div className="absolute w-full h-full max-lg:hidden lg:rotate-x-180 xl:rotate-x-0 z-0">
                 <div className="absolute -top-20 -right-20 h-100 w-100 bg-cyan-200 rounded-full" />
                 <div className="absolute -top-23 -right-25 h-110 w-110 bg-none border border-amber-100 rounded-full" />
                 <div className="absolute -top-30 -right-35 h-130 w-130 bg-none border border-b-emerald-300 rounded-full" />

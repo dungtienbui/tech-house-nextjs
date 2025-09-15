@@ -3,12 +3,12 @@ import ProductList from "@/ui/app/product-list/product-list";
 
 export default function Home() {
   return (
-    <main className="w-full px-1 sm:px-5 md:px-6 lg:px-10">
+    <div className="w-full px-1 sm:px-5 md:px-6 lg:px-10">
       <Banner imageLink={"https://cdnv2.tgdd.vn/mwg-static/tgdd/Banner/ac/8c/ac8cdc4164298c52561dd2232fce2200.png"} alt={"Banner quản cáo iphone 17 pro max."} />
       <ProductList />
       <ProductList />
       <ProductList />
       <ProductList />
-    </main>
+    </div>
   );
 }

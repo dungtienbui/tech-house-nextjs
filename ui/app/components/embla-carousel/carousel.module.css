@@ -1,0 +1,62 @@
+.embla {
+    overflow: hidden;
+    position: relative;
+    border: 1px solid lightgray;
+    border-radius: 0.5rem;
+    padding: 1.5rem 0;
+}
+
+.embla__container {
+    display: flex;
+    flex-direction: row;
+}
+
+.embla__slide {
+    flex: 0 0 95%;
+    min-width: 0;
+    margin: 0 5%;
+}
+
+.embla__controls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 40%;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+.embla__button {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: snow;
+    opacity: 0.2;
+    border: 1 solid lightgrey;
+}
+
+.embla__button:hover {
+    opacity: 0.8;
+    cursor: pointer;
+    box-shadow: 1px 2px 1px lightgray;
+}
+
+.embla__selectd_snap_display_container {
+    position: absolute;
+    bottom: 2rem;
+    right: 2.5rem;
+}
+
+.embla__selectd_snap_display_text {
+    background-color: lightgray;
+    opacity: 0.2;
+    border-radius: 10px;
+    text-align: center;
+    padding: 5px 10px;
+    font-size: small;
+    font-weight: bold;
+}
+
+.embla__selectd_snap_display_text:hover {
+    opacity: 0.7;
+}

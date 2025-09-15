@@ -1,14 +1,16 @@
 import { Product } from "@/lib/definations/product";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ProductCard({
     product
 }: {
     product: Product
 }) {
-
     return (
-        <div className="group min-w-[160px] max-w-[180px] border border-slate-200 rounded-xl flex flex-col justify-between items-center gap-2 px-3 pb-2 pt-3 overflow-clip">
+        <Link
+            className="group min-w-[160px] max-w-[180px] border border-slate-200 hover:shadow-md rounded-xl flex flex-col justify-between items-center gap-2 px-3 pb-2 pt-3 overflow-clip"
+            href={`/product/${product.id}`}>
             <Image
                 src={product.featuredImageLink.link}
                 alt={product.name}
@@ -23,6 +25,6 @@ export default function ProductCard({
                 </div>
                 <button type="button" className="bg-sky-100 text-blue-500 w-full py-2 rounded-md cursor-pointer border border-sky-100 hover:border-sky-500 duration-500">Buy now</button>
             </div>
-        </div>
+        </Link>
     );
 }
