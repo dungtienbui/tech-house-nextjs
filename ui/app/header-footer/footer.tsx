@@ -3,8 +3,8 @@ import { PhoneCall } from "lucide-react";
 export default function Footer() {
     return (
         <div className="w-full bg-sky-500 text-white flex flex-col pt-5 lg:pt-10 relative overflow-clip">
-            <div className="flex flex-row flex-1 mb-20 z-1">
-                <div className="flex-1 flex flex-col justify-center items-center">
+            <div className="flex flex-col-reverse p-10 min-[800px]:p-15 min-[800px]:flex-row gap-15 flex-1 mb-20 z-1">
+                <div className="flex-1 self-start flex flex-col justify-center items-center">
                     <div className="flex flex-col justify-start gap-3">
                         <div className="font-bold">Tổng đài hỗ trợ</div>
                         <div className="flex flex-row items-center gap-1 group/1">
@@ -30,8 +30,8 @@ export default function Footer() {
                         </div>
                     </div>
                 </div>
-                <div className="flex-2 flex flex-row justify-start items-stretch gap-10 pl-14">
-                    <div className="p-3">
+                <div className="flex-2 flex flex-col min-[450px]:flex-row justify-start items-stretch gap-10">
+                    <div>
                         <div className="mb-5">
                             <div className="font-bold mb-2">
                                 Danh mục sản phẩm
@@ -49,7 +49,7 @@ export default function Footer() {
                             </ul>
                         </div>
                     </div>
-                    <div className="p-3">
+                    <div>
                         <div className="mb-5">
                             <div className="font-bold mb-2">
                                 Các thông tin khác
