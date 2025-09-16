@@ -27,12 +27,12 @@ export default function ProductPolicy() {
     return (
         <div className="w-full">
             <p className="font-bold mb-3 text-lg">Chính sách sản phẩm</p>
-            <div className="grid grid-cols-2 gap-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 md:grid-cols-1 lg:grid-cols-2 gap-y-3">
                 {
                     productPolicy.map((item) => {
                         const Icon = item.icon;
                         return (
-                            <div key={item.name} className="flex flex-row justify-start items-center gap-2">
+                            <div key={item.name} className="flex flex-row justify-start items-center gap-2 ml-5 sm:ml-0">
                                 <Icon color="#008ECC" />
                                 <p>{item.name}</p>
                             </div>

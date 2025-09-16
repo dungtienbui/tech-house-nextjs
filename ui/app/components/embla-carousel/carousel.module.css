@@ -60,3 +60,21 @@
 .embla__selectd_snap_display_text:hover {
     opacity: 0.7;
 }
+
+@media only screen and (max-width: 40rem
+    /* 640px */
+) {
+    .embla {
+        padding: 0;
+    }
+
+    .embla__slide {
+        flex: 0 0 100%;
+        margin: 0;
+    }
+
+    .embla__selectd_snap_display_container {
+        bottom: 1rem;
+        right: 1.5rem;
+    }
+}

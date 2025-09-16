@@ -1,4 +1,3 @@
-import { AwardIcon, CreditCardIcon, HandshakeIcon, HeadsetIcon, TruckIcon } from "lucide-react";
 import { EmblaCarousel } from "../../components/embla-carousel/carousel";
 import ProductOptionForm from "./product-option-form";
 import ProductPolicy from "./product-policy";
@@ -29,10 +28,8 @@ export default function ProductOverview() {
         },
     ];
 
-
-
     return (
-        <div className="flex flex-row justify-start items-start gap-10">
+        <div className="flex flex-col md:flex-row justify-start items-start gap-10">
             <div className="flex-1 flex flex-col gap-5">
                 <EmblaCarousel images={images} />
                 <ProductPolicy />

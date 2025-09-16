@@ -31,13 +31,13 @@ export default function NumberInputWithButtonBothSide() {
     }
 
     return (
-        <div className="w-full h-full flex flex-row items-center border border-gray-300">
-            <button className="flex-1 h-full hover:bg-gray-100" onClick={() => handleButtonClick("left")}>
+        <div className="w-full h-full flex flex-row items-center border-2 border-sky-500">
+            <button type="button" className="flex-1 h-full hover:bg-gray-100" onClick={() => handleButtonClick("left")}>
                 <Minus className="m-auto" />
             </button>
             <input type="text" name="quantity" value={quantity} onChange={(e) => handleInputChangeValue(e.target.value)} onBlur={(e) => isNaN(parseInt(e.target.value)) && setQuantity("1")} className="appearance-none flex-2 w-full h-full text-center m-0" />
 
-            <button className="flex-1 h-full hover:bg-gray-100" onClick={() => handleButtonClick("right")}>
+            <button type="button" className="flex-1 h-full hover:bg-gray-100" onClick={() => handleButtonClick("right")}>
                 <Plus className="m-auto" />
             </button>
         </div>
