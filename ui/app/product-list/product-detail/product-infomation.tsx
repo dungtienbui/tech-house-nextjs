@@ -2,7 +2,9 @@
 
 import { Color, PhoneSpecification } from "@/lib/definations/product";
 import { phoneSpecs, products } from "@/lib/definations/product-example-data";
+import { specsObjectToArray } from "@/lib/utils/products";
 import clsx from "clsx";
+import { notFound } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const tabs: {
@@ -14,30 +16,32 @@ const tabs: {
         { id: "reviews", label: "ĐÁNH GIÁ" },
     ];
 
-export default function ProductInformation() {
+interface props {
+    id: string;
+}
+
+export default function ProductInformation({ id }: props) {
+
+    const product = products.find(item => item.id === id);
+
+    if (!product) {
+        notFound();
+    }
+
+    const phoneSpec = phoneSpecs.find(item => item.productId === product.productId);
+
+    console.log("phoneSpec: ", phoneSpec);
+
+    if (!phoneSpec) {
+        notFound();
+    }
+
     const [activeTab, setActiveTab] = useState<"description" | "specs" | "reviews">("description");
-
-    const product = products[0];
-    const phoneSpec = phoneSpecs[0];
-
     const handleButtonClick = (tab: "description" | "specs" | "reviews") => {
         if (tab !== activeTab) {
             setActiveTab(tab);
         }
     }
-
-    const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-    const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
-
-    useEffect(() => {
-        const activeBtn = tabRefs.current[activeTab];
-        if (activeBtn) {
-            setIndicatorStyle({
-                left: activeBtn.offsetLeft,
-                width: activeBtn.offsetWidth,
-            });
-        }
-    }, [activeTab]);
 
     return (
         <div className="flex flex-col gap-2 sm:gap-5 md:gap-10">
@@ -48,7 +52,6 @@ export default function ProductInformation() {
                         return (
                             <button
                                 key={tab.id}
-                                ref={(el) => { tabRefs.current[tab.id] = el }}
                                 type="button"
                                 className={clsx(
                                     "uppercase duration-300 min-w-fit",
@@ -112,71 +115,4 @@ function SpecsTab({ specs }: { specs: PhoneSpecification }) {
 
         </div>
     )
-}
-
-
-
-// 1️⃣ Danh sách keys theo thứ tự
-const specsKeys = [
-    "productId",
-    "variantId",
-    "ram",
-    "storage",
-    "chipset",
-    "operatingSystem",
-    "color",
-    "screenSize",
-    "screenTechnology",
-    "frontCamera",
-    "rearCamera",
-    "batteryCapacity",
-    "sim",
-    "connectivity",
-    "other",
-] as const;
-
-type SpecsKey = typeof specsKeys[number];
-
-// 2️⃣ Tạo type object từ keys
-type SpecsSorted = {
-    [K in SpecsKey]: K extends "screenSize" | "batteryCapacity" | "ram" | "storage"
-    ? number
-    : string;
-} & { other?: string };
-
-// 3️⃣ Map tiếng Việt cho key
-const specsVNMap: Record<SpecsKey, string> = {
-    productId: "Mã sản phẩm",
-    variantId: "Mã biến thể",
-    chipset: "Chip xử lý",
-    ram: "RAM",
-    storage: "Bộ nhớ trong",
-    operatingSystem: "Hệ điều hành",
-    color: "Màu sắc",
-    screenSize: "Kích thước màn hình",
-    screenTechnology: "Công nghệ màn hình",
-    frontCamera: "Camera trước",
-    rearCamera: "Camera sau",
-    batteryCapacity: "Dung lượng pin",
-    sim: "SIM",
-    connectivity: "Kết nối",
-    other: "Khác",
-};
-
-type SpecsArrayItem = {
-    key: SpecsKey;
-    specs: string | number | undefined;
-    index: number;
-    specsVN: string;
-};
-
-function specsObjectToArray(specs: PhoneSpecification): SpecsArrayItem[] {
-    return specsKeys.map((key, index) => {
-        return ({
-            key,
-            specs: key === "color" ? specs[key].name : specs[key],
-            index,
-            specsVN: specsVNMap[key],
-        })
-    });
 }

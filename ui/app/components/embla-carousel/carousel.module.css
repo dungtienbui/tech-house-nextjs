@@ -3,7 +3,8 @@
     position: relative;
     border: 1px solid lightgray;
     border-radius: 0.5rem;
-    padding: 1.5rem 0;
+    padding: 1.5rem 0.5rem;
+    width: 100%;
 }
 
 .embla__container {
@@ -12,9 +13,10 @@
 }
 
 .embla__slide {
-    flex: 0 0 95%;
-    min-width: 0;
-    margin: 0 5%;
+    flex: 0 0 100%;
+    aspect-ratio: 2 / 1;
+    margin-right: 2rem;
+    position: relative;
 }
 
 .embla__controls {

@@ -18,23 +18,23 @@ const links = [
   { name: 'Home', href: '/', icon: HomeIcon },
   {
     name: 'Điện thoại',
-    href: '/phone',
+    href: '/products/phone',
     icon: DevicePhoneMobileIcon,
   },
-  { name: 'Laptop', href: '/laptop', icon: ComputerDesktopIcon },
+  { name: 'Laptop', href: '/products/laptop', icon: ComputerDesktopIcon },
   {
     name: 'Phụ kiện',
-    href: '/accessory',
+    href: '/products/accessory',
     icon: MicrophoneIcon,
     menu: [
       {
         name: 'Tai nghe',
-        href: '/headphone',
+        href: '/products/headphone',
         icon: Headphones,
       },
       {
         name: 'Bàn phím',
-        href: '/keyboard',
+        href: '/products/keyboard',
         icon: Keyboard,
       },
 
@@ -57,8 +57,8 @@ export default function NavLinks() {
               key={link.name}
               className="relative group"
             >
-              <Link
-                href={link.href}
+              <div
+                // href={link.href}
                 className={clsx(
                   "flex flex-none h-[42px] w-[100px] border border-gray-100 items-center justify-center rounded-full text-sm font-medium md:w-fit md:gap-2 md:px-5",
                   {
@@ -70,7 +70,7 @@ export default function NavLinks() {
                 <LinkIcon className="w-6" />
                 <p className="hidden md:block">{link.name}</p>
                 <ChevronDownIcon className="w-4 hidden min-[450]:block" />
-              </Link>
+              </div>
               <div className="absolute top-full right-0 md:left-0 hidden min-[450px]:group-hover:block pt-2 bg-none border-none">
                 <div className="min-w-[200px] flex flex-col rounded-xl overflow-clip border border-gray-200 bg-white shadow-md">
                   {link.menu.map((item) => {

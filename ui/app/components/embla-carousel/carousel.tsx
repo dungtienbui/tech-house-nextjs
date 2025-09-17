@@ -34,7 +34,7 @@ export function EmblaCarousel({ images }: {
             <div className={styles.embla__container}>
                 {images.map((item) => {
                     return <div key={item.id} className={styles.embla__slide}>
-                        <Image src={item.href} alt={item.name} width={1024} height={512} />
+                        <Image src={item.href} alt={item.name} fill className={`object-contain ${styles.embla__slide}`} />
                     </div>
                 })}
             </div>

@@ -1,24 +1,27 @@
-import { products } from "@/lib/definations/product-example-data";
 import ProductCard from "./product-card";
 import { ChevronRightIcon } from "lucide-react";
+import { Product, ProductType } from "@/lib/definations/product";
+import Link from "next/link";
+import { products } from "@/lib/definations/product-example-data";
 
-export default function ProductList() {
-    const exProducts = products.concat(products);
+interface props {
+    query: {
+        key: string;
+        value: string;
+    }[];
+    currentPage: number;
+    productType: ProductType;
+}
+
+export default function ProductList({ query, currentPage, productType }: props) {
+
+    const productList = products.filter(item => item.type === productType);
+
     return (
-        <div className="w-full py-3 lg:py-5 px-4 lg:px-10">
-            <div className="mb-3">
-                <div className="flex flex-row justify-between items-end">
-                    <div className="font-bold">Điện thoại nổi bật</div>
-                    <div className="flex flex-row items-center text-blue-400 hover:text-blue-500 hover:font-bold duration-200">
-                        <div>Xem tất cả</div>
-                        <ChevronRightIcon className="w-6" />
-                    </div>
-                </div>
-                <div className="min-w-60 max-w-1/5 h-0 border border-sky-700"></div>
-            </div>
-            <div className="overflow-x-scroll flex flex-row gap-8 pb-4">
-                {exProducts.map((product, index) => {
-                    return <ProductCard key={`${product.id}-${index}`} product={product} />
+        <div className="w-full md:px-5 py-5 md:py-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-5">
+                {productList.map((product, index) => {
+                    return (<ProductCard key={`${product.id}-${index}`} product={product} />)
                 })}
             </div>
         </div>

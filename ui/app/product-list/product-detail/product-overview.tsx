@@ -1,42 +1,40 @@
+import { products, productVariants } from "@/lib/definations/product-example-data";
 import { EmblaCarousel } from "../../components/embla-carousel/carousel";
 import ProductOptionForm from "./product-option-form";
-import ProductPolicy from "./product-policy";
-import ShipingInfomation from "./shiping-info";
+import { notFound } from "next/navigation";
 
-export default function ProductOverview() {
+interface props {
+    id: string;
+}
 
-    const images = [
-        {
-            id: "1",
-            name: "Image1",
-            href: "https://cdn.tgdd.vn/Products/Images/42/303812/Slider/iphone-15-slider-3--2--1020x570.png"
-        },
-        {
-            id: "2",
-            name: "Image2",
-            href: "https://cdn.tgdd.vn/Products/Images/42/331204/Slider/galaxy-a16-5g-1-4251x2375.jpg"
-        },
-        {
-            id: "3",
-            name: "Image3",
-            href: "https://cdn.tgdd.vn/Products/Images/5698/331493/Slider/vi-vn-mac-mini-m4-16gb-256gb-sld-nw-1.jpg"
-        },
-        {
-            id: "4",
-            name: "Image4",
-            href: "https://cdn.tgdd.vn/Products/Images/44/335362/Slider/vi-vn-macbook-air-13-inch-m4-16gb-256gb-slider-1.jpg"
-        },
-    ];
+export default function ProductOverview({ id }: props) {
+
+    const product = products.find(item => item.id === id);
+    
+    if (!product) {
+        notFound();
+    }
+    
+    const productVariantsParam = productVariants.filter(item => item.productId === product.productId)
+
+    const imgTmp = [product.featuredImage].concat(product.image.filter(item => item.id !== product.featuredImage.id));
+
+    const images = imgTmp.map((item) => {
+        const imageName = `This is an image of ${product.name} product of ${product.brand} brand added in ${item.dateAdded.toLocaleString()}`;
+        return {
+            id: item.id,
+            name: imageName,
+            href: item.link
+        }
+    });
 
     return (
-        <div className="flex flex-col md:flex-row justify-start items-start gap-10">
-            <div className="flex-1 flex flex-col gap-5">
+        <div className="flex flex-col md:flex-row justify-start items-stretch gap-10">
+            <div className="flex-1">
                 <EmblaCarousel images={images} />
-                <ProductPolicy />
             </div>
-            <div className="flex-1 flex flex-col gap-10">
-                <ProductOptionForm />
-                <ShipingInfomation />
+            <div className="flex-1">
+                <ProductOptionForm product={product} productVariants={productVariantsParam} />
             </div>
         </div >
     );

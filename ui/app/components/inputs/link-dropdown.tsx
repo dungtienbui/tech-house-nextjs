@@ -1,17 +1,22 @@
 "use client";
 
-import { ProductVariant } from "@/lib/definations/product";
 import { ChevronDownIcon } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ChangeEvent } from "react";
 
 interface props {
-    products: ProductVariant[];
-    currentProduct: ProductVariant;
-    type: "ram" | "storage";
+    title: string;
+    options: {
+        name: string;
+        value: string;
+    }[];
+    defaultOption: {
+        name: string;
+        value: string;
+    };
 }
 
-export default function DropdownLinks({ products, currentProduct, type }: props) {
+export default function LinkDropdown({ title, options, defaultOption }: props) {
 
     const router = useRouter();
 
@@ -22,20 +27,19 @@ export default function DropdownLinks({ products, currentProduct, type }: props)
 
     return (
         <div className="w-full h-full flex flex-col gap-2">
-            <label htmlFor="ram-selection">{type === "ram" ? "Ram" : "Bộ nhớ"}</label>
+            <label htmlFor="link-dropdown">{title}</label>
             <div className="w-full relative">
                 <select
-                    id="ram-selection"
-                    name={type === "ram" ? "ram-selection" : "storage-selection"}
-                    defaultValue={type === "ram" ? currentProduct.info.ram : currentProduct.info.storage}
+                    id="link-dropdown"
+                    name="link-dropdown"
+                    defaultValue={defaultOption.value}
                     onChange={handleSelectionChange}
                     className="appearance-none border border-gray-300 pl-3 py-2 w-full">
                     {
-                        products.map((item) => {
-                            const value = type === "ram" ? item.info.ram : item.info.storage;
+                        options.map((item) => {
                             return (
-                                <option key={item.id} value={item.id}>
-                                    {`${value} GB`}
+                                <option key={item.value} value={item.value}>
+                                    {item.name}
                                 </option>
                             )
                         })

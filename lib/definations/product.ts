@@ -1,18 +1,18 @@
 export enum ProductType {
-    Phone = "Phone",
-    Laptop = "Laptop",
-    Headphone = "Headphone",
-    Keyboard = "Keyboard"
+    Phone = "phone",
+    Laptop = "laptop",
+    Headphone = "headphone",
+    Keyboard = "keyboard"
 }
 
-export type Product = {
+export type ProductBase = {
     id: string;
     name: string;
     brand: string;
     type: ProductType;
     description: string;
     basePrice: number;
-    featuredImageLink: Image;
+    featuredImage: Image;
 }
 
 export type PhoneSpecification = {
@@ -27,7 +27,7 @@ export type PhoneSpecification = {
     sim: string;
     connectivity: string;
     other?: string;             // Thông tin thêm, optional
-} & PhoneVariant
+}
 
 export type ProductVariant = {
     id: string;
@@ -38,8 +38,10 @@ export type ProductVariant = {
     info: PhoneVariant;
 }
 
+export type Product = ProductBase & ProductVariant
+
 export type PhoneVariant = {
-    variantId: string;
+    id: string;
     ram: number;
     storage: number;
     color: Color;
