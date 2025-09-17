@@ -1,3 +1,23 @@
+## TECH HOUSE
+Đây là dự án Next.js (Full-stack) về "Một cửa hàng bán đồ điện tử". Dự án này phát triển lại từ dự án [LTWEB_TechHouse](https://github.com/dungtienbui/LTWEB_TechHouse) - một dự án tương tự nhưng được lập trình bằng PHP.
+
+Các chức năng chính:
+Dành cho Khách hàng:
+- Duyệt sản phẩm, lọc, tìm kiếm sản phẩm.
+- Xem thông tin của một sản phẩm cụ thể.
+- Mua sản phẩm.
+- Kiểm tra hoá đơn hàng.
+
+Dành cho Quản lý cửa hàng:
+- Thêm, xoá, chỉnh sửa sản phẩm.
+- Kiểm tra đơn hàng.
+
+Tiến độ:
+- Hoàn thành trang danh sách sản phẩm.
+- Hoàn thành trang thông tin sản phẩm.
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
