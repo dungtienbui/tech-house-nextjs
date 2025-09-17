@@ -16,6 +16,9 @@ Tiến độ:
 - Hoàn thành trang danh sách sản phẩm.
 - Hoàn thành trang thông tin sản phẩm.
 
+Deploy: Vercel
+https://tech-house-nextjs-k3334qvod-bui-tien-dungs-projects-5c17eddd.vercel.app
+
 
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
