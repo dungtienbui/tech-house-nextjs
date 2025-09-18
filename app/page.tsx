@@ -1,7 +1,7 @@
 import { ProductType } from "@/lib/definations/product";
 import { getProductTypeLabelInVN } from "@/lib/utils/products";
-import Banner from "@/ui/app/header-footer/banner";
-import HorizontalProductList from "@/ui/app/product-list/horizontal-product-list";
+import Banner from "@/app/ui/app/header-footer/banner";
+import HorizontalProductList from "@/app/ui/app/product-list/horizontal-product-list";
 
 export default function Home() {
 

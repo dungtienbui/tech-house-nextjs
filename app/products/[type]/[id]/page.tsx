@@ -1,7 +1,7 @@
-import CarouselSkeleton from "@/ui/app/components/embla-carousel/carousel-skeleton";
-import ProductInfomation from "@/ui/app/product-list/product-detail/product-infomation";
-import ProductOverview from "@/ui/app/product-list/product-detail/product-overview";
-import ProductPolicyAndShipingInfo from "@/ui/app/product-list/product-detail/product-policy-shiping-info";
+import CarouselSkeleton from "@/app/ui/app/components/embla-carousel/carousel-skeleton";
+import ProductInfomation from "@/app/ui/app/product-list/product-detail/product-infomation";
+import ProductOverview from "@/app/ui/app/product-list/product-detail/product-overview";
+import ProductPolicyAndShipingInfo from "@/app/ui/app/product-list/product-detail/product-policy-shiping-info";
 import { Suspense } from "react";
 export default async function ProductDetailPage({
     params,

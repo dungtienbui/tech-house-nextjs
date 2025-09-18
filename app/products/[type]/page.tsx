@@ -1,6 +1,6 @@
 import { isProductType } from "@/lib/utils/products";
-import Banner from "@/ui/app/header-footer/banner";
-import ProductList from "@/ui/app/product-list/product-list";
+import Banner from "@/app/ui/app/header-footer/banner";
+import ProductList from "@/app/ui/app/product-list/product-list";
 import { notFound } from "next/navigation";
 
 export default async function PhoneListPage({
