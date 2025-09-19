@@ -33,7 +33,7 @@ export interface Customer {
 export interface ProductImage {
     image_id: string;
     image_caption: string;
-    image_alt?: string;
+    image_alt?: string | null;
     image_url: string;
     added_date: string; // ISO Timestamp
 }
@@ -48,8 +48,54 @@ export interface VariantImage {
     variant_id: string; // FK Variant
 }
 
+export interface PhoneSpec {
+    product_base_id: string;   // UUID
+    weight?: number | null;    // g
+    screen_size?: number | null; // inch
+    display_tech?: string | null; // OLED, AMOLED...
+    chipset?: string | null;
+    os?: string | null;
+    battery?: number | null;   // mAh
+    camera?: string | null;    // "12MP"
+    material?: string | null;
+    connectivity?: string | null; // "Wi-Fi 6E, 5G"
+}
+
+
+export interface LaptopSpec {
+    product_base_id: string;
+    weight?: number | null;
+    screen_size?: number | null;
+    display_tech?: string | null;
+    chipset?: string | null;
+    os?: string | null;
+    battery?: number | null;
+    material?: string | null;
+    connectivity?: string | null;
+    gpu_card?: string | null;
+}
+
+
+export interface KeyboardSpec {
+    product_base_id: string;
+    weight?: number | null;
+    material?: string | null;
+    connectivity?: string | null;
+    number_of_keys?: number | null;
+    usage_time?: number | null;
+}
+
+export interface HeadphoneSpec {
+    product_base_id: string;
+    weight?: number | null;
+    connectivity?: string | null;
+    usage_time?: number | null;
+    compatibility?: string | null; // "iPhone, Android, Laptop"
+}
+
+
 // =====================
-// Product Base & Specs
+// Product Base
 // =====================
 export interface ProductBase {
     product_base_id: string;
@@ -57,91 +103,34 @@ export interface ProductBase {
     brand: string;
     product_type: string; // FK ProductType
     description: string;
-    base_price?: number;
-}
-
-export interface PhoneSpecs {
-    product_base_id: string; // FK ProductBase
-    operating_system: string;
-    display: string;
-    front_camera: string;
-    rear_camera: string;
-    battery_capacity: number;
-    sim: string;
-    connectivity: string;
-}
-
-export interface LaptopSpecs {
-    product_base_id: string; // FK ProductBase
-    operating_system: string;
-    display: string;
-    cpu: string;
-    gpu: string;
-    connectivity: string;
-    battery: string;
-    weight: string;
-}
-
-export interface HeadphoneSpecs {
-    product_base_id: string; // FK ProductBase
-    headphone_type: string;
-    connectivity: string;
-    usage_time: number;
-    sound_technology: string;
-    weight: number;
-}
-
-export interface KeyboardSpecs {
-    product_base_id: string; // FK ProductBase
-    keyboard_type: string;
-    connectivity: string;
-    key_count: number;
-    backlight: boolean;
-    size: string;
-    weight: number;
+    base_price: number;
 }
 
 // =====================
-// Variants & Colors
+// Variants
 // =====================
 export interface Variant {
     variant_id: string;
-    product_base_id: string; // FK ProductBase
+    product_base_id: string;
     stock: number;
     variant_price: number;
+    preview_id?: string | null;
+    is_promoting?: boolean;
+    color_id?: string | null;
+    ram?: number | null;
+    storage?: number | null;
+    switch_type?: string | null;
+    date_added: string;
 }
 
+// =====================
+// Color
+// =====================
 export interface Color {
     color_id: string;
     value: string;
     color_name: string;
 }
-
-export interface PhoneVariant {
-    variant_id: string; // FK Variant
-    ram: number;
-    storage: number;
-    color_id: string; // FK Color
-}
-
-export interface LaptopVariant {
-    variant_id: string; // FK Variant
-    ram: number;
-    storage: string;
-    color_id: string; // FK Color
-}
-
-export interface HeadphoneVariant {
-    variant_id: string; // FK Variant
-    color_id: string; // FK Color
-}
-
-export interface KeyboardVariant {
-    variant_id: string; // FK Variant
-    switch_type: string;
-    color_id: string; // FK Color
-}
-
 // =====================
 // Reviews
 // =====================

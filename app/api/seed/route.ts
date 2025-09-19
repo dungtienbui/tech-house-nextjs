@@ -1,8 +1,10 @@
-import { generateFakePhoneSpecs, generateFakeHeadphoneSpecs, generateFakeKeyboardSpecs, generateFakeLaptopSpecs, generateFakePhoneVariant, generateFakeHeadphoneVariant, generateFakeKeyboardVariant, generateFakeLaptopVariant, generateFakeProductBase, generateFakeVariant, generateFakeImage, generateFakeVariantImage, generateFakeColor } from "@/app/lib/data/fake-data-generators";
-import { Color, HeadphoneSpecs, HeadphoneVariant, KeyboardSpecs, KeyboardVariant, LaptopSpecs, LaptopVariant, PhoneSpecs, PhoneVariant } from "@/app/lib/definations/database-table-definations";
+import { generateFakeProductBase, generateFakeVariant, generateFakeImage, generateFakeVariantImage, generateFakeColor, generateSpecs } from "@/app/lib/data/fake-data-generators";
+import { Color } from "@/app/lib/definations/database-table-definations";
 import { randomInt } from "crypto";
 import { NextResponse } from "next/server";
-import { findAllColors, insertColor, insertHeadphoneSpecs, insertHeadphoneVariant, insertKeyboardSpecs, insertKeyboardVariant, insertLaptopSpecs, insertLaptopVariant, insertPhoneSpecs, insertPhoneVariant, insertProductBase, insertProductImage, insertVariant, insertVariantImage, resetTable } from "./utils";
+import { insertColor, insertProductBase, insertProductImage, insertSpec, insertVariant, insertVariantImage, resetTable } from "../../lib/data/insert-data";
+import { fetchColors } from "@/app/lib/data/fetch-data";
+import { ProductType, PRODUCT_TYPES } from "@/app/lib/definations/types";
 
 async function seedColors() {
     const productColors: Color[] = [
@@ -26,59 +28,25 @@ async function seedColors() {
 }
 
 
-export async function seedProduct(productType: "PHONE" | "LAPTOP" | "KEYBOARD" | "HEADPHONE") {
-    const productColors = await findAllColors();
+export async function seedProduct(productType: ProductType) {
+    const productColors = await fetchColors() as Color[];
     if (productColors.length === 0) {
         throw new Error("Not have product colors");
     }
-
-    const specsMap = {
-        PHONE: generateFakePhoneSpecs,
-        LAPTOP: generateFakeLaptopSpecs,
-        HEADPHONE: generateFakeHeadphoneSpecs,
-        KEYBOARD: generateFakeKeyboardSpecs,
-    } as const;
-
-    const variantMap = {
-        PHONE: generateFakePhoneVariant,
-        LAPTOP: generateFakeLaptopVariant,
-        HEADPHONE: generateFakeHeadphoneVariant,
-        KEYBOARD: generateFakeKeyboardVariant,
-    } as const;
-
-    const generateSpecs = specsMap[productType];
-    const generateVariant = variantMap[productType];
 
     // 1. Tạo product base
     const productBaseArray = Array.from({ length: 10 }, () => generateFakeProductBase(productType));
 
     // 2. Tạo specs cho từng product base (và ép kiểu rõ ràng)
-    let productSpecsArray:
-        | PhoneSpecs[]
-        | LaptopSpecs[]
-        | HeadphoneSpecs[]
-        | KeyboardSpecs[];
+    const productSpecs = generateSpecs(productType, productBaseArray);
 
-    if (productType === "PHONE") {
-        productSpecsArray = productBaseArray.map((pb) => generateFakePhoneSpecs(pb));
-    } else if (productType === "LAPTOP") {
-        productSpecsArray = productBaseArray.map((pb) => generateFakeLaptopSpecs(pb));
-    } else if (productType === "HEADPHONE") {
-        productSpecsArray = productBaseArray.map((pb) => generateFakeHeadphoneSpecs(pb));
-    } else {
-        productSpecsArray = productBaseArray.map((pb) => generateFakeKeyboardSpecs(pb));
-    }
+    // 2.1 Tạo preview image array 
+    const previewArray = Array.from({ length: 50 }, () => generateFakeImage(productType));
 
     // 3. Tạo variant cho từng product base
-    const variantArray = productBaseArray.flatMap((pb) =>
-        Array.from({ length: 5 }, () => generateFakeVariant(pb))
+    const variantArray = productBaseArray.flatMap((pb, idx) =>
+        Array.from({ length: 5 }, () => generateFakeVariant(pb, previewArray[idx], productColors[randomInt(0, 4)]))
     );
-
-    // 4. Gắn màu vào variant
-    const productVariantArray = variantArray.map((variant) => {
-        const randomColor = productColors[randomInt(0, productColors.length - 1)];
-        return generateVariant(variant, randomColor);
-    });
 
     // 5. Tạo ảnh
     const imageArray = Array.from({ length: 50 }, () => generateFakeImage(productType));
@@ -95,30 +63,14 @@ export async function seedProduct(productType: "PHONE" | "LAPTOP" | "KEYBOARD" |
     // Insert product_base
     await Promise.all(productBaseArray.map(insertProductBase));
 
-    // Insert specs (chọn đúng hàm)
-    if (productType === "PHONE") {
-        await Promise.all((productSpecsArray as PhoneSpecs[]).map(insertPhoneSpecs));
-    } else if (productType === "LAPTOP") {
-        await Promise.all((productSpecsArray as LaptopSpecs[]).map(insertLaptopSpecs));
-    } else if (productType === "HEADPHONE") {
-        await Promise.all((productSpecsArray as HeadphoneSpecs[]).map(insertHeadphoneSpecs));
-    } else if (productType === "KEYBOARD") {
-        await Promise.all((productSpecsArray as KeyboardSpecs[]).map(insertKeyboardSpecs));
-    }
+    // Insert product_spec
+    await Promise.all(productSpecs.map((item) => insertSpec(item, productType)))
+
+    // Insert variant preview image
+    await Promise.all(previewArray.map(insertProductImage));
 
     // Insert variant (bảng chung)
     await Promise.all(variantArray.map(insertVariant));
-
-    // Insert variant theo loại
-    if (productType === "PHONE") {
-        await Promise.all((productVariantArray as PhoneVariant[]).map(insertPhoneVariant));
-    } else if (productType === "LAPTOP") {
-        await Promise.all((productVariantArray as LaptopVariant[]).map(insertLaptopVariant));
-    } else if (productType === "HEADPHONE") {
-        await Promise.all((productVariantArray as HeadphoneVariant[]).map(insertHeadphoneVariant));
-    } else if (productType === "KEYBOARD") {
-        await Promise.all((productVariantArray as KeyboardVariant[]).map(insertKeyboardVariant));
-    }
 
     // Insert image
     await Promise.all(imageArray.map(insertProductImage));
@@ -130,25 +82,24 @@ export async function seedProduct(productType: "PHONE" | "LAPTOP" | "KEYBOARD" |
 
 export async function GET() {
 
-    return NextResponse.json({ message: "No thing" });
+    // return NextResponse.json({ message: "No thing" });
 
-    // try {
-    //     await resetTable("color");
-    //     await resetTable("product_base");
-    //     await resetTable("variant");
-    //     await resetTable("product_image");
+    try {
+        await resetTable("color");
+        await resetTable("product_base");
+        await resetTable("variant");
+        await resetTable("product_image");
 
-    //     await seedColors();
+        await seedColors();
 
-    //     await seedProduct("PHONE");
-    //     await seedProduct("LAPTOP");
-    //     await seedProduct("KEYBOARD");
-    //     await seedProduct("HEADPHONE");
+        PRODUCT_TYPES.map(async (item) => {
+            await seedProduct(item);
+        })
 
-    //     return NextResponse.json({ message: "Successfull" });
-    // } catch (err) {
-    //     console.error("Database error:", err);
-    //     return NextResponse.json({ error: "Database error" }, { status: 500 });
-    // }
+        return NextResponse.json({ message: "Successfull" });
+    } catch (err) {
+        console.error("Database error:", err);
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
+    }
 
 }

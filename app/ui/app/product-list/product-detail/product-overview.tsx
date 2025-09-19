@@ -1,4 +1,3 @@
-import { products, productVariants } from "@/lib/definations/product-example-data";
 import { EmblaCarousel } from "../../components/embla-carousel/carousel";
 import ProductOptionForm from "./product-option-form";
 import { notFound } from "next/navigation";

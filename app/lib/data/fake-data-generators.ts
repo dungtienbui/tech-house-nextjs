@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { Account, Employee, Customer, ProductBase, PhoneSpecs, LaptopSpecs, HeadphoneSpecs, KeyboardSpecs, Color, Variant, PhoneVariant, LaptopVariant, HeadphoneVariant, KeyboardVariant, PromotionType, Promotion, ProductPromotion, Review, ProductImage, ProductBaseImage, VariantImage } from "../definations/database-table-definations";
+import { Account, Employee, Customer, ProductBase, Color, Variant, PromotionType, Promotion, ProductPromotion, Review, ProductImage, ProductBaseImage, VariantImage, HeadphoneSpec, KeyboardSpec, LaptopSpec, PhoneSpec } from "../definations/database-table-definations";
+import { ProductType, SpecResults } from "../definations/types";
 
 // =====================
 // Account & Roles
@@ -40,7 +41,7 @@ export function generateFakeCustomer(account: Account): Customer {
 // =====================
 // ProductBase
 // =====================
-export function generateFakeProductBase(productType: "PHONE" | "LAPTOP" | "KEYBOARD" | "HEADPHONE"): ProductBase {
+export function generateFakeProductBase(productType: ProductType): ProductBase {
   return {
     product_base_id: faker.string.uuid(),
     product_name: `${productType} - ${faker.commerce.productName()}`,
@@ -52,71 +53,76 @@ export function generateFakeProductBase(productType: "PHONE" | "LAPTOP" | "KEYBO
 }
 
 // =====================
-// PhoneSpecs
+// ProductSpec
 // =====================
-export function generateFakePhoneSpecs(productBase: ProductBase): PhoneSpecs {
+export function generateSpecs(productType: ProductType, productBases: ProductBase[]): SpecResults {
+  switch (productType) {
+    case "phone":
+      return productBases.map(generateFakePhoneSpec);
+    case "laptop":
+      return productBases.map(generateFakeLaptopSpec);
+    case "keyboard":
+      return productBases.map(generateFakeKeyboardSpec);
+    case "headphone":
+      return productBases.map(generateFakeHeadphoneSpec);
+    default:
+      return [];
+  }
+}
+
+
+function generateFakePhoneSpec(productBase: ProductBase): PhoneSpec {
   return {
     product_base_id: productBase.product_base_id,
-    operating_system: faker.helpers.arrayElement(["Android", "iOS"]),
-    display: `${faker.number.int({ min: 5, max: 7 })}" ${faker.helpers.arrayElement([
-      "AMOLED",
-      "LCD",
-      "OLED",
-    ])}`,
-    front_camera: `${faker.number.int({ min: 5, max: 32 })}MP`,
-    rear_camera: `${faker.number.int({ min: 12, max: 108 })}MP`,
-    battery_capacity: faker.number.int({ min: 3000, max: 6000 }),
-    sim: faker.helpers.arrayElement(["Single SIM", "Dual SIM"]),
-    connectivity: faker.helpers.arrayElement(["4G", "5G", "Wi-Fi", "Bluetooth"]),
+    weight: faker.number.int({ min: 120, max: 250 }), // g
+    screen_size: faker.helpers.arrayElement([5.5, 6.1, 6.5, 6.7]),
+    display_tech: faker.helpers.arrayElement(["OLED", "AMOLED", "IPS LCD"]),
+    chipset: faker.helpers.arrayElement(["Snapdragon 8 Gen 2", "Apple A17 Pro", "Dimensity 9200"]),
+    os: faker.helpers.arrayElement(["Android 14", "iOS 17"]),
+    battery: faker.number.int({ min: 3000, max: 6000 }),
+    camera: faker.helpers.arrayElement(["12MP", "50MP", "108MP"]),
+    material: faker.helpers.arrayElement(["Nhựa", "Nhôm", "Kính"]),
+    connectivity: faker.helpers.arrayElement(["Wi-Fi 6E, 5G", "Wi-Fi 6, 4G", "Bluetooth 5.3"]),
   };
 }
 
-// =====================
-// LaptopSpecs
-// =====================
-export function generateFakeLaptopSpecs(productBase: ProductBase): LaptopSpecs {
+function generateFakeLaptopSpec(productBase: ProductBase): LaptopSpec {
   return {
     product_base_id: productBase.product_base_id,
-    operating_system: faker.helpers.arrayElement(["Windows 11", "macOS", "Linux"]),
-    display: `${faker.number.int({ min: 13, max: 17 })}" ${faker.helpers.arrayElement([
-      "IPS",
-      "OLED",
-      "LED",
-    ])}`,
-    cpu: faker.helpers.arrayElement(["Intel i5", "Intel i7", "AMD Ryzen 5", "Apple M1"]),
-    gpu: faker.helpers.arrayElement(["Intel Iris", "NVIDIA RTX 3060", "AMD Radeon"]),
-    connectivity: faker.helpers.arrayElement(["Wi-Fi 6", "Bluetooth 5.0"]),
-    battery: `${faker.number.int({ min: 4000, max: 8000 })}mAh`,
-    weight: `${faker.number.float({ min: 1.0, max: 3.0, fractionDigits: 1 })}kg`,
+    weight: faker.number.int({ min: 900, max: 2500 }), // g
+    screen_size: faker.helpers.arrayElement([13.3, 14.0, 15.6, 16.0]),
+    display_tech: faker.helpers.arrayElement(["IPS", "OLED", "MiniLED"]),
+    chipset: faker.helpers.arrayElement(["Intel i5-1340P", "Intel i7-1360P", "Ryzen 7 7840U", "Apple M2"]),
+    os: faker.helpers.arrayElement(["Windows 11", "macOS 14"]),
+    battery: faker.number.int({ min: 4000, max: 9000 }),
+    material: faker.helpers.arrayElement(["Nhôm", "Magie", "Nhựa"]),
+    connectivity: faker.helpers.arrayElement(["Wi-Fi 6E", "Wi-Fi 7"]),
+    gpu_card: faker.helpers.arrayElement(["RTX 3050", "RTX 4060", "Iris Xe", "Integrated"]),
   };
 }
 
-// =====================
-// HeadphoneSpecs
-// =====================
-export function generateFakeHeadphoneSpecs(productBase: ProductBase): HeadphoneSpecs {
+function generateFakeKeyboardSpec(productBase: ProductBase): KeyboardSpec {
   return {
     product_base_id: productBase.product_base_id,
-    headphone_type: faker.helpers.arrayElement(["Over-ear", "In-ear", "On-ear"]),
-    connectivity: faker.helpers.arrayElement(["Bluetooth", "Wired", "USB-C"]),
-    usage_time: faker.number.int({ min: 4, max: 30 }), // giờ
-    sound_technology: faker.helpers.arrayElement(["Noise Cancelling", "Surround", "Stereo"]),
-    weight: faker.number.int({ min: 100, max: 400 }), // gram
+    weight: faker.number.int({ min: 400, max: 1500 }),
+    material: faker.helpers.arrayElement(["Nhựa", "Nhôm"]),
+    connectivity: faker.helpers.arrayElement(["USB", "Bluetooth 5.0", "2.4GHz Wireless"]),
+    number_of_keys: faker.helpers.arrayElement([61, 87, 104]),
+    usage_time: faker.number.int({ min: 20, max: 200 }), // giờ pin
   };
 }
 
-// =====================
-// KeyboardSpecs
-// =====================
-export function generateFakeKeyboardSpecs(productBase: ProductBase): KeyboardSpecs {
+function generateFakeHeadphoneSpec(productBase: ProductBase): HeadphoneSpec {
   return {
     product_base_id: productBase.product_base_id,
-    keyboard_type: faker.helpers.arrayElement(["Mechanical", "Membrane", "Optical"]),
-    connectivity: faker.helpers.arrayElement(["Wired", "Bluetooth", "Wireless"]),
-    key_count: faker.number.int({ min: 60, max: 108 }),
-    backlight: faker.datatype.boolean(),
-    size: faker.helpers.arrayElement(["Full-size", "Tenkeyless", "Compact"]),
-    weight: faker.number.int({ min: 500, max: 1500 }), // gram
+    weight: faker.number.int({ min: 150, max: 400 }),
+    connectivity: faker.helpers.arrayElement(["Bluetooth 5.2", "Bluetooth 5.3", "USB-C"]),
+    usage_time: faker.number.int({ min: 10, max: 40 }),
+    compatibility: faker.helpers.arrayElement([
+      "iPhone, Android",
+      "Windows, Mac",
+      "Android, Laptop, Tablet",
+    ]),
   };
 }
 
@@ -134,7 +140,11 @@ export function generateFakeColor(colorName?: string, value?: string): Color {
 // =====================
 // Variant
 // =====================
-export function generateFakeVariant(productBase: ProductBase): Variant {
+export function generateFakeVariant(
+  productBase: ProductBase,
+  productImage: ProductImage,
+  productColor: Color,
+): Variant {
   return {
     variant_id: faker.string.uuid(),
     product_base_id: productBase.product_base_id,
@@ -142,54 +152,14 @@ export function generateFakeVariant(productBase: ProductBase): Variant {
     variant_price: productBase.base_price
       ? productBase.base_price + faker.number.int({ min: -50, max: 200 })
       : faker.number.int({ min: 50, max: 2000 }),
+    preview_id: productImage.image_id,
+    is_promoting: faker.datatype.boolean(),
+    color_id: productColor.color_id,
+    ram: (productBase.product_type === "laptop" || productBase.product_type === "phone") ? faker.helpers.arrayElement([8, 16, 32]) : null,
+    storage: (productBase.product_type === "laptop" || productBase.product_type === "phone") ? faker.helpers.arrayElement([256, 512, 1024]) : null,
+    switch_type: productBase.product_type === "keyboard" ? faker.helpers.arrayElement(["Red", "Blue", "Brown"]) : null,
   };
 }
-
-// =====================
-// PhoneVariant
-// =====================
-export function generateFakePhoneVariant(variant: Variant, color: Color): PhoneVariant {
-  return {
-    variant_id: variant.variant_id,
-    ram: faker.helpers.arrayElement([4, 6, 8, 12, 16]),
-    storage: faker.helpers.arrayElement([64, 128, 256, 512, 1024]),
-    color_id: color.color_id,
-  };
-}
-
-// =====================
-// LaptopVariant
-// =====================
-export function generateFakeLaptopVariant(variant: Variant, color: Color): LaptopVariant {
-  return {
-    variant_id: variant.variant_id,
-    ram: faker.helpers.arrayElement([8, 16, 32, 64]),
-    storage: faker.helpers.arrayElement(["256GB", "512GB", "1TB", "2TB"]),
-    color_id: color.color_id,
-  };
-}
-
-// =====================
-// HeadphoneVariant
-// =====================
-export function generateFakeHeadphoneVariant(variant: Variant, color: Color): HeadphoneVariant {
-  return {
-    variant_id: variant.variant_id,
-    color_id: color.color_id,
-  };
-}
-
-// =====================
-// KeyboardVariant
-// =====================
-export function generateFakeKeyboardVariant(variant: Variant, color: Color): KeyboardVariant {
-  return {
-    variant_id: variant.variant_id,
-    switch_type: faker.helpers.arrayElement(["Mechanical", "Membrane", "Optical"]),
-    color_id: color.color_id,
-  };
-}
-
 
 // =====================
 // PromotionType
@@ -253,7 +223,7 @@ export function generateFakeReview(variant: Variant): Review {
 // =====================
 // Tạo Image
 // =====================
-export function generateFakeImage(productType: "PHONE" | "LAPTOP" | "KEYBOARD" | "HEADPHONE"): ProductImage {
+export function generateFakeImage(productType: ProductType): ProductImage {
   return {
     image_id: faker.string.uuid(),
     image_caption: faker.lorem.sentence(),
@@ -281,67 +251,4 @@ export function generateFakeVariantImage(image: ProductImage, variant: Variant):
     image_id: image.image_id,
     variant_id: variant.variant_id,
   };
-}
-
-
-export function generateFakeProduct(productType: "PHONE" | "LAPTOP" | "KEYBOARD" | "HEADPHONE", numOfProduct: number, numberVarriantOfEachProduct: number) {
-
-  const productColors: Color[] = [
-    generateFakeColor("Black", "#000000"),
-    generateFakeColor("White", "#FFFFFF"),
-    generateFakeColor("Blue", "#0000FF"),
-    generateFakeColor("Red", "#FF0000"),
-    generateFakeColor("Green", "#00FF00"),
-    generateFakeColor("Gray", "#808080"),
-    generateFakeColor("Gold", "#FFD700"),
-    generateFakeColor("Silver", "#C0C0C0"),
-    generateFakeColor("Purple", "#800080"),
-    generateFakeColor("Pink", "#FFC0CB"),
-  ];
-
-  const productBases = Array.from({ length: numOfProduct }, () => generateFakeProductBase(productType))
-
-
-  const productSpecs = productBases.map((item) => {
-    return generateFakePhoneSpecs(item);
-  })
-
-  const variantsArray = productBases.map((item) => {
-    const variants = Array.from({ length: numberVarriantOfEachProduct }, () => generateFakeVariant(item));
-    return variants;
-  })
-
-  const infoOfVariantsArray = variantsArray.map((variants) => {
-    const variantInfos = variants.map((item) => {
-      const randomIndex = Math.floor(Math.random() * productColors.length);
-      return generateFakePhoneVariant(item, productColors[randomIndex]);
-    })
-
-    return variantInfos;
-  })
-
-  const products = productBases.map((base, index) => {
-    return {
-      ...base,
-      specs: {
-        ...productSpecs[index],
-        product_base_id: undefined,
-      },
-      variants: variantsArray[index].map((variant, varIdx) => {
-
-        const color = productColors.find(item => infoOfVariantsArray[index][varIdx].color_id === item.color_id);
-
-        const variantInfoWithColor = { ...infoOfVariantsArray[index][varIdx], color_id: undefined, color: color };
-
-        return {
-          ...variant,
-          product_base_id: undefined,
-          ...variantInfoWithColor,
-        }
-      })
-    }
-
-  })
-
-  return products;
 }

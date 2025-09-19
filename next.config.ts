@@ -1,13 +1,31 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
     remotePatterns: [
-      new URL('https://cdnv2.tgdd.vn/mwg-static/tgdd/**'),
-      new URL('https://cdn.tgdd.vn/**'),
-      new URL('https://example.com/**')],
+      {
+        protocol: 'https',
+        hostname: 'cdnv2.tgdd.vn',
+        pathname: '/mwg-static/tgdd/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.tgdd.vn',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'loremflickr.com',
+        pathname: '/**',
+      },
+    ],
   },
 };
+
 
 export default nextConfig;
