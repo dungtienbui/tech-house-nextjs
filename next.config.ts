@@ -23,6 +23,16 @@ const nextConfig: NextConfig = {
         hostname: 'loremflickr.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'johnsoulsby.com',
+        pathname: '/wp-content/themes/johnsoulsby/assets/img/no-product-image.png',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        pathname: '/**',
+      },
     ],
   },
 };

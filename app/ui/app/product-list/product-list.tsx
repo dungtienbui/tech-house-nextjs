@@ -55,7 +55,7 @@ export default async function ProductListBase({
             <div
                 className={
                     layout === "horizontal"
-                        ? "grid grid-flow-col auto-cols-min gap-2 md:gap-5"
+                        ? "overflow-x-scroll grid grid-flow-col auto-cols-min gap-2 md:gap-5"
                         : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-5"
                 }
             >
@@ -69,7 +69,7 @@ export default async function ProductListBase({
                             product.switch_type && `${product.switch_type} switch`,
                         ]
                             .filter(Boolean)
-                            .join("-") +
+                            .join("/") +
                         ")";
                     return (
                         <ProductCard

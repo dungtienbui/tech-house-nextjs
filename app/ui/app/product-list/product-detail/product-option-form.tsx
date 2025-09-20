@@ -1,67 +1,98 @@
 import { Circle, ShoppingCart } from "lucide-react";
 import NumberInputWithButtonBothSide from "../../components/inputs/number-input";
-import { Product, ProductVariant } from "@/lib/definations/product";
 import LinkHorizontalSelection from "../../components/inputs/link-horizontal-selection";
+import { fetchVariantsOfProductBaseByVariantId } from "@/app/lib/data/fetch-data";
+import { notFound } from "next/navigation";
 
 interface props {
-    product: Product;
-    productVariants: ProductVariant[];
+    variantId: string;
 }
 
-export default function ProductOptionForm({ product, productVariants }: props) {
+export default async function ProductOptionForm({ variantId }: props) {
 
+    const productVariants = await fetchVariantsOfProductBaseByVariantId(variantId);
+
+    if (productVariants.length === 0) {
+        notFound();
+    }
+
+    const variant = productVariants.find(item => item.variant_id === variantId);
+
+    if (!variant) {
+        notFound();
+    }
 
     const colorOptions = productVariants.reduce((acc: {
         id: string;
         name: string;
-        value: string;
+        value?: string;
         href: string;
     }[], curr) => {
-        const exists = acc.find(item => item.id === curr.info.color.id);
+        const exists = acc.find(item => item.id === curr.color.color_id);
 
         if (!exists) {
             acc.push({
-                id: curr.info.color.id,
-                name: curr.info.color.name,
-                value: curr.info.color.value,
-                href: `${curr.id}`,
+                id: curr.color.color_id,
+                name: curr.color.color_name,
+                value: curr.color.value,
+                href: `${curr.variant_id}`,
             });
         }
         return acc;
     }, []);
 
     const colorDefaultOpion = {
-        id: product.info.color.id,
+        id: variant.color.color_id,
     }
+    
+    const productOptions = variant.product_type === "headphone"
+        ? []
+        : productVariants.filter(item => item.color.color_id === variant.color.color_id).map((item) => {
 
-    const productOptions = productVariants.filter(item => item.info.color.id === product.info.color.id).map((item) => {
-        return {
-            id: item.id,
-            name: `${item.info.ram}GB - ${item.info.storage}GB`,
-            href: `${item.id}`
-        }
-    });
+            const optionName = (item.product_type === "phone" || item.product_type === "laptop")
+                ? `${item.ram}GB - ${item.storage}GB`
+                : `${item.switch_type} switch`
+
+            return {
+                id: item.variant_id,
+                name: optionName,
+                href: `${item.variant_id}`
+            }
+        });
 
     const productDefaultOption = {
-        id: product.id,
+        id: variant.variant_id,
     }
+
+    const productOptionSelectTitle = (variant.product_type === "phone" || variant.product_type === "laptop") ? "Cấu hình (Ram & Lưu trữ)" : variant.product_type === "keyboard" ? "Loại switch" : "";
+
+    const productNameSub = "(" +
+        [
+            variant.ram && `${variant.ram}GB`,
+            variant.storage && `${variant.storage}GB`,
+            variant.color.color_name && `${variant.color.color_name}`,
+            variant.switch_type && `${variant.switch_type} switch`,
+        ]
+            .filter(Boolean)
+            .join("-") +
+        ")";
 
     return (
         <form className="w-full flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-                <div className="text-xl md:text-2xl font-bold">{`${product.name} (${product.info.ram}GB Ram - ${product.info.storage}GB bộ nhớ - ${product.info.color.name})`}</div>
+                <div className="text-xl md:text-2xl font-bold">{`${variant.product_name} ${productNameSub}`}</div>
                 <div className="grid grid-cols-2">
-                    <p className="text-gray-400">Thương hiệu: <b className="text-black">{product.brand}</b></p>
-                    <p className="text-gray-400">Số lượng: <b className="text-black">{product.stock}</b></p>
+                    <p className="text-gray-400">Thương hiệu: <b className="text-black">{variant.brand}</b></p>
+                    <p className="text-gray-400">Số lượng: <b className="text-black">{variant.stock}</b></p>
                 </div>
             </div>
             <div className="">
-                <p className="text-red-500 text-xl">$<strong>{product.variantPrice}</strong></p>
+                <p className="text-red-500 text-xl">$<strong>{variant.variant_price}</strong></p>
             </div>
             <div className="w-full h-0 border-t border-gray-300" />
             <div className="flex flex-col gap-5">
                 <LinkHorizontalSelection title={"Màu sắc"} options={colorOptions} defaultOption={colorDefaultOpion} icon={Circle} />
-                <LinkHorizontalSelection title={"Cấu hình (Ram & Lưu trữ)"} options={productOptions} defaultOption={productDefaultOption} />
+                <LinkHorizontalSelection title={productOptionSelectTitle} options={productOptions} defaultOption={productDefaultOption} />
             </div>
             <div className="w-full h-0 border-t border-gray-300" />
             <div className="flex flex-row flex-wrap gap-5">

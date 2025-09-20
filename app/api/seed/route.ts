@@ -1,4 +1,4 @@
-import { generateFakeProductBase, generateFakeVariant, generateFakeImage, generateFakeVariantImage, generateFakeColor, generateSpecs } from "@/app/lib/data/fake-data-generators";
+import { generateFakeProductBase, generateFakeVariant, generateFakeVariantImage, generateFakeColor, generateSpecs, generateFakeImagePlacehold } from "@/app/lib/data/fake-data-generators";
 import { Color } from "@/app/lib/definations/database-table-definations";
 import { randomInt } from "crypto";
 import { NextResponse } from "next/server";
@@ -41,20 +41,24 @@ export async function seedProduct(productType: ProductType) {
     const productSpecs = generateSpecs(productType, productBaseArray);
 
     // 2.1 Tạo preview image array 
-    const previewArray = Array.from({ length: 50 }, () => generateFakeImage(productType));
+    const previewArray = productBaseArray.flatMap((pb, idx) =>
+        Array.from({ length: 5 }, () => generateFakeImagePlacehold({ width: 600, height: 600 }))
+    );
 
     // 3. Tạo variant cho từng product base
     const variantArray = productBaseArray.flatMap((pb, idx) =>
-        Array.from({ length: 5 }, () => generateFakeVariant(pb, previewArray[idx], productColors[randomInt(0, 4)]))
+        Array.from({ length: 5 }, (_, idx1) => generateFakeVariant(pb, previewArray[idx * 5 + idx1], productColors[randomInt(0, 4)]))
     );
 
     // 5. Tạo ảnh
-    const imageArray = Array.from({ length: 50 }, () => generateFakeImage(productType));
+    const imageArray = variantArray.flatMap((pb, idx) =>
+        Array.from({ length: 5 }, () => generateFakeImagePlacehold({ width: 1000, height: 600 }))
+    );
 
     // 6. Map variant -> image
     const variantWithImageArray = variantArray.flatMap((variant, index) => {
         return Array.from({ length: 5 }, (_, idx) => {
-            return generateFakeVariantImage(imageArray[(index * 5 + idx) % 50], variant);
+            return generateFakeVariantImage(imageArray[index * 5 + idx], variant);
         });
     });
 
@@ -82,24 +86,24 @@ export async function seedProduct(productType: ProductType) {
 
 export async function GET() {
 
-    // return NextResponse.json({ message: "No thing" });
+    return NextResponse.json({ message: "No thing" });
 
-    try {
-        await resetTable("color");
-        await resetTable("product_base");
-        await resetTable("variant");
-        await resetTable("product_image");
+    // try {
+    //     await resetTable("color");
+    //     await resetTable("product_base");
+    //     await resetTable("variant");
+    //     await resetTable("product_image");
 
-        await seedColors();
+    //     await seedColors();
 
-        PRODUCT_TYPES.map(async (item) => {
-            await seedProduct(item);
-        })
+    //     PRODUCT_TYPES.map(async (item) => {
+    //         await seedProduct(item);
+    //     })
 
-        return NextResponse.json({ message: "Successfull" });
-    } catch (err) {
-        console.error("Database error:", err);
-        return NextResponse.json({ error: "Database error" }, { status: 500 });
-    }
+    //     return NextResponse.json({ message: "Successfull" });
+    // } catch (err) {
+    //     console.error("Database error:", err);
+    //     return NextResponse.json({ error: "Database error" }, { status: 500 });
+    // }
 
 }

@@ -1,9 +1,10 @@
 import Banner from "@/app/ui/app/header-footer/banner";
-import { PRODUCT_TYPES } from "./lib/definations/types";
+import { PRODUCT_TYPES, ProductType } from "./lib/definations/types";
 import { getConvertKeyProductTypeToVN } from "./lib/utils/types";
-import ProductList from "./ui/app/product-list/product-list";
+import ProductListBase from "./ui/app/product-list/product-list";
 
 export default function Home() {
+
 
   return (
     <div className="w-full px-1 sm:px-5 md:px-6 lg:px-10">
@@ -11,7 +12,7 @@ export default function Home() {
       {
         PRODUCT_TYPES.map((productType) => {
           return (
-            <ProductList
+            <ProductListBase
               key={productType}
               title={`${getConvertKeyProductTypeToVN(productType)} nổi bật`}
               productType={productType}
@@ -20,6 +21,7 @@ export default function Home() {
                 href: `products/${productType}`
               }}
               isFeatureProduct layout={"horizontal"}
+              limit={10}
             />
           );
         })

@@ -158,6 +158,7 @@ export function generateFakeVariant(
     ram: (productBase.product_type === "laptop" || productBase.product_type === "phone") ? faker.helpers.arrayElement([8, 16, 32]) : null,
     storage: (productBase.product_type === "laptop" || productBase.product_type === "phone") ? faker.helpers.arrayElement([256, 512, 1024]) : null,
     switch_type: productBase.product_type === "keyboard" ? faker.helpers.arrayElement(["Red", "Blue", "Brown"]) : null,
+    date_added: new Date().toISOString(),
   };
 }
 
@@ -223,12 +224,16 @@ export function generateFakeReview(variant: Variant): Review {
 // =====================
 // Tạo Image
 // =====================
-export function generateFakeImage(productType: ProductType): ProductImage {
+export function generateFakeImagePlacehold(size?: { width: number, height: number }): ProductImage {
+
+  const str = `${faker.lorem.words({ min: 3, max: 10 })}\\n${faker.lorem.words(3)}\\n${faker.lorem.words({ min: 3, max: 10 })}`.replaceAll(" ", "+");
+  const image_url = `https://placehold.co/${size?.width ?? "600"}x${size?.height ?? "600"}.png?text=${str}`;
+
   return {
     image_id: faker.string.uuid(),
     image_caption: faker.lorem.sentence(),
     image_alt: faker.lorem.words(3),
-    image_url: faker.image.urlLoremFlickr({ category: productType, width: 600, height: 600 }),
+    image_url: image_url,
     added_date: new Date().toISOString(),
   };
 }

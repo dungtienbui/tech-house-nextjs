@@ -116,7 +116,10 @@ export interface Variant {
     variant_price: number;
     preview_id?: string | null;
     is_promoting?: boolean;
-    color_id?: string | null;
+    
+    //variant properties
+    color_id: string;
+
     ram?: number | null;
     storage?: number | null;
     switch_type?: string | null;

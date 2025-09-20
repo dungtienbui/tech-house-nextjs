@@ -67,7 +67,7 @@ CREATE TABLE
     "variant_price" NUMERIC(12, 2),
     "preview_id" UUID,
     "is_promoting" BOOLEAN,
-    "color_id" UUID NULL,
+    "color_id" UUID,
     "ram" INT NULL,
     "storage" INT NULL,
     "switch_type" VARCHAR NULL,

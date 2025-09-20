@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import { CircleCheck } from "lucide-react";
 import Link from "next/link";
 
 interface props {
@@ -17,6 +16,10 @@ interface props {
 }
 
 export default function LinkHorizontalSelection({ title, options, defaultOption, icon }: props) {
+
+    if (options.length === 0) {
+        return <></>;
+    }
 
     const Icon = icon;
 
