@@ -13,7 +13,7 @@ const tabs: {
     ];
 
 
-export function ProductInfomationClientComponent({
+export function ProductInformationClientComponent({
     description,
     review,
     specs
@@ -33,9 +33,8 @@ export function ProductInfomationClientComponent({
         }
     }
 
-
     return (
-        <div className="flex flex-col gap-2 sm:gap-5 md:gap-10">
+        <div className="flex flex-col gap-1 sm:gap-2 md:gap-5">
             <div className="w-full">
                 <div className="flex flex-row justify-center gap-10 items-stretch">
                     <div className="hidden md:block flex-1" />
@@ -65,7 +64,7 @@ export function ProductInfomationClientComponent({
                 {activeTab === "description" ? (
                     <DescriptionTab description={description} />
                 ) : activeTab === "reviews" ? (
-                    <ReviewsTab reviews={"Reviews Tab"} />
+                    <ReviewsTab reviews={review} />
                 ) : (
                     <SpecsTab specs={specs} />
                 )}
@@ -87,8 +86,6 @@ function ReviewsTab({ reviews }: { reviews: string }) {
 }
 
 function SpecsTab({ specs }: { specs: { name: string, value: string }[] }) {
-
-    // const specsArray = specsObjectToArray(specs);
 
     return (
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-y-2 sm:gap-x-10 sm:gap-y-5">

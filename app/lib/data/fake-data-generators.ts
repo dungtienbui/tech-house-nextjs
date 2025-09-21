@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Account, Employee, Customer, ProductBase, Color, Variant, PromotionType, Promotion, ProductPromotion, Review, ProductImage, ProductBaseImage, VariantImage, HeadphoneSpec, KeyboardSpec, LaptopSpec, PhoneSpec } from "../definations/database-table-definations";
+import { Account, Employee, Customer, ProductBase, Color, Variant, PromotionType, Promotion, ProductPromotion, Review, ProductImage, ProductBaseImage, VariantImage, HeadphoneSpec, KeyboardSpec, LaptopSpec, PhoneSpec, ProductBrand } from "../definations/database-table-definations";
 import { ProductType, SpecResults } from "../definations/types";
 
 // =====================
@@ -41,11 +41,11 @@ export function generateFakeCustomer(account: Account): Customer {
 // =====================
 // ProductBase
 // =====================
-export function generateFakeProductBase(productType: ProductType): ProductBase {
+export function generateFakeProductBase(productType: ProductType, productBrand: ProductBrand): ProductBase {
   return {
     product_base_id: faker.string.uuid(),
     product_name: `${productType} - ${faker.commerce.productName()}`,
-    brand: faker.company.name(),
+    brand_id: productBrand.brand_id,
     product_type: productType,
     description: faker.commerce.productDescription(),
     base_price: faker.number.int({ min: 100, max: 2000 }),
@@ -123,17 +123,6 @@ function generateFakeHeadphoneSpec(productBase: ProductBase): HeadphoneSpec {
       "Windows, Mac",
       "Android, Laptop, Tablet",
     ]),
-  };
-}
-
-// =====================
-// Color
-// =====================
-export function generateFakeColor(colorName?: string, value?: string): Color {
-  return {
-    color_id: faker.string.uuid(),
-    color_name: colorName || faker.color.human(),
-    value: value || faker.color.rgb({ casing: "lower" }),
   };
 }
 

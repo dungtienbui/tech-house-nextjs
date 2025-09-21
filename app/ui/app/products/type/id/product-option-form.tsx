@@ -1,8 +1,8 @@
 import { Circle, ShoppingCart } from "lucide-react";
-import NumberInputWithButtonBothSide from "../../components/inputs/number-input";
-import LinkHorizontalSelection from "../../components/inputs/link-horizontal-selection";
 import { fetchVariantsOfProductBaseByVariantId } from "@/app/lib/data/fetch-data";
 import { notFound } from "next/navigation";
+import LinkHorizontalSelection from "@/app/ui/components/inputs/link-horizontal-selection";
+import NumberInputWithButtonBothSide from "@/app/ui/components/inputs/number-input";
 
 interface props {
     variantId: string;
@@ -44,7 +44,7 @@ export default async function ProductOptionForm({ variantId }: props) {
     const colorDefaultOpion = {
         id: variant.color.color_id,
     }
-    
+
     const productOptions = variant.product_type === "headphone"
         ? []
         : productVariants.filter(item => item.color.color_id === variant.color.color_id).map((item) => {
@@ -82,7 +82,22 @@ export default async function ProductOptionForm({ variantId }: props) {
             <div className="flex flex-col gap-2">
                 <div className="text-xl md:text-2xl font-bold">{`${variant.product_name} ${productNameSub}`}</div>
                 <div className="grid grid-cols-2">
-                    <p className="text-gray-400">Thương hiệu: <b className="text-black">{variant.brand}</b></p>
+                    <div className="text-gray-400 flex flex-row">
+                        <div>Thương hiệu:</div>
+                        <div className="flex flex-row">
+                            {/* {
+                                variant.brand.logo_url && (
+                                    <Image
+                                        src={variant.brand.logo_url}
+                                        alt={`${variant.brand.brand_name} brand`}
+                                        width={30}
+                                        height={30}
+                                    />
+                                )
+                            } */}
+                            <div className="pl-1"><b className="text-black">{variant.brand.brand_name}</b></div>
+                        </div>
+                    </div>
                     <p className="text-gray-400">Số lượng: <b className="text-black">{variant.stock}</b></p>
                 </div>
             </div>

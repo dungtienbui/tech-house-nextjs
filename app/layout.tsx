@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Roboto } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
-import NavBar from "@/app/ui/app/navbar/navbar";
-import Header from "@/app/ui/app/header-footer/header";
-import Footer from "@/app/ui/app/header-footer/footer";
+import NavBar from "@/app/ui/components/navbar/navbar";
+import Footer from "@/app/ui/components/footer/footer";
+import Header from "./ui/components/header/header";
 
 const roboto = Roboto({
   subsets: ["latin"],

@@ -1,5 +1,7 @@
 // DB type defination
 
+import { ProductType } from "./types";
+
 // =====================
 // Account & Roles
 // =====================
@@ -28,6 +30,26 @@ export interface Customer {
 }
 
 // =====================
+// Color
+// =====================
+export interface Color {
+    color_id: string;
+    value: string;
+    color_name: string;
+}
+
+// =====================
+// Product Brand
+// =====================
+export interface ProductBrand {
+    brand_id: string;
+    brand_name: string;
+    product_type: ProductType;
+    country?: string | null;
+    logo_url?: string | null;
+};
+
+// =====================
 // Images
 // =====================
 export interface ProductImage {
@@ -48,6 +70,43 @@ export interface VariantImage {
     variant_id: string; // FK Variant
 }
 
+
+// =====================
+// Product Base
+// =====================
+export interface ProductBase {
+    product_base_id: string;
+    product_name: string;
+    brand_id: string;
+    product_type: string; // FK ProductType
+    description: string;
+    base_price: number;
+}
+
+// =====================
+// Variants
+// =====================
+export interface Variant {
+    variant_id: string;
+    product_base_id: string;
+    stock: number;
+    variant_price: number;
+    preview_id?: string | null;
+    is_promoting?: boolean;
+
+    //variant properties
+    color_id: string;
+
+    ram?: number | null;
+    storage?: number | null;
+    switch_type?: string | null;
+    date_added: string;
+}
+
+
+// =====================
+// Product spec
+// =====================
 export interface PhoneSpec {
     product_base_id: string;   // UUID
     weight?: number | null;    // g
@@ -94,46 +153,6 @@ export interface HeadphoneSpec {
 }
 
 
-// =====================
-// Product Base
-// =====================
-export interface ProductBase {
-    product_base_id: string;
-    product_name: string;
-    brand: string;
-    product_type: string; // FK ProductType
-    description: string;
-    base_price: number;
-}
-
-// =====================
-// Variants
-// =====================
-export interface Variant {
-    variant_id: string;
-    product_base_id: string;
-    stock: number;
-    variant_price: number;
-    preview_id?: string | null;
-    is_promoting?: boolean;
-    
-    //variant properties
-    color_id: string;
-
-    ram?: number | null;
-    storage?: number | null;
-    switch_type?: string | null;
-    date_added: string;
-}
-
-// =====================
-// Color
-// =====================
-export interface Color {
-    color_id: string;
-    value: string;
-    color_name: string;
-}
 // =====================
 // Reviews
 // =====================

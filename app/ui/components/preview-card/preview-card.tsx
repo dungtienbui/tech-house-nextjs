@@ -10,13 +10,14 @@ interface props {
     href: string;
     alt: string;
   }
+  isPromoting?: boolean;
 }
 
-export default function ProductCard({ title, subtitle, image, price, navTo }: props) {
+export default function PreviewCard({ title, subtitle, image, price, navTo, isPromoting }: props) {
 
   return (
     <Link
-      className="group border border-slate-200 hover:shadow-md rounded-xl flex flex-col justify-between items-center px-3 py-3 xl:px-5 overflow-clip"
+      className="group border border-slate-200 hover:shadow-md rounded-xl flex flex-col justify-between items-center px-3 py-3 xl:px-5 overflow-clip relative"
       href={navTo}>
       <div className="flex-1 flex justify-center items-center min-h-40 min-w-40">
         <Image

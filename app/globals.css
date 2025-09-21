@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* styles/shimmer.css */
+@keyframes shimmer {
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.shimmer::before {
+  @apply absolute inset-0 -translate-x-full animate-[shimmer_3s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent content-[''];
+}

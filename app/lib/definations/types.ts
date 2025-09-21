@@ -6,4 +6,3 @@ export type ProductType = typeof PRODUCT_TYPES[number];
 
 export type SpecResult = PhoneSpec | LaptopSpec | KeyboardSpec | HeadphoneSpec;
 export type SpecResults = SpecResult[];
-

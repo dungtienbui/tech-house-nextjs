@@ -1,6 +1,8 @@
+import { Color, ProductBrand } from "./database-table-definations";
 import { ProductType } from "./types";
-//***********************************************************/
 
+
+//***********************************************************/
 export interface ProductSpecsDTO {
     product_base_id: string;
     // Dùng chung cho Phone & Laptop
@@ -39,11 +41,12 @@ export interface ProductVariantInShortDTO {
     variant_id: string;
     product_base_id: string;
     product_name: string;
-    brand: string;
     product_type: string;
     stock: number;
     variant_price: number;
     is_promoting: boolean;
+
+    brand_name: string;
 
     // Các thuộc tính biến thể
     // Thông tin màu sắc
@@ -72,11 +75,7 @@ export interface ProductVariantDTO {
     date_added: string;
 
     // variant properties
-    color: {
-        color_id: string;
-        color_name: string;
-        value: string;
-    };
+    color: Color;
 
     ram: number | null;
     storage: number | null;
@@ -85,10 +84,11 @@ export interface ProductVariantDTO {
     // Thông tin product_base
     product_base_id: string;
     product_name: string;
-    brand: string;
     product_type: ProductType;
     description: string;
     base_price: number;
+
+    brand: ProductBrand;
 
 
     // JSON object ảnh preview (có thể null)

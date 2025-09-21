@@ -1,7 +1,8 @@
 import { fetchSpecsOfVariant } from "@/app/lib/data/fetch-data";
 import { ProductType } from "@/app/lib/definations/types";
 import { mapSpecToArray } from "@/app/lib/utils/types";
-import { ProductInfomationClientComponent } from "./product-infomation-client";
+import { ProductInformationClientComponent } from "./product-information-client";
+import { wait } from "@/app/lib/utils/funcs";
 
 interface props {
     id: string;
@@ -16,8 +17,7 @@ export default async function ProductInformation({ id, productType }: props) {
 
     const specs = mapSpecToArray(resultQuery[0]);
 
-    return (<>
-        <ProductInfomationClientComponent description={description} review={"Review Tab"} specs={specs} />
-    </>
-    );
+    await wait(2000);
+
+    return (<ProductInformationClientComponent description={description} review={"Review Tab"} specs={specs} />);
 }

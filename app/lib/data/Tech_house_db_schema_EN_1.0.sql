@@ -40,6 +40,30 @@ CREATE TABLE
     "color_name" VARCHAR
   );
 
+INSERT INTO
+  "color" (value, color_name)
+VALUES
+  ('#000000', 'Black'),
+  ('#FFFFFF', 'White'),
+  ('#FF0000', 'Red'),
+  ('#00FF00', 'Lime'),
+  ('#0000FF', 'Blue'),
+  ('#FFFF00', 'Yellow'),
+  ('#FFA500', 'Orange'),
+  ('#800080', 'Purple'),
+  ('#FFC0CB', 'Pink'),
+  ('#808080', 'Gray'),
+  ('#A52A2A', 'Brown'),
+  ('#008000', 'Green'),
+  ('#00FFFF', 'Cyan'),
+  ('#FFD700', 'Gold'),
+  ('#F5F5DC', 'Beige'),
+  ('#D2691E', 'Chocolate'),
+  ('#8B0000', 'Dark Red'),
+  ('#4B0082', 'Indigo'),
+  ('#FF1493', 'Deep Pink'),
+  ('#F0E68C', 'Khaki');
+
 CREATE TABLE
   "product_image" (
     "image_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
@@ -50,10 +74,328 @@ CREATE TABLE
   );
 
 CREATE TABLE
+  "product_brand" (
+    "brand_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (), -- khóa chính UUID
+    "brand_name" VARCHAR(100) NOT NULL, -- tên thương hiệu
+    "product_type" VARCHAR(50) NOT NULL, -- loại sản phẩm: phone, laptop, ...
+    "logo_url" TEXT, -- link logo (optional)
+    "country" VARCHAR(50) -- quốc gia (optional)
+  );
+
+-- Phone brands
+INSERT INTO
+  product_brand (brand_name, product_type, country, logo_url)
+VALUES
+  (
+    'Apple',
+    'phone',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg'
+  ),
+  (
+    'Samsung',
+    'phone',
+    'KR',
+    'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg'
+  ),
+  (
+    'Xiaomi',
+    'phone',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/2/29/Xiaomi_logo.svg'
+  ),
+  (
+    'Oppo',
+    'phone',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/5/5e/OPPO_Logo.svg'
+  ),
+  (
+    'Vivo',
+    'phone',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/2/29/Vivo_logo.svg'
+  ),
+  (
+    'Realme',
+    'phone',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/c/c5/Realme_logo.svg'
+  ),
+  (
+    'OnePlus',
+    'phone',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/4/4e/OnePlus_logo.svg'
+  ),
+  (
+    'Google',
+    'phone',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg'
+  ),
+  (
+    'Huawei',
+    'phone',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/6/66/Huawei_logo.svg'
+  ),
+  (
+    'Sony',
+    'phone',
+    'JP',
+    'https://upload.wikimedia.org/wikipedia/commons/2/20/Sony_Logo.svg'
+  ),
+  (
+    'Asus',
+    'phone',
+    'TW',
+    'https://upload.wikimedia.org/wikipedia/commons/6/6a/ASUS_Logo.svg'
+  ),
+  (
+    'Nokia',
+    'phone',
+    'FI',
+    'https://upload.wikimedia.org/wikipedia/commons/0/02/Nokia_wordmark.svg'
+  );
+
+-- Laptop brands
+INSERT INTO
+  product_brand (brand_name, product_type, country, logo_url)
+VALUES
+  (
+    'Apple',
+    'laptop',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg'
+  ),
+  (
+    'Dell',
+    'laptop',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/7/76/Dell_Logo.svg'
+  ),
+  (
+    'HP',
+    'laptop',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/3/3a/Hewlett-Packard_Logo.svg'
+  ),
+  (
+    'Lenovo',
+    'laptop',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/0/06/Lenovo_logo_2015.svg'
+  ),
+  (
+    'Asus',
+    'laptop',
+    'TW',
+    'https://upload.wikimedia.org/wikipedia/commons/6/6a/ASUS_Logo.svg'
+  ),
+  (
+    'Acer',
+    'laptop',
+    'TW',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f5/Acer_2011.svg'
+  ),
+  (
+    'MSI',
+    'laptop',
+    'TW',
+    'https://upload.wikimedia.org/wikipedia/commons/1/13/MSI_logo.svg'
+  ),
+  (
+    'Razer',
+    'laptop',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/9/91/Razer_logo.svg'
+  ),
+  (
+    'Microsoft',
+    'laptop',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg'
+  ),
+  (
+    'Samsung',
+    'laptop',
+    'KR',
+    'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg'
+  ),
+  (
+    'LG',
+    'laptop',
+    'KR',
+    'https://upload.wikimedia.org/wikipedia/commons/2/20/LG_logo_%282014%29.svg'
+  ),
+  (
+    'Huawei',
+    'laptop',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/6/66/Huawei_logo.svg'
+  );
+
+-- Headphone brands
+INSERT INTO
+  product_brand (brand_name, product_type, country, logo_url)
+VALUES
+  (
+    'Sony',
+    'headphone',
+    'JP',
+    'https://upload.wikimedia.org/wikipedia/commons/2/20/Sony_Logo.svg'
+  ),
+  (
+    'Bose',
+    'headphone',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/4/47/Bose_logo.svg'
+  ),
+  (
+    'Sennheiser',
+    'headphone',
+    'DE',
+    'https://upload.wikimedia.org/wikipedia/commons/3/34/Sennheiser_logo.svg'
+  ),
+  (
+    'Apple (AirPods)',
+    'headphone',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg'
+  ),
+  (
+    'Samsung (Galaxy Buds)',
+    'headphone',
+    'KR',
+    'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg'
+  ),
+  (
+    'JBL',
+    'headphone',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/2/27/JBL_logo.svg'
+  ),
+  (
+    'Beats',
+    'headphone',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/0/0f/Beats_by_Dre_logo.svg'
+  ),
+  (
+    'Audio-Technica',
+    'headphone',
+    'JP',
+    'https://upload.wikimedia.org/wikipedia/commons/6/62/Audio-Technica_logo.svg'
+  ),
+  (
+    'Shure',
+    'headphone',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/8/8d/Shure_logo.svg'
+  ),
+  (
+    'Bang & Olufsen',
+    'headphone',
+    'DK',
+    'https://upload.wikimedia.org/wikipedia/commons/2/25/Bang_and_Olufsen_logo.svg'
+  ),
+  (
+    'Skullcandy',
+    'headphone',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/3/38/Skullcandy_logo.svg'
+  ),
+  (
+    'Anker (Soundcore)',
+    'headphone',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e4/Anker_logo.svg'
+  );
+
+-- Keyboard brands
+INSERT INTO
+  product_brand (brand_name, product_type, country, logo_url)
+VALUES
+  (
+    'Logitech',
+    'keyboard',
+    'CH',
+    'https://upload.wikimedia.org/wikipedia/commons/4/4b/Logitech_logo.svg'
+  ),
+  (
+    'Razer',
+    'keyboard',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/9/91/Razer_logo.svg'
+  ),
+  (
+    'Corsair',
+    'keyboard',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/e/ef/Corsair_logo.svg'
+  ),
+  (
+    'SteelSeries',
+    'keyboard',
+    'DK',
+    'https://upload.wikimedia.org/wikipedia/commons/7/73/Steelseries_logo.svg'
+  ),
+  (
+    'Keychron',
+    'keyboard',
+    'HK',
+    'https://upload.wikimedia.org/wikipedia/commons/7/70/Keychron_logo.svg'
+  ),
+  (
+    'Ducky',
+    'keyboard',
+    'TW',
+    'https://upload.wikimedia.org/wikipedia/commons/3/3d/Ducky_logo.svg'
+  ),
+  (
+    'Akko',
+    'keyboard',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/4/4e/Akko_logo.svg'
+  ),
+  (
+    'Leopold',
+    'keyboard',
+    'KR',
+    'https://upload.wikimedia.org/wikipedia/commons/8/84/Leopold_logo.svg'
+  ),
+  (
+    'HyperX',
+    'keyboard',
+    'US',
+    'https://upload.wikimedia.org/wikipedia/commons/0/0b/HyperX_logo.svg'
+  ),
+  (
+    'ASUS ROG',
+    'keyboard',
+    'TW',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f0/Republic_of_Gamers_logo.svg'
+  ),
+  (
+    'Cooler Master',
+    'keyboard',
+    'TW',
+    'https://upload.wikimedia.org/wikipedia/commons/c/c7/Cooler_Master_logo.svg'
+  ),
+  (
+    'Varmilo',
+    'keyboard',
+    'CN',
+    'https://upload.wikimedia.org/wikipedia/commons/8/8c/Varmilo_logo.svg'
+  );
+
+CREATE TABLE
   "product_base" (
     "product_base_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "product_name" VARCHAR,
-    "brand" VARCHAR,
+    "brand_id" UUID,
+    CONSTRAINT fk_product_base_brand FOREIGN KEY ("brand_id") REFERENCES "product_brand" ("brand_id"),
     "product_type" VARCHAR,
     "description" VARCHAR,
     "base_price" NUMERIC(12, 2)

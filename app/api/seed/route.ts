@@ -1,31 +1,11 @@
-import { generateFakeProductBase, generateFakeVariant, generateFakeVariantImage, generateFakeColor, generateSpecs, generateFakeImagePlacehold } from "@/app/lib/data/fake-data-generators";
-import { Color } from "@/app/lib/definations/database-table-definations";
+import { generateFakeProductBase, generateFakeVariant, generateFakeVariantImage, generateSpecs, generateFakeImagePlacehold } from "@/app/lib/data/fake-data-generators";
+import { Color, ProductBrand } from "@/app/lib/definations/database-table-definations";
 import { randomInt } from "crypto";
 import { NextResponse } from "next/server";
-import { insertColor, insertProductBase, insertProductImage, insertSpec, insertVariant, insertVariantImage, resetTable } from "../../lib/data/insert-data";
-import { fetchColors } from "@/app/lib/data/fetch-data";
-import { ProductType, PRODUCT_TYPES } from "@/app/lib/definations/types";
-
-async function seedColors() {
-    const productColors: Color[] = [
-        generateFakeColor("Black", "#000000"),
-        generateFakeColor("White", "#FFFFFF"),
-        generateFakeColor("Blue", "#0000FF"),
-        generateFakeColor("Red", "#FF0000"),
-        generateFakeColor("Green", "#00FF00"),
-        generateFakeColor("Gray", "#808080"),
-        generateFakeColor("Gold", "#FFD700"),
-        generateFakeColor("Silver", "#C0C0C0"),
-        generateFakeColor("Purple", "#800080"),
-        generateFakeColor("Pink", "#FFC0CB"),
-    ];
-
-    const resultQuery = await Promise.all(
-        productColors.map((color) => insertColor(color))
-    );
-
-    return resultQuery;
-}
+import { insertProductBase, insertProductImage, insertSpec, insertVariant, insertVariantImage } from "../../lib/data/insert-data";
+import { fetchBrandByProductType, fetchBrands, fetchColors } from "@/app/lib/data/fetch-data";
+import { ProductType } from "@/app/lib/definations/types";
+import { query } from "@/app/lib/data/db";
 
 
 export async function seedProduct(productType: ProductType) {
@@ -34,8 +14,15 @@ export async function seedProduct(productType: ProductType) {
         throw new Error("Not have product colors");
     }
 
+    const productBrands = await fetchBrandByProductType(productType) as ProductBrand[];
+    if (productBrands.length === 0) {
+        throw new Error("Not have product productBrands");
+    }
+
+    const getRandomBrand = (arr: ProductBrand[]) => arr[randomInt(0, arr.length)];
+
     // 1. Tạo product base
-    const productBaseArray = Array.from({ length: 10 }, () => generateFakeProductBase(productType));
+    const productBaseArray = Array.from({ length: 10 }, () => generateFakeProductBase(productType, getRandomBrand(productBrands)));
 
     // 2. Tạo specs cho từng product base (và ép kiểu rõ ràng)
     const productSpecs = generateSpecs(productType, productBaseArray);
@@ -89,18 +76,50 @@ export async function GET() {
     return NextResponse.json({ message: "No thing" });
 
     // try {
-    //     await resetTable("color");
-    //     await resetTable("product_base");
-    //     await resetTable("variant");
-    //     await resetTable("product_image");
+    //     const productBrands = await fetchBrands() as ProductBrand[];
+    //     if (productBrands.length === 0) {
+    //         throw new Error("Not have product productBrands");
+    //     }
 
-    //     await seedColors();
+    //     const productBases = await query<{
+    //         product_base_id: string;
+    //         product_type: ProductType;
+    //         brand: string;
+    //     }>(`
+    //     select pb.product_base_id, pb.product_type, pb.brand_id 
+    //     from product_base pb 
+    // `);
 
-    //     PRODUCT_TYPES.map(async (item) => {
-    //         await seedProduct(item);
-    //     })
 
-    //     return NextResponse.json({ message: "Successfull" });
+    //     const updateBrand = async (id: string, brand: string) => {
+    //         const res = await query(`
+    //         update product_base pb 
+    //         set brand_id = $1
+    //         where pb.product_base_id = $2
+    //     `, [brand, id]);
+    //     }
+
+    //     const getRandomBrand = (arr: ProductBrand[], type: ProductType) => {
+    //         const brandByType = arr.filter(item => item.product_type === type);
+    //         return brandByType[randomInt(0, brandByType.length)].brand_id;
+    //     };
+
+    //     await Promise.all(
+    //         productBases.map((productBase) => {
+    //             return updateBrand(productBase.product_base_id, getRandomBrand(productBrands, productBase.product_type));
+    //         })
+    //     );
+
+    //     const resultQuery = await query<{
+    //         product_base_id: string;
+    //         product_type: ProductType;
+    //         brand: string;
+    //     }>(`
+    //     select pb.product_base_id, pb.product_type, pb.brand_id 
+    //     from product_base pb 
+    // `);
+
+    //     return NextResponse.json({ resultQuery });
     // } catch (err) {
     //     console.error("Database error:", err);
     //     return NextResponse.json({ error: "Database error" }, { status: 500 });

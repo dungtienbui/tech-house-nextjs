@@ -9,6 +9,19 @@ export async function fetchColors() {
   `)
 }
 
+export async function fetchBrandByProductType(productType: ProductType) {
+  return await query(`
+    select * from product_brand pb
+    where pb.product_type = $1;
+  `, [productType]);
+}
+
+export async function fetchBrands() {
+  return await query(`
+    select * from product_brand pb
+  `);
+}
+
 export async function fetchProductVariantsInShort(
   productType?: ProductType,
   optional?: {
@@ -39,7 +52,8 @@ export async function fetchProductVariantsInShort(
         -- Thông tin từ product_base
         pb.product_base_id,
         pb.product_name,
-        pb.brand,
+        -- Product brand
+        pb2.brand_name,
         pb.product_type,
         pb.description,
         pb.base_price,
@@ -52,14 +66,16 @@ export async function fetchProductVariantsInShort(
         pi.image_url AS preview_image_url,
         pi.image_caption AS preview_image_caption
     FROM variant v
-    JOIN product_base pb 
+    LEFT JOIN product_base pb 
         ON v.product_base_id = pb.product_base_id
+    LEFT JOIN product_brand pb2
+      ON pb.brand_id = pb2.brand_id
     LEFT JOIN color c 
         ON v.color_id = c.color_id
     LEFT JOIN product_image pi 
         ON v.preview_id = pi.image_id
     ${whereStr}
-    order by v.date_added
+    order by v.is_promoting DESC, v.date_added DESC
     ${limitStr}
     ;
   `;
@@ -97,16 +113,12 @@ export async function fetchVariantsOfProductBaseByVariantId(variantId: string) {
         -- Thông tin từ product_base
         pb.product_base_id,
         pb.product_name,
-        pb.brand,
+        to_json(pb2) AS brand,
         pb.product_type,
         pb.description,
         pb.base_price,
         -- Thông tin màu sắc (có thể null)
-        json_build_object(
-            'color_id', c.color_id,
-            'color_name', c.color_name,
-            'value', c.value
-        ) as color,
+        to_json(c) AS color,
         -- Ảnh preview (có thể null)
         json_build_object(
             'image_id', pi.image_id,
@@ -117,6 +129,8 @@ export async function fetchVariantsOfProductBaseByVariantId(variantId: string) {
     FROM variant v
     JOIN product_base pb 
         ON v.product_base_id = pb.product_base_id
+    LEFT JOIN product_brand pb2 
+        ON pb.brand_id = pb2.brand_id
     JOIN base b 
         ON pb.product_base_id = b.product_base_id
     LEFT JOIN color c 

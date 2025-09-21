@@ -37,7 +37,7 @@ export default function LazyImage({ src, alt, width, height }: LazyImageProps) {
                         "opacity-0": isLoading,
                         "opacity-100": !isLoading
                     })}
-                onLoadingComplete={() => setIsLoading(false)}
+                onLoad={() => setIsLoading(false)}
             />
         </div>
     );

@@ -2,9 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import Image from 'next/image'
 import styles from './carousel.module.css';
-import Autoplay from 'embla-carousel-autoplay'
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { EmblaCarouselType } from 'embla-carousel';
 import LazyImage from '../lazy-loading-image/lazy-image';
