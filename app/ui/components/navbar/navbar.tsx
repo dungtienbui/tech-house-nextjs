@@ -16,7 +16,6 @@ export default function NavBar() {
                 // đang cuộn lên
                 setShow(true);
             }
-            console.log('window.scrollY: ', window.scrollY);
             setLastScrollY(window.scrollY);
         };
 

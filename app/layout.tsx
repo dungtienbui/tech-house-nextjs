@@ -30,7 +30,7 @@ export default function RootLayout({
         <div className="h-screen">
           <Header />
           <NavBar />
-          <main className="w-screen pt-40 min-[800px]:pt-32">{children}</main>
+          <main className="w-screen pt-40 min-[800px]:pt-32 mb-10">{children}</main>
           <Footer />
         </div>
       </body>

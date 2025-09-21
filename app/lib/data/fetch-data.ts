@@ -1,6 +1,7 @@
 import { ProductVariantDTO, ProductVariantInShortDTO, SpecKeyValueDTO } from "../definations/data-dto";
-import { ProductImage } from "../definations/database-table-definations";
+import { ProductBrand, ProductImage } from "../definations/database-table-definations";
 import { ProductType } from "../definations/types";
+import { wait } from "../utils/funcs";
 import { query } from "./db";
 
 export async function fetchColors() {
@@ -10,7 +11,8 @@ export async function fetchColors() {
 }
 
 export async function fetchBrandByProductType(productType: ProductType) {
-  return await query(`
+  await wait(3000);
+  return await query<ProductBrand>(`
     select * from product_brand pb
     where pb.product_type = $1;
   `, [productType]);
@@ -22,17 +24,43 @@ export async function fetchBrands() {
   `);
 }
 
+
+// Has sql injection attack in queries param ?????????
 export async function fetchProductVariantsInShort(
   productType?: ProductType,
   optional?: {
     limit?: number;
     isPromoting?: boolean;
-  }) {
+  },
+  queries?: {
+    column: string,
+    value: string[],
+  }[]
+) {
 
-  const whereArray = [
+  const optionalStr = [
     productType && `pb.product_type = $1`,
     optional?.isPromoting && `v.is_promoting = $2`
-  ].filter(Boolean);
+  ].filter(Boolean).join(" and ");
+
+  // console.log("queries: ", queries);
+
+  const queriesStr = queries ? queries.map((queries, index) => {
+    if (queries.column === "ram") {
+      return `(${queries.value.map((v, idx) => `v.ram=${v}`).join(" or ")})`
+    } else if (queries.column === "storage") {
+      return `(${queries.value.map((v, idx) => `v.storage=${v}`).join(" or ")})`
+    } else if (queries.column === "brand") {
+      return `(${queries.value.map((v, idx) => `pb2.brand_name='${v}'`).join(" or ")})`
+    } else {
+      return "";
+    }
+
+  }) : [];
+
+  // console.log("queriesStr: ", queriesStr);
+
+  const whereArray = [...queriesStr, optionalStr];
 
   const whereStr = whereArray.length > 0 ? `where ${whereArray.join(" and ")}` : "";
 
@@ -79,6 +107,8 @@ export async function fetchProductVariantsInShort(
     ${limitStr}
     ;
   `;
+
+  // console.log("queryString: ", queryString);
 
   const preparedStatement = [
     productType && productType,

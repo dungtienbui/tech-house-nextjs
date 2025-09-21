@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function Banner( {imageLink, alt} : {imageLink: string, alt: string} ) {
+export default function Banner({ imageLink, alt }: { imageLink: string, alt: string }) {
     return (
         <Image src={imageLink} width={1000} height={200} alt={alt} className="w-full rounded-lg" />
     );

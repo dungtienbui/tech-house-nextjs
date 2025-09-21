@@ -4,7 +4,10 @@ import PreviewCard from "../../../components/preview-card/preview-card";
 
 interface BaseProps {
     productType: ProductType;
-    query?: { key: string; value: string }[];
+    queries?: {
+        param: string,
+        value: string[],
+    }[];
     currentPage?: number;
     isFeatureProduct?: boolean;
     limit?: number;
@@ -15,16 +18,23 @@ interface BaseProps {
 
 export default async function ProductList({
     productType,
-    query,
+    queries,
     currentPage,
     isFeatureProduct,
     limit,
 }: BaseProps) {
 
-    const productList = await fetchProductVariantsInShort(productType, {
-        isPromoting: isFeatureProduct,
-        limit,
-    });
+    const productList = await fetchProductVariantsInShort(
+        productType,
+        {
+            isPromoting: isFeatureProduct,
+            limit,
+        },
+        queries?.map(item => ({
+            column: item.param,
+            value: item.value
+        }))
+    );
 
     return (
         <div
