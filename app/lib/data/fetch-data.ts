@@ -22,16 +22,50 @@ export async function fetchBrands() {
   `);
 }
 
-export async function fetchRecommendedVariantsByKey(key: string) {
+export async function fetchRecommendedVariantsByKeyTotalPage(key: string, numberItemOfPage: number = 5) {
 
   const whereStr = `where 
-    pb.product_name ILIKE $1 OR
-    pb2.brand_name ILIKE $1 OR
-    pb.product_type ILIKE $1 OR
-    v.ram::text ILIKE $1 OR
-    v.storage::text ILIKE $1 OR
-    v.switch_type ILIKE $1 OR
-    c.color_name ILIKE $1`;
+    pb.product_name ILIKE $2 OR
+    pb2.brand_name ILIKE $2 OR
+    pb.product_type ILIKE $2 OR
+    v.ram::text ILIKE $2 OR
+    v.storage::text ILIKE $2 OR
+    v.switch_type ILIKE $2 OR
+    c.color_name ILIKE $2`;
+
+  const queryString = `
+    SELECT 
+      COUNT(*) AS count
+    FROM variant v
+    LEFT JOIN product_base pb 
+        ON v.product_base_id = pb.product_base_id
+    LEFT JOIN product_brand pb2
+      ON pb.brand_id = pb2.brand_id
+    LEFT JOIN color c 
+        ON v.color_id = c.color_id
+    LEFT JOIN product_image pi 
+        ON v.preview_id = pi.image_id
+    ${key !== "" ? whereStr : ""}
+    limit $1
+    ;
+    `
+  const resultQuery = await query<{ count: number }>(queryString, key !== "" ? [numberItemOfPage, `%${key}%`] : [numberItemOfPage]);
+
+  return Math.ceil(resultQuery[0].count / numberItemOfPage);
+}
+
+export async function fetchRecommendedVariantsByKey(key: string, numberItemOfPage: number = 5, page: number = 1) {
+
+  const offset = (page - 1) * numberItemOfPage;
+
+  const whereStr = `where 
+    pb.product_name ILIKE $3 OR
+    pb2.brand_name ILIKE $3 OR
+    pb.product_type ILIKE $3 OR
+    v.ram::text ILIKE $3 OR
+    v.storage::text ILIKE $3 OR
+    v.switch_type ILIKE $3 OR
+    c.color_name ILIKE $3`;
 
   const queryString = `
     SELECT 
@@ -59,12 +93,12 @@ export async function fetchRecommendedVariantsByKey(key: string) {
         ON v.preview_id = pi.image_id
     ${key !== "" ? whereStr : ""}
     order by v.is_promoting DESC, v.date_added DESC
-    limit 5
+    limit $1 offset $2
     ;
     `
 
   // console.log("queryString: ", queryString);
-  return query<RecommendedVariantsInShortDTO>(queryString, key !== "" ? [`%${key}%`] : []);
+  return query<RecommendedVariantsInShortDTO>(queryString, key !== "" ? [numberItemOfPage, offset, `%${key}%`] : [numberItemOfPage, offset]);
 }
 
 // Has sql injection attack in queries param ?????????
@@ -155,7 +189,6 @@ pi.image_id AS preview_image_id,
 ;
 `;
 
-  // console.log("queryString: ", queryString);
 
   const preparedStatement = [
     numberItemOfPage,
@@ -164,7 +197,6 @@ pi.image_id AS preview_image_id,
     optional?.isPromoting ? optional.isPromoting : null,
   ].filter(item => item !== null);
 
-  // console.log("preparedStatement: ", preparedStatement);
 
   return await query<ProductVariantInShortDTO>(queryString, preparedStatement);
 }

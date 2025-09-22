@@ -5,7 +5,8 @@ import { useDebouncedCallback } from "use-debounce";
 import RecommendedProductCard from "./recommend-product-card";
 import { RecommendedVariantsInShortDTO } from "@/app/lib/definations/data-dto";
 import clsx from "clsx";
-import { Circle } from "lucide-react";
+import { Circle, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SearchBar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +14,10 @@ export default function SearchBar() {
 
     const [isLoading, setLoading] = useState(false);
 
+    const [query, setQuery] = useState("");
+
     const fetchData = useDebouncedCallback(async (term: string) => {
+        setQuery(term);
         const res = await fetch(`/api/search?query=${encodeURIComponent(term)}`);
         const data = await res.json() as RecommendedVariantsInShortDTO[];
         setRecommendedVars(data);
@@ -39,25 +43,43 @@ export default function SearchBar() {
         };
     }, []);
 
+    const router = useRouter();
+    const params = new URLSearchParams();
+
+    const handleClickSearchButton = () => {
+
+        params.set("query", query);
+
+        const href = `/products?${params.toString()}`;
+
+        router.push(href);
+    }
+
     return (
         <div ref={areaRef} className="relative w-full min-[800px]:flex-1 flex flex-col items-center order-last min-[800px]:order-none">
-            <input
-                onChange={(e) => {
-                    setLoading(true);
-                    fetchData(e.target.value);
-                }}
-                onFocus={() => {
-                    setLoading(true);
-                    setIsOpen(true);
-                    fetchData("");
-                }}
-                placeholder="Tìm kiếm..."
-                type="search"
-                className="bg-gray-50 w-full md:w-11/12 px-3 py-1 rounded-full"
-            />
+            <div className="relative w-full md:w-11/12 flex flex-row">
+                <input
+                    onChange={(e) => {
+                        setLoading(true);
+                        fetchData(e.target.value);
+                    }}
+                    onFocus={() => {
+                        setLoading(true);
+                        setIsOpen(true);
+                        fetchData("");
+                    }}
+                    onBlur={() => setIsOpen(false)}
+                    placeholder="Tìm kiếm..."
+                    type="search"
+                    className="w-full bg-gray-50 h-9 px-3 py-1 rounded-full"
+                />
+                <button onClick={handleClickSearchButton} type="button" className="absolute top-0 bottom-0 right-0 px-4 py-1 bg-yellow-300 rounded-r-full hover:cursor-pointer hover:bg-yellow-200">
+                    <Search color="black" />
+                </button>
+            </div>
 
             <div className={clsx(
-                "absolute p-3 top-9 w-full flex flex-col gap-2 border border-blue-300 rounded-xl bg-white shadow-2xl overflow-auto",
+                "absolute p-3 top-11 w-full flex flex-col gap-2 border border-blue-300 ring ring-blue-500 rounded-xl bg-white shadow-2xl overflow-auto",
                 {
                     "hidden": !isOpen,
                     "block": isOpen,
@@ -65,6 +87,12 @@ export default function SearchBar() {
                 }
             )}
             >
+                {recommendedVars.length === 0 && (
+                    <div className="text-center text-sm">
+                        <div>Không tìm thấy sản phẩm liên quan.</div>
+                        <div>Vui lòng nhập từ khoá khác.</div>
+                    </div>
+                )}
                 {recommendedVars.map((rv) => {
                     const optionStr = [
                         rv.ram ? `${rv.ram}GB` : null,
