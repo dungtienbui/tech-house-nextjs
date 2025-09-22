@@ -65,6 +65,21 @@ export interface ProductVariantInShortDTO {
     preview_image_alt: string | null;
 }
 
+export interface RecommendedVariantsInShortDTO {
+    // Thông tin chung
+    variant_id: string;
+    product_name: string;
+    product_type: string;
+    variant_price: number;
+    brand_name: string;
+    color_name: string;
+    ram?: number;
+    storage?: number;
+    switch_type?: string;
+    preview_image_url: string | null;
+    preview_image_alt: string | null;
+}
+
 
 export interface ProductVariantDTO {
     // Thông tin variant

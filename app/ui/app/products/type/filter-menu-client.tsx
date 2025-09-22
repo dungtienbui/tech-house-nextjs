@@ -3,8 +3,8 @@
 import clsx from "clsx";
 import { Funnel, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 interface props {
     sections: {
@@ -20,8 +20,6 @@ interface props {
 }
 
 export default function FilterMenuClientComponent({ sections }: props) {
-
-    const pathname = usePathname();
 
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -65,20 +63,40 @@ export default function FilterMenuClientComponent({ sections }: props) {
         return section.options.filter(option => option.checked === true);
     });
 
+    const searchParams = useSearchParams();
+    const { replace } = useRouter();
+    const pathname = usePathname();
+
+    const handleSubmitForm = (e: FormEvent) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget as HTMLFormElement);
+        const ramValues = formData.getAll("ram");
+        const storageValues = formData.getAll("storage");
+        const brandValues = formData.getAll("brand");
+
+        const params = new URLSearchParams(searchParams);
+        ramValues.forEach(c => params.append("ram", c as string));
+        storageValues.forEach(c => params.append("storage", c as string));
+        brandValues.forEach(c => params.append("brand", c as string));
+
+        toggleMenu();
+        replace(`${pathname}?${params.toString()}`);
+    }
+
     return (
         <div
-            className="relative w-full"
+            className="relative"
             ref={menuRef}
         >
             <div className="flex flex-row justify-start items-center gap-3">
                 <button
                     type="button"
                     className={clsx(
-                        "border rounded-lg py-2 px-3",
+                        "border rounded-lg py-2 px-3 cursor-pointer",
                         {
                             "text-blue-500 border-blue-300": isOpen || checkedOptions
-                            .length > 0,
-                            "text-black border-black": !isOpen,
+                                .length > 0,
+                            "text-black border-gray-300": !isOpen,
                         }
                     )}
                     onClick={toggleMenu}
@@ -105,7 +123,7 @@ export default function FilterMenuClientComponent({ sections }: props) {
                     <div
                         className="right-0 sm:right-auto sm:w-[400px] md:w-[600px] absolute z-30 top-11 left-0 py-5 px-2 rounded-lg border border-gray-300 bg-white shadow-xl"
                     >
-                        <form id="filter-form">
+                        <form id="filter-form" onSubmit={handleSubmitForm}>
                             {
                                 sections.map((section) => {
                                     return (
@@ -147,15 +165,9 @@ export default function FilterMenuClientComponent({ sections }: props) {
                         </form>
                         <div className="flex flex-row justify-center items-center gap-5">
                             <button
-                                onClick={(e) => {
-                                    toggleMenu();
-                                    e.preventDefault();
-                                    const form = document.getElementById("filter-form") as HTMLFormElement | null;
-                                    form?.requestSubmit();
-                                }}
                                 form="filter-form"
                                 type="submit"
-                                className="px-5 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-400 active:bg-blue-800"
+                                className="cursor-pointer px-5 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-400 active:bg-blue-800"
                             >
                                 Xem kết quả
                             </button>
@@ -169,7 +181,7 @@ export default function FilterMenuClientComponent({ sections }: props) {
                                 Bỏ lọc
                             </Link>
                         </div>
-                        <button onClick={toggleMenu} className="absolute top-2 right-2 border border-red-500 rounded-lg p-1">
+                        <button type="button" onClick={toggleMenu} className="cursor-pointer absolute top-2 right-2 border border-red-500 rounded-lg p-1">
                             <X color="red" className="w-5 h-5" />
                         </button>
                     </div>

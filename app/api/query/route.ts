@@ -1,17 +1,14 @@
-import { fetchProductVariantsInShort, fetchSpecsOfVariant, fetchVariantsOfProductBaseByVariantId } from "@/app/lib/data/fetch-data";
+import { query } from "@/app/lib/data/db";
+import { fetchProductVariantsInShort, fetchRecommendedVariantsByKey, fetchSpecsOfVariant, fetchVariantsOfProductBaseByVariantId } from "@/app/lib/data/fetch-data";
 import { mapSpecToArray } from "@/app/lib/utils/types";
+import { faker } from "@faker-js/faker";
 import { NextResponse } from "next/server";
 
 export async function GET() {
 
-    // const resultQuery = await fetchProductVariantsInShort("phone", {
-    //     limit: 3,
-    //     isPromoting: true,
-    // });
+    const resultQuery = await fetchRecommendedVariantsByKey("keyboard");
 
-    const resultQuery = await fetchSpecsOfVariant("16d16d55-6354-49ca-a606-3767bf7181fb", "keyboard");
-
-    return NextResponse.json(JSON.stringify(mapSpecToArray(resultQuery[0])));
+    return NextResponse.json({ resultQuery });
 }
 
 

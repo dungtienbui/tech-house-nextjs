@@ -1,6 +1,8 @@
 import { ProductType } from "@/app/lib/definations/types";
-import { fetchProductVariantsInShort } from "@/app/lib/data/fetch-data";
+import { fetchProductVariantsInShort, fetchProductVariantsInShortTotalPage } from "@/app/lib/data/fetch-data";
 import PreviewCard from "../../../components/preview-card/preview-card";
+import Pagination from "./pagination";
+import { wait } from "@/app/lib/utils/funcs";
 
 interface BaseProps {
     productType: ProductType;
@@ -19,9 +21,9 @@ interface BaseProps {
 export default async function ProductList({
     productType,
     queries,
-    currentPage,
+    currentPage = 1,
     isFeatureProduct,
-    limit,
+    limit = 10,
 }: BaseProps) {
 
     const productList = await fetchProductVariantsInShort(
@@ -29,43 +31,54 @@ export default async function ProductList({
         {
             isPromoting: isFeatureProduct,
             limit,
+            currentPage,
         },
-        queries?.map(item => ({
-            column: item.param,
-            value: item.value
-        }))
+        queries
     );
 
+    const totalPages = await fetchProductVariantsInShortTotalPage(
+        productType,
+        {
+            limit: 10,
+        },
+        queries
+    )
+
+    // await wait(3000);
+
     return (
-        <div
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-5"
-        >
-            {productList.map((product, index) => {
-                const subtitle =
-                    "(" +
-                    [
-                        product.ram && `${product.ram}GB`,
-                        product.storage && `${product.storage}GB`,
-                        product.color_name && `${product.color_name}`,
-                        product.switch_type && `${product.switch_type} switch`,
-                    ]
-                        .filter(Boolean)
-                        .join("/") +
-                    ")";
-                return (
-                    <PreviewCard
-                        key={`${product.variant_id}-${index}`}
-                        title={`${product.brand_name}: ${product.product_name}`}
-                        subtitle={subtitle}
-                        price={product.variant_price.toString()}
-                        navTo={`/products/${productType}/${product.variant_id}`}
-                        image={{
-                            href: product.preview_image_url ?? "",
-                            alt: product.preview_image_url ?? product.preview_image_caption ?? "",
-                        }}
-                    />
-                );
-            })}
+        <div className="flex flex-col gap-5 items-center">
+            <div
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-5"
+            >
+                {productList.map((product, index) => {
+                    const subtitle =
+                        "(" +
+                        [
+                            product.ram && `${product.ram}GB`,
+                            product.storage && `${product.storage}GB`,
+                            product.color_name && `${product.color_name}`,
+                            product.switch_type && `${product.switch_type} switch`,
+                        ]
+                            .filter(Boolean)
+                            .join("/") +
+                        ")";
+                    return (
+                        <PreviewCard
+                            key={`${product.variant_id}-${index}`}
+                            title={`${product.brand_name}: ${product.product_name}`}
+                            subtitle={subtitle}
+                            price={product.variant_price.toString()}
+                            navTo={`/products/${productType}/${product.variant_id}`}
+                            image={{
+                                href: product.preview_image_url ?? "",
+                                alt: product.preview_image_url ?? product.preview_image_caption ?? "",
+                            }}
+                        />
+                    );
+                })}
+            </div>
+            <Pagination totalPages={totalPages} currentPage={currentPage} />
         </div>
     );
 }

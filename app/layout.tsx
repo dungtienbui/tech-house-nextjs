@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Website sells technology devices.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -28,7 +28,7 @@ export default function RootLayout({
         className={`${roboto.className} antialiased bg-slate-50`}
       >
         <div className="h-screen">
-          <Header />
+          <Header query={""} />
           <NavBar />
           <main className="w-screen pt-40 min-[800px]:pt-32 mb-10">{children}</main>
           <Footer />

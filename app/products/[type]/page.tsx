@@ -6,8 +6,10 @@ import { Suspense } from "react";
 import ProductListSkeleton from "@/app/ui/app/products/type/product-list-skeleton";
 import Breadcrumbs from "@/app/ui/components/breadcrumbs/breadcrumbs";
 import FilterMenu from "@/app/ui/app/products/type/filter-menu";
-import { toArray } from "@/app/lib/utils/funcs";
+import { toArray, wait } from "@/app/lib/utils/funcs";
 import FilterMenuSkeleton from "@/app/ui/app/products/type/filter-menue-skeleton";
+import { fetchProductVariantsInShortTotalPage } from "@/app/lib/data/fetch-data";
+import Pagination from "@/app/ui/app/products/type/pagination";
 
 export default async function ProductListPage({
     params,
@@ -18,6 +20,7 @@ export default async function ProductListPage({
         brand?: string[];
         ram?: string[];
         storage?: string[];
+        page?: string;
     }>;
 }) {
     const { type } = await params;
@@ -43,6 +46,10 @@ export default async function ProductListPage({
         },
     ].filter(item => item.value.length > 0);
 
+    const currentPage = Number(searchParamsQuery?.page) || 1;
+
+    // console.log("currentPage: ", currentPage);
+
     return (
         <div className="w-full px-1 sm:px-4 md:px-6 lg:px-10 flex flex-col gap-3 lg:gap-5">
             <Breadcrumbs breadcrumbs={[
@@ -67,6 +74,8 @@ export default async function ProductListPage({
                         productType={type}
                         layout={"grid"}
                         queries={queries}
+                        currentPage={currentPage}
+                        limit={10}
                     />
                 </Suspense>
             </div>

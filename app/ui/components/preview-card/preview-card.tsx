@@ -17,7 +17,7 @@ export default function PreviewCard({ title, subtitle, image, price, navTo, isPr
 
   return (
     <Link
-      className="group border border-slate-200 hover:shadow-md rounded-xl flex flex-col justify-between items-center px-3 py-3 xl:px-5 overflow-clip relative"
+      className="group border border-gray-300 hover:shadow-md rounded-xl flex flex-col justify-between items-center px-3 py-3 xl:px-5 overflow-clip relative"
       href={navTo}>
       <div className="flex-1 flex justify-center items-center min-h-40 min-w-40">
         <Image

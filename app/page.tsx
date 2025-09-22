@@ -3,8 +3,9 @@ import { PRODUCT_TYPES } from "./lib/definations/types";
 import { Suspense } from "react";
 import HomePageProductList from "./ui/app/home-page-product-list";
 import HomePageProductListSkeleton from "./ui/app/home-page-product-list-skeleton";
+import { Circle } from "lucide-react";
 
-export default function Home() {
+export default async function Home() {
 
   return (
     <div className="w-full px-1 sm:px-5 md:px-6 lg:px-10">
