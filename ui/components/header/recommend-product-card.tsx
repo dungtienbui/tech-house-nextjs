@@ -1,4 +1,3 @@
-import { ProductType } from "@/app/lib/definations/types";
 import Image from "next/image";
 import Link from "next/link";
 

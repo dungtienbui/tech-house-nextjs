@@ -1,15 +1,13 @@
-import { getConvertKeyProductTypeToVN, isProductType } from "@/app/lib/utils/types";
-import Banner from "@/app/ui/components/banner/banner";
-import ProductList from "@/app/ui/app/products/type/product-list";
+import { toArray } from "@/lib/utils/funcs";
+import { isProductType, getConvertKeyProductTypeToVN } from "@/lib/utils/types";
+import FilterMenu from "@/ui/app/products/type/filter-menu";
+import FilterMenuSkeleton from "@/ui/app/products/type/filter-menue-skeleton";
+import ProductList from "@/ui/app/products/type/product-list";
+import ProductListSkeleton from "@/ui/app/products/type/product-list-skeleton";
+import Banner from "@/ui/components/banner/banner";
+import Breadcrumbs from "@/ui/components/breadcrumbs/breadcrumbs";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import ProductListSkeleton from "@/app/ui/app/products/type/product-list-skeleton";
-import Breadcrumbs from "@/app/ui/components/breadcrumbs/breadcrumbs";
-import FilterMenu from "@/app/ui/app/products/type/filter-menu";
-import { toArray, wait } from "@/app/lib/utils/funcs";
-import FilterMenuSkeleton from "@/app/ui/app/products/type/filter-menue-skeleton";
-import { fetchProductVariantsInShortTotalPage } from "@/app/lib/data/fetch-data";
-import Pagination from "@/app/ui/app/products/type/pagination";
 
 export default async function ProductListPage({
     params,

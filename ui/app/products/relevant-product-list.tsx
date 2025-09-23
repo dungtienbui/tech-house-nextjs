@@ -1,6 +1,6 @@
-import { fetchRecommendedVariantsByKey, fetchRecommendedVariantsByKeyTotalPage } from "@/app/lib/data/fetch-data";
 import Pagination from "./type/pagination";
 import PreviewCard from "../../components/preview-card/preview-card";
+import { fetchRecommendedVariantsByKey, fetchRecommendedVariantsByKeyTotalPage } from "@/lib/data/fetch-data";
 
 interface BaseProps {
     keyWord?: string;

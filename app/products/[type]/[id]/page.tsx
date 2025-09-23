@@ -1,11 +1,13 @@
-import { getConvertKeyProductTypeToVN, isProductType } from "@/app/lib/utils/types";
-import ProductInformation from "@/app/ui/app/products/type/id/product-information";
-import { ProductInformationSkeleton } from "@/app/ui/app/products/type/id/product-information-skeleton";
-import ProductOverview from "@/app/ui/app/products/type/id/product-overview";
-import ProductPolicyAndShipingInfo from "@/app/ui/app/products/type/id/product-policy-shiping-info";
-import Breadcrumbs from "@/app/ui/components/breadcrumbs/breadcrumbs";
+import { isProductType, getConvertKeyProductTypeToVN } from "@/lib/utils/types";
+import ProductInformation from "@/ui/app/products/type/id/product-information";
+import { ProductInformationSkeleton } from "@/ui/app/products/type/id/product-information-skeleton";
+import ProductOverview from "@/ui/app/products/type/id/product-overview";
+import ProductPolicyAndShipingInfo from "@/ui/app/products/type/id/product-policy-shiping-info";
+import Breadcrumbs from "@/ui/components/breadcrumbs/breadcrumbs";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+
+
 export default async function ProductDetailPage({
     params,
 }: {

@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import RecommendedProductCard from "./recommend-product-card";
-import { RecommendedVariantsInShortDTO } from "@/app/lib/definations/data-dto";
 import clsx from "clsx";
 import { Circle, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { NO_PREVIEW, RecommendedVariantsInShortDTO } from "@/lib/definations/data-dto";
 
 export default function SearchBar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +54,7 @@ export default function SearchBar() {
         router.push(href);
 
         setQuery("");
+        setIsOpen(false);
     }
 
     return (
@@ -74,9 +75,13 @@ export default function SearchBar() {
                             handleClickSearchSubmit();
                             (e.target as HTMLInputElement).blur();
                         }
+
+                        if (e.key === "Tab") {
+                            setIsOpen(false);
+                        }
                     }}
                     value={query}
-                    onBlur={() => setIsOpen(false)}
+                    // onBlur={(e) => { }}
                     placeholder="Tìm kiếm..."
                     type="search"
                     className="w-full bg-gray-50 h-9 px-3 py-1 rounded-full"
@@ -114,8 +119,8 @@ export default function SearchBar() {
                                 href={href}
                                 price={rv.variant_price}
                                 preview={{
-                                    previewURL: rv.preview_image_url ?? "https://placehold.co/100x100.png?text=No+Preview",
-                                    previewAlt: rv.preview_image_alt ?? "No preview image",
+                                    previewURL: rv.preview_image_url ?? NO_PREVIEW.href,
+                                    previewAlt: rv.preview_image_alt ?? NO_PREVIEW.alt,
                                 }}
                                 callBackOnNavigate={() => setIsOpen(false)}
                             />

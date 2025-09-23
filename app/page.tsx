@@ -1,9 +1,9 @@
-import Banner from "@/app/ui/components/banner/banner";
-import { PRODUCT_TYPES } from "./lib/definations/types";
+import { PRODUCT_TYPES } from "@/lib/definations/types";
+import HomePageProductList from "@/ui/app/home-page-product-list";
+import HomePageProductListSkeleton from "@/ui/app/home-page-product-list-skeleton";
+import Banner from "@/ui/components/banner/banner";
 import { Suspense } from "react";
-import HomePageProductList from "./ui/app/home-page-product-list";
-import HomePageProductListSkeleton from "./ui/app/home-page-product-list-skeleton";
-import { Circle } from "lucide-react";
+
 
 export default async function Home() {
 

@@ -1,4 +1,5 @@
-import PreviewCardSkeleton from "@/app/ui/components/preview-card/preview-card-skeleton";
+import PreviewCardSkeleton from "@/ui/components/preview-card/preview-card-skeleton";
+
 export default async function ProductListSkeleton() {
     return (
         <div className="flex flex-col justify-start items-center gap-5">

@@ -1,6 +1,10 @@
 import { Color, ProductBrand } from "./database-table-definations";
 import { ProductType } from "./types";
 
+export const NO_PREVIEW = {
+    href: "https://placehold.co/100x100.png?text=No+Preview",
+    alt: "No preview image"
+}
 
 //***********************************************************/
 export interface ProductSpecsDTO {
@@ -41,7 +45,7 @@ export interface ProductVariantInShortDTO {
     variant_id: string;
     product_base_id: string;
     product_name: string;
-    product_type: string;
+    product_type: ProductType;
     stock: number;
     variant_price: number;
     is_promoting: boolean;

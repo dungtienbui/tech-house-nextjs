@@ -1,7 +1,8 @@
-import Banner from "@/app/ui/components/banner/banner";
+import RelevantProductList from "@/ui/app/products/relevant-product-list";
+import ProductListSkeleton from "@/ui/app/products/type/product-list-skeleton";
+import Banner from "@/ui/components/banner/banner";
 import { Suspense } from "react";
-import ProductListSkeleton from "@/app/ui/app/products/type/product-list-skeleton";
-import RelevantProductList from "../ui/app/products/relevant-product-list";
+
 
 
 export default async function ProductsPage({

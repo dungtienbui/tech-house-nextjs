@@ -1,46 +1,54 @@
-import { ProductType } from "@/app/lib/definations/types";
-import { ChevronRightIcon } from "lucide-react";
-import Link from "next/link";
-import { fetchProductVariantsInShort } from "@/app/lib/data/fetch-data";
-import { getConvertKeyProductTypeToVN } from "@/app/lib/utils/types";
-import PreviewCard from "../components/preview-card/preview-card";
+import { fetchProductVariantsInShort, fetchProductVariantsInShortTotalPage } from "@/lib/data/fetch-data";
+import { ProductType } from "@/lib/definations/types";
+import PreviewCard from "@/ui/components/preview-card/preview-card";
+import Pagination from "./pagination";
 
 interface BaseProps {
     productType: ProductType;
+    queries?: {
+        param: string,
+        value: string[],
+    }[];
+    currentPage?: number;
+    isFeatureProduct?: boolean;
     limit?: number;
+    layout: "horizontal" | "grid";
     title?: string;
-    navigator: { name: string; href: string };
+    navigator?: { name: string; href: string };
 }
 
-export default async function HomePageProductList({
+export default async function ProductList({
     productType,
-    limit,
-    navigator,
+    queries,
+    currentPage = 1,
+    isFeatureProduct,
+    limit = 10,
 }: BaseProps) {
 
-    const productList = await fetchProductVariantsInShort(productType, {
-        isPromoting: true,
-        limit,
-    });
+    const productList = await fetchProductVariantsInShort(
+        productType,
+        {
+            isPromoting: isFeatureProduct,
+            limit,
+            currentPage,
+        },
+        queries
+    );
+
+    const totalPages = await fetchProductVariantsInShortTotalPage(
+        productType,
+        {
+            limit: 10,
+        },
+        queries
+    )
+
+    // await wait(3000);
 
     return (
-        <div className="w-full px-4">
-            <div className="mb-3">
-                <div className="flex flex-row justify-between items-end">
-                    <div className="font-bold">{`${getConvertKeyProductTypeToVN(productType)} nổi bật`}</div>
-                    <Link
-                        href={`${navigator.href}?featured=true`}
-                    >
-                        <div className="flex flex-row items-center text-blue-400 hover:text-blue-500 hover:font-bold duration-200">
-                            <div>{navigator.name}</div>
-                            <ChevronRightIcon className="w-6" />
-                        </div>
-                    </Link>
-                </div>
-                <div className="min-w-60 max-w-1/5 h-0 border border-sky-700"></div>
-            </div>
+        <div className="flex flex-col gap-5 items-center">
             <div
-                className="overflow-x-scroll grid grid-flow-col auto-cols-min gap-2 md:gap-5 pb-3"
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-5"
             >
                 {productList.map((product, index) => {
                     const subtitle =
@@ -69,6 +77,7 @@ export default async function HomePageProductList({
                     );
                 })}
             </div>
+            <Pagination totalPages={totalPages} currentPage={currentPage} />
         </div>
     );
 }

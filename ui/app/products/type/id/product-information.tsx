@@ -1,7 +1,8 @@
-import { fetchSpecsOfVariant } from "@/app/lib/data/fetch-data";
-import { ProductType } from "@/app/lib/definations/types";
-import { mapSpecToArray } from "@/app/lib/utils/types";
+import { fetchSpecsOfVariant } from "@/lib/data/fetch-data";
+import { ProductType } from "@/lib/definations/types";
+import { mapSpecToArray } from "@/lib/utils/types";
 import { ProductInformationClientComponent } from "./product-information-client";
+
 
 interface props {
     id: string;

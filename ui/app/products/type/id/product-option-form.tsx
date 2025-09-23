@@ -1,8 +1,9 @@
+import { fetchVariantsOfProductBaseByVariantId } from "@/lib/data/fetch-data";
+import LinkHorizontalSelection from "@/ui/components/inputs/link-horizontal-selection";
 import { Circle, ShoppingCart } from "lucide-react";
-import { fetchVariantsOfProductBaseByVariantId } from "@/app/lib/data/fetch-data";
 import { notFound } from "next/navigation";
-import LinkHorizontalSelection from "@/app/ui/components/inputs/link-horizontal-selection";
-import NumberInputWithButtonBothSide from "@/app/ui/components/inputs/number-input";
+import SubmitOptionFormSection from "./submit-option-form-section";
+
 
 interface props {
     variantId: string;
@@ -110,20 +111,7 @@ export default async function ProductOptionForm({ variantId }: props) {
                 <LinkHorizontalSelection title={productOptionSelectTitle} options={productOptions} defaultOption={productDefaultOption} />
             </div>
             <div className="w-full h-0 border-t border-gray-300" />
-            <div className="flex flex-row flex-wrap gap-5">
-                <div className="flex-1 min-w-1/4">
-                    <NumberInputWithButtonBothSide />
-                </div>
-                <div className="flex-1 lg:flex-2 min-w-fit">
-                    <button type="button" className="px-2 w-full h-full flex flex-row justify-center items-center gap-1 lg:gap-3 py-2 border-2 border-sky-500 font-bold text-md text-blue-500 hover:bg-sky-500 hover:text-white hover:shadow-lg duration-300">
-                        <div>Mua ngay</div>
-                        <ShoppingCart />
-                    </button>
-                </div>
-                <div className="flex-1 min-w-fit">
-                    <button type="button" className="px-2 w-full h-full py-2 border-2 border-sky-500 font-bold text-md text-blue-500 hover:bg-sky-500 hover:text-white hover:shadow-lg duration-300">Thêm vào giỏ</button>
-                </div>
-            </div>
+            <SubmitOptionFormSection varirantId={variant.variant_id} />
         </form>
     )
 }

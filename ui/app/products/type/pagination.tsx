@@ -1,6 +1,6 @@
 'use client';
 
-import { generatePagination } from '@/app/lib/utils/funcs';
+import { generatePagination } from '@/lib/utils/funcs';
 import clsx from 'clsx';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Link from 'next/link';

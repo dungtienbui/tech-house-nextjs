@@ -378,3 +378,61 @@ SELECT
 
   return resultQuery
 }
+
+
+
+// Has sql injection attack in queries param ?????????
+export async function fetchVariantsByVariantIdArray(
+  variantIdArray: string[]
+) {
+
+  if (variantIdArray.length === 0) {
+    return [];
+  }
+
+  const whereStr = variantIdArray.map((id, idx) => {
+    return `$${idx + 1}`
+  }).join(",")
+
+  const queryString = `
+    SELECT
+      v.variant_id,
+      v.stock,
+      v.variant_price,
+      v.date_added,
+      v.is_promoting,
+      v.ram,
+      v.storage,
+      v.switch_type,
+      --Thông tin từ product_base
+      pb.product_base_id,
+      pb.product_name,
+      --Product brand
+      pb2.brand_name,
+      pb.product_type,
+      pb.description,
+      pb.base_price,
+      --Thông tin màu sắc(có thể null)
+      c.color_id,
+      c.color_name,
+      c.value AS color_value,
+        --Ảnh preview(có thể null)
+      pi.image_id AS preview_image_id,
+      pi.image_url AS preview_image_url,
+      pi.image_caption AS preview_image_caption
+    FROM variant v
+    LEFT JOIN product_base pb 
+      ON v.product_base_id = pb.product_base_id
+    LEFT JOIN product_brand pb2
+      ON pb.brand_id = pb2.brand_id
+    LEFT JOIN color c 
+      ON v.color_id = c.color_id
+    LEFT JOIN product_image pi 
+      ON v.preview_id = pi.image_id
+    WHERE v.variant_id IN (${whereStr});
+`;
+
+  // console.log("queryString: ", queryString);
+
+  return await query<ProductVariantInShortDTO>(queryString, variantIdArray);
+}

@@ -1,12 +1,10 @@
-import { generateFakeProductBase, generateFakeVariant, generateFakeVariantImage, generateSpecs, generateFakeImagePlacehold } from "@/app/lib/data/fake-data-generators";
-import { Color, ProductBrand } from "@/app/lib/definations/database-table-definations";
+import { generateFakeProductBase, generateSpecs, generateFakeImagePlacehold, generateFakeVariant, generateFakeVariantImage } from "@/lib/data/fake-data-generators";
+import { fetchColors, fetchBrandByProductType } from "@/lib/data/fetch-data";
+import { insertProductBase, insertSpec, insertProductImage, insertVariant, insertVariantImage } from "@/lib/data/insert-data";
+import { Color, ProductBrand } from "@/lib/definations/database-table-definations";
+import { ProductType } from "@/lib/definations/types";
 import { randomInt } from "crypto";
 import { NextResponse } from "next/server";
-import { insertProductBase, insertProductImage, insertSpec, insertVariant, insertVariantImage } from "../../lib/data/insert-data";
-import { fetchBrandByProductType, fetchBrands, fetchColors } from "@/app/lib/data/fetch-data";
-import { ProductType } from "@/app/lib/definations/types";
-import { query } from "@/app/lib/data/db";
-
 
 export async function seedProduct(productType: ProductType) {
     const productColors = await fetchColors() as Color[];

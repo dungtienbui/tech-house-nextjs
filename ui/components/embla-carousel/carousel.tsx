@@ -1,4 +1,4 @@
-import { fetchImagesOfVariantById } from '@/app/lib/data/fetch-data';
+import { fetchImagesOfVariantById } from '@/lib/data/fetch-data';
 import { ProductDetailCarouselClientComponent } from './carousel-client';
 
 
