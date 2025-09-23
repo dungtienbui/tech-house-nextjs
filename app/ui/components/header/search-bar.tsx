@@ -12,13 +12,13 @@ export default function SearchBar() {
     const [isOpen, setIsOpen] = useState(false);
     const [recommendedVars, setRecommendedVars] = useState<RecommendedVariantsInShortDTO[]>([]);
 
-    const [isLoading, setLoading] = useState(false);
+    const [isLoading, setLoading] = useState(true);
 
     const [query, setQuery] = useState("");
 
-    const fetchData = useDebouncedCallback(async (term: string) => {
-        setQuery(term);
-        const res = await fetch(`/api/search?query=${encodeURIComponent(term)}`);
+    const fetchData = useDebouncedCallback(async () => {
+        setLoading(true);
+        const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
         const data = await res.json() as RecommendedVariantsInShortDTO[];
         setRecommendedVars(data);
         setLoading(false);
@@ -26,7 +26,6 @@ export default function SearchBar() {
 
     const areaRef = useRef<HTMLDivElement>(null);
 
-    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
@@ -46,13 +45,15 @@ export default function SearchBar() {
     const router = useRouter();
     const params = new URLSearchParams();
 
-    const handleClickSearchButton = () => {
+    const handleClickSearchSubmit = () => {
 
         params.set("query", query);
 
         const href = `/products?${params.toString()}`;
 
         router.push(href);
+
+        setQuery("");
     }
 
     return (
@@ -60,20 +61,27 @@ export default function SearchBar() {
             <div className="relative w-full md:w-11/12 flex flex-row">
                 <input
                     onChange={(e) => {
-                        setLoading(true);
-                        fetchData(e.target.value);
+                        setQuery(e.target.value);
+                        fetchData();
                     }}
                     onFocus={() => {
-                        setLoading(true);
                         setIsOpen(true);
-                        fetchData("");
+                        fetchData();
                     }}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleClickSearchSubmit();
+                            (e.target as HTMLInputElement).blur();
+                        }
+                    }}
+                    value={query}
                     onBlur={() => setIsOpen(false)}
                     placeholder="Tìm kiếm..."
                     type="search"
                     className="w-full bg-gray-50 h-9 px-3 py-1 rounded-full"
                 />
-                <button onClick={handleClickSearchButton} type="button" className="absolute top-0 bottom-0 right-0 px-4 py-1 bg-yellow-300 rounded-r-full hover:cursor-pointer hover:bg-yellow-200">
+                <button onClick={handleClickSearchSubmit} type="button" className="absolute top-0 bottom-0 right-0 px-4 py-1 bg-yellow-300 rounded-r-full hover:cursor-pointer hover:bg-yellow-200">
                     <Search color="black" />
                 </button>
             </div>
@@ -87,50 +95,45 @@ export default function SearchBar() {
                 }
             )}
             >
-                {recommendedVars.length === 0 && (
-                    <div className="text-center text-sm">
-                        <div>Không tìm thấy sản phẩm liên quan.</div>
-                        <div>Vui lòng nhập từ khoá khác.</div>
-                    </div>
-                )}
-                {recommendedVars.map((rv) => {
-                    const optionStr = [
-                        rv.ram ? `${rv.ram}GB` : null,
-                        rv.storage ? `${rv.storage}GB` : null,
-                        rv.switch_type ? `${rv.switch_type} switch` : null,
-                        rv.color_name,
-                    ]
-                        .filter(Boolean)
-                        .join("/");
-                    const name = `${rv.brand_name} ${rv.product_name} ${optionStr}`;
-                    const href = `/products/${rv.product_type}/${rv.variant_id}`
-                    return (
-                        <RecommendedProductCard
-                            key={rv.variant_id}
-                            name={name}
-                            href={href}
-                            price={rv.variant_price}
-                            preview={{
-                                previewURL: rv.preview_image_url ?? "https://placehold.co/100x100.png?text=No+Preview",
-                                previewAlt: rv.preview_image_alt ?? "No preview image",
-                            }}
-                            callBackOnNavigate={() => setIsOpen(false)}
-                        />
-                    );
-                })}
-                <div className={clsx(
-                    "text-center",
-                    {
-                        "hidden": !isLoading,
-                        "block": isLoading,
-                    }
-                )}>
+                {recommendedVars.length !== 0 ?
+                    recommendedVars.map((rv) => {
+                        const optionStr = [
+                            rv.ram ? `${rv.ram}GB` : null,
+                            rv.storage ? `${rv.storage}GB` : null,
+                            rv.switch_type ? `${rv.switch_type} switch` : null,
+                            rv.color_name,
+                        ]
+                            .filter(Boolean)
+                            .join("/");
+                        const name = `${rv.brand_name} ${rv.product_name} ${optionStr}`;
+                        const href = `/products/${rv.product_type}/${rv.variant_id}`
+                        return (
+                            <RecommendedProductCard
+                                key={rv.variant_id}
+                                name={name}
+                                href={href}
+                                price={rv.variant_price}
+                                preview={{
+                                    previewURL: rv.preview_image_url ?? "https://placehold.co/100x100.png?text=No+Preview",
+                                    previewAlt: rv.preview_image_alt ?? "No preview image",
+                                }}
+                                callBackOnNavigate={() => setIsOpen(false)}
+                            />
+                        );
+                    }) : query !== "" && (
+                        <div className="text-center text-sm">
+                            <div>Không tìm thấy sản phẩm liên quan.</div>
+                            <div>Vui lòng nhập từ khoá khác.</div>
+                        </div>
+                    )}
+
+                {isLoading && (
                     <div className="flex justify-center items-center gap-5">
                         <Circle className="w-3 h-3 animate-bounce" color="gray" />
                         <Circle className="w-3 h-3 animate-bounce" color="gray" />
                         <Circle className="w-3 h-3 animate-bounce" color="gray" />
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
