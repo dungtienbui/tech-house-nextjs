@@ -63,7 +63,6 @@ export default function FilterMenuClientComponent({ sections }: props) {
         return section.options.filter(option => option.checked === true);
     });
 
-    const searchParams = useSearchParams();
     const { replace } = useRouter();
     const pathname = usePathname();
 
@@ -74,7 +73,7 @@ export default function FilterMenuClientComponent({ sections }: props) {
         const storageValues = formData.getAll("storage");
         const brandValues = formData.getAll("brand");
 
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams();
         ramValues.forEach(c => params.append("ram", c as string));
         storageValues.forEach(c => params.append("storage", c as string));
         brandValues.forEach(c => params.append("brand", c as string));

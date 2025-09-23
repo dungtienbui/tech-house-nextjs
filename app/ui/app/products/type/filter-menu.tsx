@@ -13,6 +13,8 @@ interface props {
 
 export default async function FilterMenu({ productType, queries }: props) {
 
+    // console.log("queries: ", queries);
+
     const brands = await fetchBrandByProductType(productType);
 
     const queriesMappingObject =
