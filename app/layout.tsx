@@ -5,6 +5,7 @@ import { CartProvider } from "@/lib/context/card-context";
 import Footer from "@/ui/components/footer/footer";
 import Header from "@/ui/components/header/header";
 import NavBar from "@/ui/components/navbar/navbar";
+import { GuestProvider } from "@/lib/context/guest-context";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -28,14 +29,16 @@ export default async function RootLayout({
       <body
         className={`${roboto.className} antialiased bg-slate-50`}
       >
-        <CartProvider>
-          <div className="h-screen">
-            <Header />
-            <NavBar />
-            <main className="w-screen pt-40 min-[800px]:pt-32 mb-10">{children}</main>
-            <Footer />
-          </div>
-        </CartProvider>
+        <GuestProvider>
+          <CartProvider>
+            <div className="h-screen">
+              <Header />
+              <NavBar />
+              <main className="w-screen">{children}</main>
+              <Footer />
+            </div>
+          </CartProvider>
+        </GuestProvider>
       </body>
     </html>
   );

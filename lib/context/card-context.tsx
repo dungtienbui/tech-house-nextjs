@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { ProductVariantInShortDTO } from "../definations/data-dto";
 
 interface CartItem {
@@ -14,6 +14,7 @@ type CartContextType = {
     readonly cart: CartItem[];
     readonly cartProductInfo: CartProductInfo[]; // thêm để UI render dễ hơn
     readonly loading: boolean;
+    readonly priceMap: Map<string, { quantity: number, price: number }>;
     addToCart: (variantId: string, quantity?: number) => void;
     removeFromCart: (variantId: string, quantity?: number) => void;
     clearCart: () => void;
@@ -83,6 +84,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
     }
 
+    const priceMap = useMemo(() => {
+        const map = new Map<string, { quantity: number; price: number }>();
+
+        for (const item of cart) {
+            map.set(item.variantId, { quantity: item.quantity, price: 0 });
+        }
+
+        for (const info of cartProductInfo) {
+            const entry = map.get(info.variant_id);
+            if (entry) {
+                map.set(info.variant_id, { ...entry, price: info.variant_price });
+            }
+        }
+
+        return map;
+    }, [cart, cartProductInfo]);
+
     function removeFromCart(variantId: string, quantity?: number) {
         setCart((prev) => {
             const existCardItem = prev.find((item) => item.variantId === variantId);
@@ -117,6 +135,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 addToCart,
                 removeFromCart,
                 clearCart,
+                priceMap
             }}
         >
             {children}

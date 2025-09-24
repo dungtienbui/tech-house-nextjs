@@ -2,13 +2,21 @@ import { PRODUCT_TYPES } from "@/lib/definations/types";
 import HomePageProductList from "@/ui/app/home-page-product-list";
 import HomePageProductListSkeleton from "@/ui/app/home-page-product-list-skeleton";
 import Banner from "@/ui/components/banner/banner";
+import Breadcrumbs from "@/ui/components/breadcrumbs/breadcrumbs";
 import { Suspense } from "react";
 
 
 export default async function Home() {
 
   return (
-    <div className="w-full px-1 sm:px-5 md:px-6 lg:px-10">
+    <div className="w-full pt-44 min-[800px]:pt-36 px-1 sm:px-5 md:px-6 lg:px-10 flex flex-col gap-3 lg:gap-5">
+      <Breadcrumbs breadcrumbs={[
+        {
+          label: "Trang chủ",
+          href: "/",
+          active: true
+        },
+      ]} />
       <Banner imageLink={"https://cdnv2.tgdd.vn/mwg-static/tgdd/Banner/ac/8c/ac8cdc4164298c52561dd2232fce2200.png"} alt={"Banner quản cáo iphone 17 pro max."} />
       <div className="flex flex-col gap-5 mt-5">
         {
