@@ -1,23 +1,24 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
-import { ProductVariantInShortDTO } from "../definations/data-dto";
+import { CartItem, CartProductInfo, ProductVariantInShortDTO } from "../definations/data-dto";
 
-interface CartItem {
-    variantId: string;
-    quantity: number;
-}
 
-interface CartProductInfo extends ProductVariantInShortDTO { }
+
 
 type CartContextType = {
     readonly cart: CartItem[];
-    readonly cartProductInfo: CartProductInfo[]; // thêm để UI render dễ hơn
+    readonly cartProductInfo: CartProductInfo[];
     readonly loading: boolean;
-    readonly priceMap: Map<string, { quantity: number, price: number }>;
+    readonly selected: string[];
+    readonly isSelectedAll: boolean;
     addToCart: (variantId: string, quantity?: number) => void;
     removeFromCart: (variantId: string, quantity?: number) => void;
     clearCart: () => void;
+    selectCartItem: (id: string) => void;
+    removeSelectedCartItem: (id: string) => void;
+    selectAllCartItems: () => void;
+    removeAllSelectedCartItems: () => void;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -26,6 +27,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [cartProductInfo, setCartProductInfo] = useState<CartProductInfo[]>([]);
     const [loading, setLoading] = useState(false);
+
+    const [selected, setSelected] = useState<string[]>([]);
+
+    function selectCartItem(id: string) {
+        if (!selected.includes(id)) {
+            setSelected([...selected, id]);
+        }
+    }
+
+    function selectAllCartItems() {
+        setSelected(cart.map(item => item.variantId));
+    }
+
+    function removeSelectedCartItem(id: string) {
+        if (selected.includes(id)) {
+            setSelected(selected.filter(s => s !== id));
+        }
+    }
+
+    function removeAllSelectedCartItems() {
+        setSelected([]);
+    }
+
+    const isSelectedAll = cart.length > 0 && cart.every(item => selected.includes(item.variantId));
 
     // 1️⃣ Load cart từ localStorage
     useEffect(() => {
@@ -60,8 +85,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             body: JSON.stringify({ ids }),
         })
             .then((res) => res.json())
-            .then((data: CartProductInfo[]) => {
-                setCartProductInfo(data);
+            .then((data: ProductVariantInShortDTO[]) => {
+
+                const mappingData: CartProductInfo[] = cart.map((c) => {
+                    const exist = data.find(d => d.variant_id === c.variantId);
+                    if (exist) {
+                        return {
+                            ...exist,
+                            quantity: c.quantity,
+                        }
+                    }
+
+                    return undefined;
+                }).filter(f => f !== undefined);
+
+                setCartProductInfo(mappingData);
             })
             .catch((err) => console.error("Lỗi fetch product info:", err))
             .finally(() => setLoading(false));
@@ -83,23 +121,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             return [...prev, { variantId, quantity }];
         });
     }
-
-    const priceMap = useMemo(() => {
-        const map = new Map<string, { quantity: number; price: number }>();
-
-        for (const item of cart) {
-            map.set(item.variantId, { quantity: item.quantity, price: 0 });
-        }
-
-        for (const info of cartProductInfo) {
-            const entry = map.get(info.variant_id);
-            if (entry) {
-                map.set(info.variant_id, { ...entry, price: info.variant_price });
-            }
-        }
-
-        return map;
-    }, [cart, cartProductInfo]);
 
     function removeFromCart(variantId: string, quantity?: number) {
         setCart((prev) => {
@@ -135,7 +156,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 addToCart,
                 removeFromCart,
                 clearCart,
-                priceMap
+                selected,
+                isSelectedAll,
+                selectCartItem,
+                removeSelectedCartItem,
+                selectAllCartItems,
+                removeAllSelectedCartItems
             }}
         >
             {children}

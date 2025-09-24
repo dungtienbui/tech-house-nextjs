@@ -191,18 +191,8 @@ export interface ProductPromotion {
 }
 
 // =====================
-// Payments & Orders
+// Orders
 // =====================
-export interface PaymentMethod {
-    payment_method_id: string;
-    payment_method_name: string;
-    available: boolean;
-}
-
-export interface PaymentStatus {
-    payment_status_id: string;
-    status_name: string;
-}
 
 export interface Order {
     order_id: string;

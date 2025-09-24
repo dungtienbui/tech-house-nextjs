@@ -1,6 +1,9 @@
-import { query } from "@/app/lib/data/db";
-import { Color, ProductImage, ProductBaseImage, Variant, VariantImage, ProductBase, PhoneSpec, HeadphoneSpec, KeyboardSpec, LaptopSpec } from "@/app/lib/definations/database-table-definations";
-import { ProductType, SpecResult } from "../definations/types";
+import { GuestInfo } from "../context/guest-context";
+import { CartItem } from "../definations/data-dto";
+import { Color, ProductImage, ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase } from "../definations/database-table-definations";
+import { PaymentMethod, ProductType, SpecResult } from "../definations/types";
+import { query } from "./db";
+import { fetchVariantPrices } from "./fetch-data";
 
 export async function resetTable(tableName: string) {
     return await query(`TRUNCATE TABLE ${tableName} RESTART IDENTITY CASCADE;`);
@@ -202,10 +205,65 @@ export async function insertProductBase(item: ProductBase) {
         [
             item.product_base_id,
             item.product_name,
-            item.brand,
+            item.product_type,
             item.product_type,
             item.description,
             item.base_price,
         ]
     );
 }
+
+
+export async function insertOrder(
+    cart: CartItem[],
+    guest: GuestInfo,
+    paymentMethod: PaymentMethod
+): Promise<string> {
+    if (!cart || cart.length === 0) {
+        throw new Error("Cart is empty");
+    }
+
+    const variantIds = cart.map(c => c.variantId);
+    const variantPrices = await fetchVariantPrices(variantIds);
+
+    // Chuyển mảng cart thành JSON để truyền vào Postgres function
+    const data = cart.map((item) => ({
+        variant_id: item.variantId,
+        quantity: item.quantity,
+        variant_price: variantPrices[item.variantId], // TODO: bạn nên fetch giá từ DB để tránh fake giá
+    }))
+
+    const productsJson = JSON.stringify(data);
+
+    // TODO: tính totalAmount thực tế (tốt nhất nên fetch giá từ DB)
+    const totalAmount = data.reduce((acc, curr) => acc + curr.variant_price * curr.quantity, 0);
+
+    const rewardPoints = Math.floor(totalAmount / 100);
+
+    const sql = `
+    SELECT insert_order(
+      $1, $2, $3, $4, $5,
+      $6, $7, $8,
+      $9::jsonb
+    ) AS order_id;
+  `;
+
+    const params = [
+        paymentMethod,   // $1 p_payment_method
+        "pending",       // $2 p_payment_status
+        totalAmount,     // $3 p_total_amount
+        rewardPoints,    // $4 p_reward_points
+        null,            // $5 p_customer_id (null = khách vãng lai)
+        guest.name,      // $6 p_buyer_name
+        guest.phone,     // $7 p_phone_number
+        guest.address,   // $8 p_address
+        productsJson,    // $9 p_products
+    ];
+
+    const result = await query<{ order_id: string }>(sql, params);
+
+    console.log("result: ", result);
+    return result[0].order_id;
+}
+
+

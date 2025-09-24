@@ -436,3 +436,29 @@ export async function fetchVariantsByVariantIdArray(
 
   return await query<ProductVariantInShortDTO>(queryString, variantIdArray);
 }
+
+export async function fetchVariantPrices(variantIds: string[]) {
+  if (variantIds.length === 0) return {};
+
+  // Tạo danh sách placeholder an toàn để tránh SQL injection
+  const placeholders = variantIds.map((_, i) => `$${i + 1}`).join(",");
+
+  const sql = `
+    SELECT v.variant_id, v.variant_price
+    FROM variant v
+    WHERE v.variant_id IN (${placeholders});
+  `;
+
+  const result = await query<{ variant_id: string; variant_price: number }>(
+    sql,
+    variantIds
+  );
+
+  // Chuyển kết quả rows thành object { id: price }
+  const priceMap: Record<string, number> = {};
+  for (const row of result) {
+    priceMap[row.variant_id] = Number(row.variant_price);
+  }
+
+  return priceMap;
+}

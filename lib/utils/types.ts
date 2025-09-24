@@ -1,5 +1,6 @@
-import { SpecKeyValueDTO } from "../definations/data-dto";
-import { PRODUCT_TYPES, ProductType } from "../definations/types";
+import { GuestInfo } from "../context/guest-context";
+import { CartItem, SpecKeyValueDTO } from "../definations/data-dto";
+import { PAYMENT_METHOD, PaymentMethod, PRODUCT_TYPES, ProductType } from "../definations/types";
 
 export function getConvertKeyProductTypeToVN(pt: ProductType): string {
     switch (pt) {
@@ -56,4 +57,37 @@ export function mapSpecToArray(spec: SpecKeyValueDTO): { name: string; value: st
             name: specKeyVNMap[key as keyof SpecKeyValueDTO] || key,
             value: String(value),
         }));
+}
+
+
+export const isGuestInfoValid = (guestInfo: GuestInfo): boolean => {
+    if (!guestInfo.name.trim() || !guestInfo.phone.trim() || !guestInfo.email.trim() || !guestInfo.address.trim()) {
+        return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(guestInfo.email)) return false;
+
+    const phoneRegex = /^(0|\+84)(\d{9})$/;
+    if (!phoneRegex.test(guestInfo.phone)) return false;
+
+    return true;
+}
+
+export function isCartItem(obj: unknown): obj is CartItem {
+    return (
+        typeof obj === "object" &&
+        obj !== null &&
+        "variantId" in obj &&
+        "quantity" in obj &&
+        typeof (obj as any).variantId === "string" &&
+        typeof (obj as any).quantity === "number"
+    );
+}
+
+export function isCartItemArray(arr: unknown): arr is CartItem[] {
+    return Array.isArray(arr) && arr.every(isCartItem);
+}
+
+export function isPaymentMethod(pt: any): pt is PaymentMethod {
+    return (PAYMENT_METHOD as readonly string[]).includes(pt);
 }

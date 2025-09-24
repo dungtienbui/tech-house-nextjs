@@ -535,34 +535,18 @@ CREATE TABLE
   );
 
 CREATE TABLE
-  "payment_method" (
-    "payment_method_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "payment_method_name" VARCHAR,
-    "available" BOOLEAN
-  );
-
-CREATE TABLE
-  "payment_status" (
-    "payment_status_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "status_name" VARCHAR
-  );
-
-CREATE TABLE
   "order" (
     "order_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "order_created_at" TIMESTAMPTZ DEFAULT now (),
-    "payment_method" UUID,
-    "payment_status" UUID,
-    "payment_time" TIMESTAMPTZ,
+    "payment_method" VARCHAR,
+    "payment_status" VARCHAR,
     "total_amount" NUMERIC(14, 2),
     "reward_points" INT,
-    CONSTRAINT fk_order_payment_method FOREIGN KEY ("payment_method") REFERENCES "payment_method" ("payment_method_id"),
-    CONSTRAINT fk_order_payment_status FOREIGN KEY ("payment_status") REFERENCES "payment_status" ("payment_status_id")
   );
 
 CREATE TABLE
   "buyer_info" (
-    "customer_id" UUID,
+    "customer_id" UUID NULL,
     "buyer_name" VARCHAR,
     "phone_number" VARCHAR,
     "address" VARCHAR,
@@ -574,12 +558,12 @@ CREATE TABLE
 CREATE TABLE
   "order_product" (
     "order_id" UUID,
-    "specific_product_id" UUID,
+    "variant_id" UUID,
     "quantity" INT,
-    "product_price" NUMERIC(12, 2),
+    "variant_price" NUMERIC(12, 2),
     PRIMARY KEY ("order_id", "specific_product_id"),
     CONSTRAINT fk_order_product_order FOREIGN KEY ("order_id") REFERENCES "order" ("order_id"),
-    CONSTRAINT fk_order_product_variant FOREIGN KEY ("specific_product_id") REFERENCES "variant" ("variant_id")
+    CONSTRAINT fk_order_product_variant FOREIGN KEY ("variant_id") REFERENCES "variant" ("variant_id")
   );
 
 CREATE TABLE
@@ -591,3 +575,41 @@ CREATE TABLE
     "transaction_date" DATE,
     CONSTRAINT fk_inventory_history_variant FOREIGN KEY ("variant_id") REFERENCES "variant" ("variant_id")
   );
+
+  CREATE OR REPLACE FUNCTION insert_order(
+  p_payment_method VARCHAR,
+  p_payment_status VARCHAR,
+  p_total_amount NUMERIC(14,2),
+  p_reward_points INT,
+  p_customer_id UUID,
+  p_buyer_name VARCHAR,
+  p_phone_number VARCHAR,
+  p_address VARCHAR,
+  p_products JSONB  -- [{ "variant_id": "...", "quantity": 2, "variant_price": 123.45 }]
+)
+RETURNS UUID AS $$
+DECLARE
+  v_order_id UUID;
+BEGIN
+  -- 1. Insert vào order
+  INSERT INTO "order" (payment_method, payment_status, total_amount, reward_points)
+  VALUES (p_payment_method, p_payment_status, p_total_amount, p_reward_points)
+  RETURNING order_id INTO v_order_id;
+
+  -- 2. Insert buyer_info
+  INSERT INTO buyer_info (order_id, customer_id, buyer_name, phone_number, address)
+  VALUES (v_order_id, p_customer_id, p_buyer_name, p_phone_number, p_address);
+
+  -- 3. Insert order_product (dùng jsonb_array_elements để tạo nhiều dòng)
+  INSERT INTO order_product (order_id, variant_id, quantity, variant_price)
+  SELECT
+    v_order_id,
+    (product->>'variant_id')::UUID,
+    (product->>'quantity')::INT,
+    (product->>'variant_price')::NUMERIC(12,2)
+  FROM jsonb_array_elements(p_products) AS product;
+
+  -- Trả về order_id vừa tạo
+  RETURN v_order_id;
+END;
+$$ LANGUAGE plpgsql;

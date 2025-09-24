@@ -147,3 +147,14 @@ export interface SpecKeyValueDTO {
     // Headphone-specific
     compatibility?: string | null;
 }
+
+
+//***********************************************************/
+export interface CartItem {
+    variantId: string;
+    quantity: number;
+}
+
+export interface CartProductInfo extends ProductVariantInShortDTO {
+    quantity: number;
+}
