@@ -38,7 +38,7 @@ export function ProductInformationSkeleton() {
                 <div className="w-full h-0 border-t border-gray-300" />
             </div>
             <div className="px-5 lg:px-15 xl:px-32">
-                <div className="relative shimmer w-full min-h-24 rounded-xl p-5 md:p-10 bg-gray-300"></div>
+                <div className="relative shimmer w-full min-h-40 rounded-xl p-5 md:p-10 bg-gray-300"></div>
             </div>
         </div>
     );

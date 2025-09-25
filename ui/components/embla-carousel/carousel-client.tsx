@@ -9,7 +9,7 @@ import LazyImage from '../lazy-loading-image/lazy-image';
 
 
 
-export function ProductDetailCarouselClientComponent({ images }: {
+export function CarouselClientComponent({ images }: {
     images: {
         id: string;
         name: string;
@@ -35,7 +35,6 @@ function EmblaCarousel({ images }: {
         href: string;
     }[]
 }) {
-    // const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000 })])
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [])
 
     const scrollPrev = useCallback(() => {

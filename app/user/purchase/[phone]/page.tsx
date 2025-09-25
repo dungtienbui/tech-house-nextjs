@@ -2,6 +2,7 @@ import { fetchOrdersByPhoneNumber } from "@/lib/data/fetch-data";
 import { NO_PREVIEW, OrderDTO, OrderProductDTO } from "@/lib/definations/data-dto";
 import { PaymentStatus } from "@/lib/definations/types";
 import { getPaymentStatusLabel, isPhoneNumberValid } from "@/lib/utils/types";
+import Breadcrumbs from "@/ui/components/breadcrumbs/breadcrumbs";
 import Devider from "@/ui/components/divider/divider";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,35 +23,47 @@ export default async function PurchasesByPhonePage({
     const orders = await fetchOrdersByPhoneNumber(trimmedPhone);
 
     return (
-        <div className="flex flex-col md:flex-row gap-5 justify-center items-center">
-            {orders.length === 0 ? (
-                <div className="flex flex-col justify-center items-center gap-5">
-                    <Image src={"/shopping-bag.svg"} alt={"Empty shopping bag image"} width={200} height={200} />
-                    <div className="flex flex-col gap-3 text-center">
-                        <div className="text-sm font-bold">Số điện thoại này chưa có đơn mua nào!</div>
-                        <Link
-                            className="px-10 py-3 bg-sky-500 text-white"
-                            href={"/"}
-                        >
-                            MUA HÀNG NGAY
-                        </Link>
+        <div>
+            <Breadcrumbs breadcrumbs={[
+                {
+                    label: "Trang chủ",
+                    href: "/",
+                    active: false
+                },
+                {
+                    label: "Khách hàng",
+                    href: `/user/purchase`,
+                    active: false
+                },
+                {
+                    label: `Đơn mua: ${trimmedPhone}`,
+                    href: `/user/purchase/${trimmedPhone}`,
+                    active: true
+                },
+            ]} />
+            <div className="mt-5">
+                {orders.length === 0 ? (
+                    <div className="flex flex-col justify-center items-center gap-5">
+                        <Image src={"/shopping-bag.svg"} alt={"Empty shopping bag image"} width={200} height={200} />
+                        <div className="flex flex-col gap-3 text-center">
+                            <div className="text-sm font-bold">Số điện thoại này chưa có đơn mua nào!</div>
+                            <Link
+                                className="px-10 py-3 bg-sky-500 text-white"
+                                href={"/"}
+                            >
+                                MUA HÀNG NGAY
+                            </Link>
+                        </div>
                     </div>
-                </div>
-            ) :
-                (
-                    <div>
-                        <h2 className="font-semibold mb-4">
-                            <span>Đơn mua của: </span>
-                            <span className="text-xl">{phone}</span>
-                        </h2>
+                ) : (
+                    <div className="flex flex-col gap-5 lg:px-44">
                         {orders.map((order) => {
                             return (
                                 <OrderInfo key={order.order_id} order={order} />
                             );
                         })}
-                    </div>
-                )
-            }
+                    </div>)}
+            </div>
         </div>
     );
 }
@@ -75,29 +88,31 @@ function OrderInfo({ order }: { order: OrderDTO }) {
     };
 
     return (
-        <div className="p-5 border-t md:border border-gray-500 md:rounded-2xl mb-5">
-            <div className="relative">
-                <div className="flex flex-col items-start">
-                    <div>
-                        <span className="text-sm font-semibold">Mã hoá đơn: </span>
-                        <span>{order.order_id}</span>
-                    </div>
-                    <div>
-                        <span className="text-sm font-semibold">Ngày tạo: </span>
-                        <span>{new Date(order.order_created_at).toLocaleString()}</span>
-                    </div>
-                    <div>
+        <div className="border border-gray-300 rounded-md p-5 shadow">
+            <div className="relative flex flex-col items-start gap-3">
+                <div>
+                    <span className="text-sm font-semibold">Mã hoá đơn: </span>
+                    <span>{order.order_id}</span>
+                </div>
+                <div>
+                    <span className="text-sm font-semibold">Ngày tạo: </span>
+                    <span>{new Date(order.order_created_at).toLocaleString()}</span>
+                </div>
+                <div className="lg:absolute top-0 right-0">
+                    <div className="lg:hidden">
                         <span className="text-sm font-semibold">Trạng thái: </span>
-                        <span className={`px-2 text-sm rounded-full border ${getPaymentStatusLabelColor(order.payment_status as PaymentStatus)}`}>{getPaymentStatusLabel(order.payment_status as PaymentStatus)}</span>
+                        <span>{getPaymentStatusLabel(order.payment_status as PaymentStatus)}</span>
                     </div>
-                    <div>
-                        <span className="text-sm font-semibold">Người mua hàng: </span>
-                        <span>{order.buyer_name}</span>
-                    </div>
-                    <div>
-                        <span className="text-sm font-semibold">Địa chỉ: </span>
-                        <span>{order.address} ailsdfj aksjfalskj. aklsjflkasj kajsfkljasldf klasjfklsa</span>
-                    </div>
+                    <span className={`hidden lg:block px-5 py-3 rounded-full border ${getPaymentStatusLabelColor(order.payment_status as PaymentStatus)}`}>{getPaymentStatusLabel(order.payment_status as PaymentStatus)}</span>
+                </div>
+                <div>
+                    <span className="hidden lg:inline text-sm font-semibold">Người mua hàng: </span>
+                    <span className="inline lg:hidden text-sm font-semibold">Anh/Chị: </span>
+                    <span>{order.buyer_name}</span>
+                </div>
+                <div>
+                    <span className="text-sm font-semibold">Địa chỉ: </span>
+                    <span>{order.address} ailsdfj aksjfalskj. aklsjflkasj kajsfkljasldf klasjfklsa</span>
                 </div>
             </div>
             <Devider border="border-b" borderColor="border-gray-300" margin="my-3" />
@@ -131,7 +146,7 @@ function ProductInfo({ product }: { product: OrderProductDTO }) {
     const name = `${product.product_name} - ${optionStr}`;
 
     return (
-        <div className="flex flex-col items-end md:flex-row md:justify-between md:items-start">
+        <div className="flex flex-col md:flex-row md:justify-between">
             <div className="flex flex-row gap-2">
                 <Image
                     src={product.preview_image_url ?? NO_PREVIEW.href}

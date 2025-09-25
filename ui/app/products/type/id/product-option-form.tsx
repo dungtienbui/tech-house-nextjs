@@ -13,6 +13,7 @@ export default async function ProductOptionForm({ variantId }: props) {
 
     const productVariants = await fetchVariantsOfProductBaseByVariantId(variantId);
 
+
     if (productVariants.length === 0) {
         notFound();
     }
@@ -83,22 +84,7 @@ export default async function ProductOptionForm({ variantId }: props) {
             <div className="flex flex-col gap-2">
                 <div className="text-xl md:text-2xl font-bold">{`${variant.product_name} ${productNameSub}`}</div>
                 <div className="grid grid-cols-2">
-                    <div className="text-gray-400 flex flex-row">
-                        <div>Thương hiệu:</div>
-                        <div className="flex flex-row">
-                            {/* {
-                                variant.brand.logo_url && (
-                                    <Image
-                                        src={variant.brand.logo_url}
-                                        alt={`${variant.brand.brand_name} brand`}
-                                        width={30}
-                                        height={30}
-                                    />
-                                )
-                            } */}
-                            <div className="pl-1"><b className="text-black">{variant.brand.brand_name}</b></div>
-                        </div>
-                    </div>
+                    <p className="text-gray-400">Thương hiệu: <b className="text-black">{variant.brand.brand_name}</b></p>
                     <p className="text-gray-400">Số lượng: <b className="text-black">{variant.stock}</b></p>
                 </div>
             </div>

@@ -613,3 +613,12 @@ BEGIN
   RETURN v_order_id;
 END;
 $$ LANGUAGE plpgsql;
+
+
+CREATE TABLE checkout_session (
+	checkout_id uuid DEFAULT uuid_generate_v4() NOT NULL,
+	cart jsonb NOT NULL,
+	expires_at timestamptz NOT NULL,
+	created_at timestamptz DEFAULT now() NOT NULL,
+	CONSTRAINT checkout_session_pkey PRIMARY KEY (checkout_id)
+);
