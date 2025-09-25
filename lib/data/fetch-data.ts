@@ -1,4 +1,4 @@
-import { ProductVariantDTO, ProductVariantInShortDTO, RecommendedVariantsInShortDTO, SpecKeyValueDTO } from "../definations/data-dto";
+import { OrderDTO, ProductVariantDTO, ProductVariantInShortDTO, RecommendedVariantsInShortDTO, SpecKeyValueDTO } from "../definations/data-dto";
 import { ProductBrand, ProductImage } from "../definations/database-table-definations";
 import { ProductType } from "../definations/types";
 import { query } from "./db";
@@ -173,7 +173,8 @@ c.color_id,
     --Ảnh preview(có thể null)
 pi.image_id AS preview_image_id,
   pi.image_url AS preview_image_url,
-    pi.image_caption AS preview_image_caption
+      pi.image_caption AS preview_image_caption,
+      pi.image_alt AS preview_image_alt
     FROM variant v
     LEFT JOIN product_base pb 
         ON v.product_base_id = pb.product_base_id
@@ -419,7 +420,8 @@ export async function fetchVariantsByVariantIdArray(
         --Ảnh preview(có thể null)
       pi.image_id AS preview_image_id,
       pi.image_url AS preview_image_url,
-      pi.image_caption AS preview_image_caption
+      pi.image_caption AS preview_image_caption,
+      pi.image_alt AS preview_image_alt
     FROM variant v
     LEFT JOIN product_base pb 
       ON v.product_base_id = pb.product_base_id
@@ -462,3 +464,87 @@ export async function fetchVariantPrices(variantIds: string[]) {
 
   return priceMap;
 }
+
+export async function fetchOrdersByPhoneNumber(phone: string): Promise<OrderDTO[]> {
+  const queryStr = `
+    SELECT
+      o.order_id,
+      o.order_created_at,
+      o.payment_method,
+      o.payment_status,
+      o.total_amount,
+      o.reward_points,
+
+      b.buyer_name,
+      b.phone_number,
+      b.address,
+
+      op.variant_id,
+      op.quantity,
+      op.variant_price,
+
+      c.color_name,
+      v.ram,
+      v.storage,
+      v.switch_type,
+      pi.image_url AS preview_image_url,
+      pi.image_alt AS preview_image_alt,
+
+      pb.product_name,
+      pb.product_type
+
+      FROM "order" o
+      JOIN buyer_info b ON b.order_id = o.order_id
+      JOIN order_product op ON op.order_id = o.order_id
+      JOIN variant v ON v.variant_id = op.variant_id
+      JOIN product_base pb ON pb.product_base_id = v.product_base_id
+      JOIN color c ON v.color_id = c.color_id
+      JOIN product_image pi ON v.preview_id = pi.image_id
+
+      WHERE b.phone_number = $1
+      ORDER BY o.order_created_at DESC
+  `;
+
+
+  const result = await query(queryStr, [phone]);
+
+  // Gom nhóm theo order_id
+  const ordersMap = new Map<string, OrderDTO>();
+
+  for (const row of result) {
+    if (!ordersMap.has(row.order_id)) {
+      ordersMap.set(row.order_id, {
+        order_id: row.order_id,
+        order_created_at: row.order_created_at,
+        payment_method: row.payment_method,
+        payment_status: row.payment_status,
+        total_amount: Number(row.total_amount),
+        reward_points: row.reward_points,
+        buyer_name: row.buyer_name,
+        phone_number: row.phone_number,
+        address: row.address,
+        products: [],
+      });
+    }
+
+    const order = ordersMap.get(row.order_id)!;
+
+    order.products.push({
+      variant_id: row.variant_id,
+      quantity: row.quantity,
+      variant_price: Number(row.variant_price),
+      product_name: row.product_name,
+      color_name: row.color_name,
+      ram: row.ram,
+      storage: row.storage,
+      switch_type: row.switch_type,
+      preview_image_url: row.preview_image_url,
+      preview_image_alt: row.preview_image_alt,
+      product_type: row.product_type
+    });
+  }
+
+  return Array.from(ordersMap.values());
+}
+
+

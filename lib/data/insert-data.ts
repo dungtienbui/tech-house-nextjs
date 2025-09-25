@@ -220,17 +220,18 @@ export async function insertOrder(
     paymentMethod: PaymentMethod
 ): Promise<string> {
     if (!cart || cart.length === 0) {
+        console.warn("No cart");
         throw new Error("Cart is empty");
     }
 
-    const variantIds = cart.map(c => c.variantId);
+    const variantIds = cart.map(c => c.variant_id);
     const variantPrices = await fetchVariantPrices(variantIds);
 
     // Chuyển mảng cart thành JSON để truyền vào Postgres function
     const data = cart.map((item) => ({
-        variant_id: item.variantId,
+        variant_id: item.variant_id,
         quantity: item.quantity,
-        variant_price: variantPrices[item.variantId], // TODO: bạn nên fetch giá từ DB để tránh fake giá
+        variant_price: variantPrices[item.variant_id],
     }))
 
     const productsJson = JSON.stringify(data);
@@ -263,6 +264,7 @@ export async function insertOrder(
     const result = await query<{ order_id: string }>(sql, params);
 
     console.log("result: ", result);
+    
     return result[0].order_id;
 }
 

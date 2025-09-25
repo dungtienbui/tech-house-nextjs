@@ -1,6 +1,6 @@
 import { GuestInfo } from "../context/guest-context";
 import { CartItem, SpecKeyValueDTO } from "../definations/data-dto";
-import { PAYMENT_METHOD, PaymentMethod, PRODUCT_TYPES, ProductType } from "../definations/types";
+import { PAYMENT_METHOD, PaymentMethod, PaymentStatus, PRODUCT_TYPES, ProductType } from "../definations/types";
 
 export function getConvertKeyProductTypeToVN(pt: ProductType): string {
     switch (pt) {
@@ -77,9 +77,9 @@ export function isCartItem(obj: unknown): obj is CartItem {
     return (
         typeof obj === "object" &&
         obj !== null &&
-        "variantId" in obj &&
+        "variant_id" in obj &&
         "quantity" in obj &&
-        typeof (obj as any).variantId === "string" &&
+        typeof (obj as any).variant_id === "string" &&
         typeof (obj as any).quantity === "number"
     );
 }
@@ -90,4 +90,31 @@ export function isCartItemArray(arr: unknown): arr is CartItem[] {
 
 export function isPaymentMethod(pt: any): pt is PaymentMethod {
     return (PAYMENT_METHOD as readonly string[]).includes(pt);
+}
+
+export function isPhoneNumberValid(phone: string) {
+
+    const phoneRegex = /^(0|\+84)\d{9,10}$/;
+    if (!phoneRegex.test(phone)) {
+        return false;
+    }
+
+    return true;
+}
+
+export function getPaymentStatusLabel(status: PaymentStatus): string {
+    switch (status) {
+        case "pending":
+            return "Đang chờ xử lý";
+        case "paid":
+            return "Đã thanh toán";
+        case "failed":
+            return "Thanh toán thất bại";
+        case "refunded":
+            return "Đã hoàn tiền";
+        case "cancelled":
+            return "Đã hủy đơn";
+        default:
+            return "Không xác định"; // fallback
+    }
 }

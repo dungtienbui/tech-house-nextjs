@@ -64,6 +64,7 @@ export default async function ProductList({
                         ")";
                     return (
                         <PreviewCard
+                            variantId={product.variant_id}
                             key={`${product.variant_id}-${index}`}
                             title={`${product.brand_name}: ${product.product_name}`}
                             subtitle={subtitle}

@@ -2,6 +2,7 @@
 
 import { useCart } from "@/lib/context/card-context";
 import { Minus, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface props {
@@ -10,7 +11,9 @@ interface props {
 
 export default function SubmitOptionFormSection({ varirantId }: props) {
 
-    const { addToCart } = useCart();
+    const router = useRouter();
+
+    const { addToCart, buyNow } = useCart();
 
     const [quantity, setQuantity] = useState("1");
 
@@ -37,6 +40,15 @@ export default function SubmitOptionFormSection({ varirantId }: props) {
         }
     }
 
+    const handleBuyNowButton = () => {
+        const quantityNumber = parseInt(quantity);
+        if (!Number.isInteger(quantityNumber) || quantityNumber < 1) {
+            return;
+        }
+        buyNow(varirantId, quantityNumber);
+        router.push("/cart");
+    }
+
     return (
         <div className="flex flex-row flex-wrap gap-5">
             <div className="flex-1 min-w-1/4">
@@ -60,7 +72,7 @@ export default function SubmitOptionFormSection({ varirantId }: props) {
                 </div>
             </div>
             <div className="flex-1 lg:flex-2 min-w-fit">
-                <button type="button" className="px-2 w-full h-full flex flex-row justify-center items-center gap-1 lg:gap-3 py-2 border-2 border-sky-500 font-bold text-md text-blue-500 hover:bg-sky-500 hover:text-white hover:shadow-lg duration-300">
+                <button onClick={handleBuyNowButton} type="button" className="px-2 w-full h-full flex flex-row justify-center items-center gap-1 lg:gap-3 py-2 border-2 border-sky-500 font-bold text-md text-blue-500 hover:bg-sky-500 hover:text-white hover:shadow-lg duration-300">
                     <div>Mua ngay</div>
                 </button>
             </div>

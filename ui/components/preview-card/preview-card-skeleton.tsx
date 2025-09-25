@@ -9,7 +9,7 @@ export default function PreviewCardSkeleton() {
                 <div className="h-3 w-1/3 bg-gray-300"></div>
             </div>
             <div className="h-5 w-2/3 bg-gray-300 mb-1"></div>
-            <div className="relative shimmer bg-gray-100 text-gray-500 text-center w-full py-2 rounded-md border border-gray-100">Buy now</div>
+            <div className="relative shimmer bg-gray-100 text-gray-500 text-center w-full py-2 rounded-md border border-gray-100">Mua ngay</div>
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import { Color, ProductBrand } from "./database-table-definations";
-import { ProductType } from "./types";
+import { PaymentStatus, ProductType } from "./types";
 
 export const NO_PREVIEW = {
     href: "https://placehold.co/100x100.png?text=No+Preview",
@@ -151,10 +151,41 @@ export interface SpecKeyValueDTO {
 
 //***********************************************************/
 export interface CartItem {
-    variantId: string;
+    variant_id: string;
     quantity: number;
 }
 
 export interface CartProductInfo extends ProductVariantInShortDTO {
     quantity: number;
 }
+
+
+export interface OrderProductDTO {
+    product_name: string;
+    variant_id: string;
+    product_type: ProductType;
+    quantity: number;
+    variant_price: number;
+    color_name: string | null;
+    ram: number | null;
+    storage: number | null;
+    switch_type: string | null;
+    preview_image_url: string | null;
+    preview_image_alt: string | null;
+
+}
+
+export interface OrderDTO {
+    order_id: string;
+    order_created_at: string;
+    payment_method: string | null;
+    payment_status: PaymentStatus | null;
+    total_amount: number;
+    reward_points: number;
+    buyer_name: string;
+    phone_number: string;
+    address: string;
+    products: OrderProductDTO[];
+}
+
+

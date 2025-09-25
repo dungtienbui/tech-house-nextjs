@@ -9,3 +9,13 @@ export type SpecResults = SpecResult[];
 
 export const PAYMENT_METHOD = ["cod", "cash"] as const;
 export type PaymentMethod = typeof PAYMENT_METHOD[number];
+
+export const PAYMENT_STATUS = [
+    "pending",    // Đang chờ xử lý
+    "paid",       // Đã thanh toán thành công
+    "failed",     // Thanh toán thất bại
+    "refunded",   // Đã hoàn tiền
+    "cancelled"   // Đơn đã hủy
+] as const;
+
+export type PaymentStatus = typeof PAYMENT_STATUS[number];

@@ -12,27 +12,25 @@ export async function POST(req: Request) {
 
         // Validate cơ bản
         if (!guest || !paymentMethod || !items || items.length === 0) {
-            return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
+            return NextResponse.json({ error: 'Invalid data 1' }, { status: 400 });
         }
 
         if (!isGuestInfoValid(guest)) {
-            return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
+            return NextResponse.json({ error: 'Invalid data 2' }, { status: 400 });
         }
 
         if (!isCartItemArray(items)) {
-            return;
+            return NextResponse.json({ error: 'Invalid data 3' }, { status: 400 });
         }
 
         if (!isPaymentMethod(paymentMethod)) {
-            return;
+            return NextResponse.json({ error: 'Invalid data 4' }, { status: 400 });
         }
-
-        // TODO: lưu vào database
-        // console.log('Order received:', { guest, items });
 
         const orderId = await insertOrder(items, guest, paymentMethod);
 
-        return NextResponse.json({ message: `orderId: ${orderId}` });
+        return NextResponse.json({ orderId });
+        
     } catch (err) {
         if (err instanceof Error) {
             return NextResponse.json({ error: err.message }, { status: 500 });

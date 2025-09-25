@@ -14,7 +14,7 @@ export default function Cart() {
     const router = useRouter();
 
     const goToCheckout = () => {
-        router.push('/cart/checkout');
+        router.push('/checkout');
     };
 
     const { cart, cartProductInfo, removeFromCart,
@@ -34,21 +34,21 @@ export default function Cart() {
         <div className="px-5 lg:px-10">
             <div className="rounded-2xl shadow">
                 {cart.length === 0 ? (
-                    <div className="pb-10 flex flex-col items-center">
-                        <div className="mb-5 flex flex-col items-center">
-                            <Image
-                                src={"https://cdn-icons-png.flaticon.com/512/11329/11329060.png"}
-                                alt={"Cart empty!"}
-                                width={150}
-                                height={150}
-                            />
-                            <div className="text-gray-500">Giỏ hàng của bạn còn trống</div>
+                    <div className="flex flex-col justify-center items-center gap-5 pb-10">
+                        <Image
+                            src={"https://cdn-icons-png.flaticon.com/512/11329/11329060.png"}
+                            alt={"Cart empty!"}
+                            width={150}
+                            height={150}
+                        />
+                        <div className="flex flex-col gap-3 text-center">
+                            <div className="text-sm font-bold">Giỏ hàng của bạn còn trống</div>
+                            <Link
+                                className="px-10 py-3 bg-sky-500 text-white"
+                                href={"/"}>
+                                MUA NGAY
+                            </Link>
                         </div>
-                        <Link
-                            className="text-lg px-10 py-2 bg-sky-500 text-white"
-                            href={"/"}>
-                            MUA NGAY
-                        </Link>
                     </div>
                 ) : (
                     <>
@@ -126,10 +126,10 @@ export default function Cart() {
                                         item.color_name,
                                     ].filter(item => item !== null).join(", ");
 
-                                    const quantity = cart.find(cartItem => cartItem.variantId === item.variant_id)?.quantity ?? 0;
+                                    const totalCost = item.variant_price * item.quantity;
 
                                     const isSelected = selected.includes(item.variant_id);
-                                    const totalCost = quantity * item.variant_price;
+
                                     return (
                                         <CartTableCard
                                             id={item.variant_id}
@@ -138,7 +138,7 @@ export default function Cart() {
                                             name={`${item.product_name} - ${item.brand_name}`}
                                             option={optionStr}
                                             price={item.variant_price}
-                                            quantity={quantity}
+                                            quantity={item.quantity}
                                             totalCost={totalCost}
                                             preview={{
                                                 href: item.preview_image_url ?? NO_PREVIEW.href,
@@ -163,7 +163,7 @@ export default function Cart() {
 
             </div>
             {cart.length > 0 && (
-                <div className="w-full flex flex-row justify-between items-start p-10">
+                <div className="w-full flex flex-row justify-between items-start px-2 sm:px-10 py-5">
                     {/* Nut xoa san pham lua chon */}
                     <button
                         disabled={!(selected.length > 0)}
@@ -184,12 +184,17 @@ export default function Cart() {
                     </button>
 
                     {/* Nut thanh toan */}
-                    <div className="flex-1 sm:flex-none sm:min-w-64 flex flex-col gap-2 items-end">
-                        <div>
-                            Tổng cộng ({selected.length} sản phẩm)
-                        </div>
-                        <div className="text-xl text-red-500">
-                            ${totalCost}
+                    <div className="flex-1 sm:flex-none sm:min-w-64 flex flex-col gap-5 items-end">
+                        <div className="w-full flex flex-row justify-between items-center sm:flex-col sm:items-end gap-2">
+                            <div>
+                                <span className="text-sm font-semibold">
+                                    Tổng cộng <span className="hidden sm:inline text-base font-normal">({selected.length} sản phẩm)</span> :
+                                </span>
+
+                            </div>
+                            <div className="text-xl text-red-500">
+                                ${totalCost}
+                            </div>
                         </div>
                         <button
                             disabled={!(selected.length > 0)}
@@ -312,8 +317,8 @@ function CartTableCard({ id, type, name, option, price, quantity, totalCost, pre
                 >
                     Xóa
                 </button>
-                <div className="flex flex-col justify-end">
-                    <span className="text-sm">Số lượng: {quantity}</span>
+                <div className="flex flex-col items-end">
+                    <span className="text-sm">x {quantity}</span>
                     <span className="text-red-500 font-semibold">${totalCost}</span>
                 </div>
 

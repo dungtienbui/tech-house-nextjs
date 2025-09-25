@@ -12,7 +12,8 @@ type CartContextType = {
     readonly loading: boolean;
     readonly selected: string[];
     readonly isSelectedAll: boolean;
-    addToCart: (variantId: string, quantity?: number) => void;
+    addToCart: (variantId: string, quantity?: number, replaceQuantity?: boolean) => void;
+    buyNow: (variantId: string, quantity?: number) => void;
     removeFromCart: (variantId: string, quantity?: number) => void;
     clearCart: () => void;
     selectCartItem: (id: string) => void;
@@ -37,7 +38,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     function selectAllCartItems() {
-        setSelected(cart.map(item => item.variantId));
+        setSelected(cart.map(item => item.variant_id));
     }
 
     function removeSelectedCartItem(id: string) {
@@ -50,7 +51,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setSelected([]);
     }
 
-    const isSelectedAll = cart.length > 0 && cart.every(item => selected.includes(item.variantId));
+    const isSelectedAll = cart.length > 0 && cart.every(item => selected.includes(item.variant_id));
 
     // 1️⃣ Load cart từ localStorage
     useEffect(() => {
@@ -77,7 +78,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
 
         setLoading(true);
-        const ids = cart.map((item) => item.variantId);
+        const ids = cart.map((item) => item.variant_id);
 
         fetch("/api/cart", {
             method: "POST",
@@ -88,7 +89,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             .then((data: ProductVariantInShortDTO[]) => {
 
                 const mappingData: CartProductInfo[] = cart.map((c) => {
-                    const exist = data.find(d => d.variant_id === c.variantId);
+                    const exist = data.find(d => d.variant_id === c.variant_id);
                     if (exist) {
                         return {
                             ...exist,
@@ -106,25 +107,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }, [cart]);
 
     // 4️⃣ Các hàm thao tác với cart
-    function addToCart(variantId: string, quantity = 1) {
+    function addToCart(variantId: string, quantity = 1, replaceQuantity = false) {
         setCart((prev) => {
-            const existCardItem = prev.find((item) => item.variantId === variantId);
+            const existCardItem = prev.find((item) => item.variant_id === variantId);
 
             if (existCardItem) {
+                if (replaceQuantity) {
+                    return prev.map((item) =>
+                        item.variant_id === variantId
+                            ? { ...item, quantity: quantity }
+                            : item
+                    );
+                }
+
                 return prev.map((item) =>
-                    item.variantId === variantId
+                    item.variant_id === variantId
                         ? { ...item, quantity: item.quantity + quantity }
                         : item
                 );
             }
 
-            return [...prev, { variantId, quantity }];
+            return [...prev, { variant_id: variantId, quantity }];
         });
     }
 
     function removeFromCart(variantId: string, quantity?: number) {
         setCart((prev) => {
-            const existCardItem = prev.find((item) => item.variantId === variantId);
+            const existCardItem = prev.find((item) => item.variant_id === variantId);
             if (!existCardItem) return prev;
 
             const newQuantity = quantity
@@ -132,11 +141,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 : 0;
 
             if (newQuantity === 0) {
-                return prev.filter((item) => item.variantId !== variantId);
+                return prev.filter((item) => item.variant_id !== variantId);
             }
 
             return prev.map((item) =>
-                item.variantId === variantId
+                item.variant_id === variantId
                     ? { ...item, quantity: newQuantity }
                     : item
             );
@@ -147,6 +156,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCart([]);
     }
 
+    function buyNow(variantId: string, quantity = 1) {
+        addToCart(variantId, quantity, true);
+        selectCartItem(variantId)
+    }
+
     return (
         <CartContext.Provider
             value={{
@@ -154,6 +168,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 cartProductInfo,
                 loading,
                 addToCart,
+                buyNow,
                 removeFromCart,
                 clearCart,
                 selected,

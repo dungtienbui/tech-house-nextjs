@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import BuyNowButton from "./buy-now-button";
 
 interface props {
+  variantId: string;
   title: string;
   subtitle: string;
   price: string;
@@ -13,7 +15,7 @@ interface props {
   isPromoting?: boolean;
 }
 
-export default function PreviewCard({ title, subtitle, image, price, navTo, isPromoting }: props) {
+export default function PreviewCard({ title, subtitle, image, price, navTo, isPromoting, variantId }: props) {
 
   return (
     <Link
@@ -36,7 +38,7 @@ export default function PreviewCard({ title, subtitle, image, price, navTo, isPr
           </div>
           <div className="text-red-500 font-bold">${price}</div>
         </div>
-        <button type="button" className="bg-sky-100 text-blue-500 w-full py-2 rounded-md cursor-pointer border border-sky-100 hover:border-sky-500 duration-500">Buy now</button>
+        <BuyNowButton id={variantId} quantity={1} />
       </div>
     </Link>
   );

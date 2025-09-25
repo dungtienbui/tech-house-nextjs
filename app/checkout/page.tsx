@@ -8,10 +8,13 @@ import clsx from "clsx";
 import { ChevronsUp, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 
 export default function checkout() {
+
+    const router = useRouter();
 
     const { guestInfo, setGuestInfo, isGuestInfoValid, getGuestInfoError } = useGuest();
 
@@ -54,19 +57,25 @@ export default function checkout() {
             if (!res.ok) {
                 const errorData = await res.json();
                 console.error("errorData: ", errorData);
+                return;
             }
 
             const data = await res.json();
-            // console.log("data: ", data);
+
             orderedItems.forEach((item) => {
-                removeFromCart(item.variantId);
-                removeSelectedCartItem(item.variantId);
+                removeFromCart(item.variant_id);
+                removeSelectedCartItem(item.variant_id);
             })
+
+            router.push(`/user/purchase/${guest.phone}`)
+
         } catch (err) {
             if (err instanceof Error) {
                 console.error("err: ", err);
+                return;
             }
             console.error("err: ", String(err));
+            return;
         }
     };
 
@@ -86,9 +95,15 @@ export default function checkout() {
             return;
         }
 
-        const orderedItems = cart.filter(c => selected.includes(c.variantId))
+        const orderedItems = cart.filter(c => selected.includes(c.variant_id))
+        // console.log("cart: ", cart);
+        // console.log("orderedItems: ", orderedItems);
+        // console.log("selected: ", selected);
+
         submitOrder(orderedItems, guestInfo, paymentMethod);
     }
+
+    // console.log("itemSelected: ", itemSelected);
 
     return (
         <div className="flex flex-col gap-5 justify-start items-center">
@@ -277,7 +292,7 @@ export default function checkout() {
                 </div>
 
             </form>
-            <div className="mt-12 flex flex-col items-center gap-3">
+            <div className="w-full px-3 mt-12 flex flex-col items-center gap-3">
                 <div className={clsx(
                     "text-sm font-semibold",
                     {
@@ -288,7 +303,7 @@ export default function checkout() {
                     ref={submitButtonRef}
                     disabled={!isGuestInfoValid() || !isConfirmInfo || selected.length <= 0}
                     className={clsx(
-                        "text-white w-[400px] py-3 flex flex-row gap-5 justify-center items-center",
+                        "text-white w-full md:w-[400px] py-3 flex flex-row gap-5 justify-center items-center rounded-2xl shadow",
                         {
                             "bg-gray-300": !isGuestInfoValid() || !isConfirmInfo || selected.length <= 0,
                             "bg-blue-500 hover:bg-blue-400 transition cursor-pointer": isGuestInfoValid() && isConfirmInfo && selected.length > 0,
