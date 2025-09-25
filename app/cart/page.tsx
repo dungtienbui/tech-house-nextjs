@@ -1,25 +1,48 @@
 'use client'
 import { useCart } from "@/lib/context/card-context";
-import { NO_PREVIEW } from "@/lib/definations/data-dto";
+import { CartItems, NO_PREVIEW } from "@/lib/definations/data-dto";
 import { ProductType } from "@/lib/definations/types";
+import { useCheckoutSession } from "@/lib/hook/checkout-session-hook";
 import clsx from "clsx";
 import { ChevronsUp, Square, SquareCheckBig } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 
 export default function Cart() {
 
     const router = useRouter();
 
-    const goToCheckout = () => {
-        router.push('/checkout');
-    };
+    const { cart, cartProductInfo, removeFromCart } = useCart();
 
-    const { cart, cartProductInfo, removeFromCart,
-        selected, isSelectedAll, selectCartItem,
-        removeSelectedCartItem, selectAllCartItems, removeAllSelectedCartItems } = useCart();
+
+    const [selected, setSelected] = useState<string[]>([]);
+
+    const { saveSessionId } = useCheckoutSession();
+
+    function selectCartItem(id: string) {
+        if (!selected.includes(id)) {
+            setSelected([...selected, id]);
+        }
+    }
+
+    function selectAllCartItems() {
+        setSelected(cart.map(item => item.variant_id));
+    }
+
+    function removeSelectedCartItem(id: string) {
+        if (selected.includes(id)) {
+            setSelected(selected.filter(s => s !== id));
+        }
+    }
+
+    function removeAllSelectedCartItems() {
+        setSelected([]);
+    }
+
+    const isSelectedAll = cart.length > 0 && cart.every(item => selected.includes(item.variant_id));
 
     const totalCost = selected.reduce((acc, id) => {
         const exsit = cartProductInfo.find(c => c.variant_id === id);
@@ -29,6 +52,30 @@ export default function Cart() {
 
         return acc + 0;
     }, 0);
+
+    const goToCheckout = async () => {
+
+        const checkoutItems: CartItems = cart.filter((item) => selected.includes(item.variant_id));
+
+        try {
+            const queryApi = await fetch("/api/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ checkoutItems }),
+                
+            });
+
+            const { apiQueryResult } = await queryApi.json();
+
+            router.push(`/checkout/${apiQueryResult.checkout_id}`)
+
+        } catch (e) {
+            console.error((e as Error).message)
+        }
+    };
+
 
     return (
         <div className="px-5 lg:px-10">

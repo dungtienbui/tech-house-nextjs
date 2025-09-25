@@ -1,3 +1,4 @@
+import z from "zod";
 import { Color, ProductBrand } from "./database-table-definations";
 import { PaymentStatus, ProductType } from "./types";
 
@@ -148,12 +149,45 @@ export interface SpecKeyValueDTO {
     compatibility?: string | null;
 }
 
-
 //***********************************************************/
-export interface CartItem {
-    variant_id: string;
-    quantity: number;
-}
+// zod
+//***********************************************************/
+// Schema cho 1 cart item
+export const CartItemSchema = z.object({
+    variant_id: z.uuid(),
+    quantity: z.number().int().positive(),
+});
+
+// Schema cho mảng cart items
+export const CartItemsSchema = z.array(CartItemSchema).min(1, "Cart must have at least one item");
+
+// Tạo type TypeScript tự động từ schema
+export type CartItem = z.infer<typeof CartItemSchema>;   // { variant_id: string; quantity: number; }
+export type CartItems = z.infer<typeof CartItemsSchema>; // CartItem[]
+
+
+
+export const CheckoutSessionSchema = z.object({
+    checkout_id: z.uuid(),
+    cart: CartItemsSchema,
+    expires_at: z.string().refine((val) => !isNaN(Date.parse(val))),
+    created_at: z.string().refine((val) => !isNaN(Date.parse(val))),
+});
+
+// Kiểu TypeScript từ Zod
+export type CheckoutSession = z.infer<typeof CheckoutSessionSchema>;
+
+
+export const GuestInfoSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    phone: z.string().min(1, "Phone is required"),
+    email: z.email("Invalid email address"),
+    address: z.string().min(1, "Address is required"),
+});
+
+// Kiểu TypeScript từ Zod
+export type GuestInfo = z.infer<typeof GuestInfoSchema>;
+
 
 export interface CartProductInfo extends ProductVariantInShortDTO {
     quantity: number;

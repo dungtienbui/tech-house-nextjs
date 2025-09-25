@@ -1,13 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-
-export interface GuestInfo {
-    name: string;
-    phone: string;
-    email: string;
-    address: string;
-}
+import { GuestInfo } from "../definations/data-dto";
 
 interface GuestContextType {
     readonly guestInfo: GuestInfo;

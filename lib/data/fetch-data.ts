@@ -1,4 +1,4 @@
-import { OrderDTO, ProductVariantDTO, ProductVariantInShortDTO, RecommendedVariantsInShortDTO, SpecKeyValueDTO } from "../definations/data-dto";
+import { CheckoutSession, OrderDTO, ProductVariantDTO, ProductVariantInShortDTO, RecommendedVariantsInShortDTO, SpecKeyValueDTO } from "../definations/data-dto";
 import { ProductBrand, ProductImage } from "../definations/database-table-definations";
 import { ProductType } from "../definations/types";
 import { query } from "./db";
@@ -382,7 +382,6 @@ SELECT
 
 
 
-// Has sql injection attack in queries param ?????????
 export async function fetchVariantsByVariantIdArray(
   variantIdArray: string[]
 ) {
@@ -546,5 +545,32 @@ export async function fetchOrdersByPhoneNumber(phone: string): Promise<OrderDTO[
 
   return Array.from(ordersMap.values());
 }
+
+export async function fetchCheckoutSessionById(
+  checkoutSessionId: string
+) {
+  const queryString = `select * from checkout_session cs where cs.checkout_id = $1`;
+
+  const resultQuery = await query<CheckoutSession>(queryString, [checkoutSessionId]);
+
+  return resultQuery[0];
+}
+
+
+export async function fetchVariantsByCheckoutSessionId(
+  checkoutSessionId: string
+) {
+
+  const checkoutSession = await fetchCheckoutSessionById(checkoutSessionId);
+
+  const variantIdArray = checkoutSession.cart.map(item => item.variant_id);
+
+  const varriants = await fetchVariantsByVariantIdArray(variantIdArray);
+
+  return varriants;
+}
+
+
+
 
 

@@ -1,4 +1,5 @@
-import { isProductType, getConvertKeyProductTypeToVN } from "@/lib/utils/types";
+import { ProductTypeSchema } from "@/lib/definations/types";
+import { getConvertKeyProductTypeToVN } from "@/lib/utils/types";
 import ProductInformation from "@/ui/app/products/type/id/product-information";
 import { ProductInformationSkeleton } from "@/ui/app/products/type/id/product-information-skeleton";
 import ProductOverview from "@/ui/app/products/type/id/product-overview";
@@ -15,9 +16,13 @@ export default async function ProductDetailPage({
 }) {
     const { id, type } = await params;
 
-    if (!isProductType(type)) {
+    const typeParse = ProductTypeSchema.safeParse(type);
+
+    if (!typeParse.success) {
         notFound();
     }
+
+    const productType = typeParse.data;
 
     return (
         <div className="px-2 sm:px-5 md:px-10 mb-10 md:mb-20 flex flex-col gap-3">
@@ -28,7 +33,7 @@ export default async function ProductDetailPage({
                     active: false
                 },
                 {
-                    label: `${getConvertKeyProductTypeToVN(type)}`,
+                    label: `${getConvertKeyProductTypeToVN(productType)}`,
                     href: `/products/${type}`,
                     active: true
                 }
@@ -37,7 +42,7 @@ export default async function ProductDetailPage({
                 <ProductOverview id={id} />
                 <ProductPolicyAndShipingInfo />
                 <Suspense fallback={<ProductInformationSkeleton />}>
-                    <ProductInformation id={id} productType={type} />
+                    <ProductInformation id={id} productType={productType} />
                 </Suspense>
             </div>
         </div>

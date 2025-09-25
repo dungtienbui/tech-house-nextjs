@@ -1,5 +1,4 @@
-import { GuestInfo } from "../context/guest-context";
-import { CartItem } from "../definations/data-dto";
+import { CartItem, CartItems, CartItemsSchema, GuestInfo } from "../definations/data-dto";
 import { Color, ProductImage, ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase } from "../definations/database-table-definations";
 import { PaymentMethod, ProductType, SpecResult } from "../definations/types";
 import { query } from "./db";
@@ -215,10 +214,23 @@ export async function insertProductBase(item: ProductBase) {
 
 
 export async function insertOrder(
-    cart: CartItem[],
+    cart: CartItems,
     guest: GuestInfo,
-    paymentMethod: PaymentMethod
+    paymentMethod: PaymentMethod,
+    checkoutSessionId: string
 ): Promise<string> {
+
+    if (!checkoutSessionId) {
+        throw new Error("Not find checkout session id");
+    }
+
+    const deletedCheckoutSession = await deleteCheckoutSession(checkoutSessionId);
+
+
+    if (Object.keys(deletedCheckoutSession).length === 0) {
+        throw new Error("Not find checkout id");
+    }
+
     if (!cart || cart.length === 0) {
         console.warn("No cart");
         throw new Error("Cart is empty");
@@ -263,9 +275,46 @@ export async function insertOrder(
 
     const result = await query<{ order_id: string }>(sql, params);
 
-    console.log("result: ", result);
-    
     return result[0].order_id;
 }
 
+
+export async function insertCheckoutSession(
+    checkoutItems: CartItems,
+) {
+    const parsed = CartItemsSchema.safeParse(checkoutItems);
+
+    if (!parsed.success) {
+        console.log(parsed.error);
+        throw new Error("Cart không hợp lệ");
+    }
+
+    const queryStr = `
+      INSERT INTO checkout_session (cart, expires_at)
+      VALUES ($1, $2)
+      RETURNING checkout_id, created_at, expires_at;
+    `;
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // khoang 1 giờ từ bây giờ
+
+    const checkoutItemsJson = JSON.stringify(checkoutItems);
+
+    const resultQuery = await query<{ checkout_id: string, created_at: string, expires_at: string }>(queryStr, [checkoutItemsJson, expiresAt])
+
+    return resultQuery[0];
+}
+
+export async function deleteCheckoutSession(
+    id: string,
+) {
+
+    const queryStr = `
+      DELETE FROM checkout_session cs
+      WHERE cs.checkout_id = $1
+      RETURNING *;
+    `;
+
+    const resultQuery = await query(queryStr, [id]);
+
+    return resultQuery[0];
+}
 

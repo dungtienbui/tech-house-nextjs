@@ -1,6 +1,6 @@
-import { GuestInfo } from "../context/guest-context";
-import { CartItem, SpecKeyValueDTO } from "../definations/data-dto";
-import { PAYMENT_METHOD, PaymentMethod, PaymentStatus, PRODUCT_TYPES, ProductType } from "../definations/types";
+import { SpecKeyValueDTO, GuestInfo, CartItem } from "../definations/data-dto";
+import { ProductType, PaymentStatus } from "../definations/types";
+
 
 export function getConvertKeyProductTypeToVN(pt: ProductType): string {
     switch (pt) {
@@ -15,10 +15,6 @@ export function getConvertKeyProductTypeToVN(pt: ProductType): string {
         default:
             return "Không xác định";
     }
-}
-
-export function isProductType(pt: string): pt is ProductType {
-    return (PRODUCT_TYPES as readonly string[]).includes(pt);
 }
 
 // Mapping key sang tiếng Việt
@@ -88,9 +84,6 @@ export function isCartItemArray(arr: unknown): arr is CartItem[] {
     return Array.isArray(arr) && arr.every(isCartItem);
 }
 
-export function isPaymentMethod(pt: any): pt is PaymentMethod {
-    return (PAYMENT_METHOD as readonly string[]).includes(pt);
-}
 
 export function isPhoneNumberValid(phone: string) {
 

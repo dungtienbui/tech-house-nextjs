@@ -1,19 +1,23 @@
 'use client'
 
 import { useCart } from "@/lib/context/card-context";
+import { CartItems } from "@/lib/definations/data-dto";
 import { Minus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import z from "zod";
 
 interface props {
     varirantId: string
 }
 
+const QuantitySchema = z.number().int().positive();
+
 export default function SubmitOptionFormSection({ varirantId }: props) {
 
     const router = useRouter();
 
-    const { addToCart, buyNow } = useCart();
+    const { addToCart } = useCart();
 
     const [quantity, setQuantity] = useState("1");
 
@@ -40,14 +44,42 @@ export default function SubmitOptionFormSection({ varirantId }: props) {
         }
     }
 
-    const handleBuyNowButton = () => {
+    const goToCheckout = async () => {
+
         const quantityNumber = parseInt(quantity);
-        if (!Number.isInteger(quantityNumber) || quantityNumber < 1) {
+
+        const quantityNumberParse = QuantitySchema.safeParse(quantityNumber);
+
+        if (!quantityNumberParse.success) {
+
+            console.error("Quantity is not a number ?");
             return;
         }
-        buyNow(varirantId, quantityNumber);
-        router.push("/cart");
-    }
+
+
+        const checkoutItems: CartItems = [{
+            variant_id: varirantId,
+            quantity: quantityNumberParse.data
+        }];
+
+        try {
+            const queryApi = await fetch("/api/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ checkoutItems }),
+
+            });
+
+            const { apiQueryResult } = await queryApi.json();
+
+            router.push(`/checkout/${apiQueryResult.checkout_id}`)
+
+        } catch (e) {
+            console.error((e as Error).message)
+        }
+    };
 
     return (
         <div className="flex flex-row flex-wrap gap-5">
@@ -72,7 +104,7 @@ export default function SubmitOptionFormSection({ varirantId }: props) {
                 </div>
             </div>
             <div className="flex-1 lg:flex-2 min-w-fit">
-                <button onClick={handleBuyNowButton} type="button" className="px-2 w-full h-full flex flex-row justify-center items-center gap-1 lg:gap-3 py-2 border-2 border-sky-500 font-bold text-md text-blue-500 hover:bg-sky-500 hover:text-white hover:shadow-lg duration-300">
+                <button onClick={goToCheckout} type="button" className="px-2 w-full h-full flex flex-row justify-center items-center gap-1 lg:gap-3 py-2 border-2 border-sky-500 font-bold text-md text-blue-500 hover:bg-sky-500 hover:text-white hover:shadow-lg duration-300">
                     <div>Mua ngay</div>
                 </button>
             </div>

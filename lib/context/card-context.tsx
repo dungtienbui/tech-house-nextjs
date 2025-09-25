@@ -10,16 +10,16 @@ type CartContextType = {
     readonly cart: CartItem[];
     readonly cartProductInfo: CartProductInfo[];
     readonly loading: boolean;
-    readonly selected: string[];
-    readonly isSelectedAll: boolean;
+    // readonly selected: string[];
+    // readonly isSelectedAll: boolean;
     addToCart: (variantId: string, quantity?: number, replaceQuantity?: boolean) => void;
-    buyNow: (variantId: string, quantity?: number) => void;
+    // buyNow: (variantId: string, quantity?: number) => void;
     removeFromCart: (variantId: string, quantity?: number) => void;
     clearCart: () => void;
-    selectCartItem: (id: string) => void;
-    removeSelectedCartItem: (id: string) => void;
-    selectAllCartItems: () => void;
-    removeAllSelectedCartItems: () => void;
+    // selectCartItem: (id: string) => void;
+    // removeSelectedCartItem: (id: string) => void;
+    // selectAllCartItems: () => void;
+    // removeAllSelectedCartItems: () => void;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -29,29 +29,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cartProductInfo, setCartProductInfo] = useState<CartProductInfo[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const [selected, setSelected] = useState<string[]>([]);
+    // const [selected, setSelected] = useState<string[]>([]);
 
-    function selectCartItem(id: string) {
-        if (!selected.includes(id)) {
-            setSelected([...selected, id]);
-        }
-    }
+    // function selectCartItem(id: string) {
+    //     if (!selected.includes(id)) {
+    //         setSelected([...selected, id]);
+    //     }
+    // }
 
-    function selectAllCartItems() {
-        setSelected(cart.map(item => item.variant_id));
-    }
+    // function selectAllCartItems() {
+    //     setSelected(cart.map(item => item.variant_id));
+    // }
 
-    function removeSelectedCartItem(id: string) {
-        if (selected.includes(id)) {
-            setSelected(selected.filter(s => s !== id));
-        }
-    }
+    // function removeSelectedCartItem(id: string) {
+    //     if (selected.includes(id)) {
+    //         setSelected(selected.filter(s => s !== id));
+    //     }
+    // }
 
-    function removeAllSelectedCartItems() {
-        setSelected([]);
-    }
+    // function removeAllSelectedCartItems() {
+    //     setSelected([]);
+    // }
 
-    const isSelectedAll = cart.length > 0 && cart.every(item => selected.includes(item.variant_id));
+    // const isSelectedAll = cart.length > 0 && cart.every(item => selected.includes(item.variant_id));
 
     // 1️⃣ Load cart từ localStorage
     useEffect(() => {
@@ -156,10 +156,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCart([]);
     }
 
-    function buyNow(variantId: string, quantity = 1) {
-        addToCart(variantId, quantity, true);
-        selectCartItem(variantId)
-    }
+    // function buyNow(variantId: string, quantity = 1) {
+    //     addToCart(variantId, quantity, true);
+    //     selectCartItem(variantId)
+    // }
 
     return (
         <CartContext.Provider
@@ -168,15 +168,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 cartProductInfo,
                 loading,
                 addToCart,
-                buyNow,
+                // buyNow,
                 removeFromCart,
                 clearCart,
-                selected,
-                isSelectedAll,
-                selectCartItem,
-                removeSelectedCartItem,
-                selectAllCartItems,
-                removeAllSelectedCartItems
+                // selected,
+                // isSelectedAll,
+                // selectCartItem,
+                // removeSelectedCartItem,
+                // selectAllCartItems,
+                // removeAllSelectedCartItems
             }}
         >
             {children}
