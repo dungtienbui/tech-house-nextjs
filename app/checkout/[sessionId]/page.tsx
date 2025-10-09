@@ -1,6 +1,6 @@
 import { fetchCheckoutSessionById, fetchVariantsByVariantIdArray } from "@/lib/data/fetch-data";
 import { CartItems, NO_PREVIEW } from "@/lib/definations/data-dto";
-import CheckoutForm from "@/ui/components/checkout-form";
+import CheckoutForm from "@/ui/app/checkout/checkout-form";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -55,7 +55,7 @@ export default async function checkoutInSession({ params }: {
                                             item.ram ? `${item.ram}GB` : null,
                                             item.storage ? `${item.storage}GB` : null,
                                             item.switch_type ? `${item.switch_type} switch` : null,
-                                            item.color_name,
+                                            item.color.color_name,
                                         ].filter(item => item !== null).join(", ");
 
                                         const quantity = getItemQuantity(cart, item.variant_id);
@@ -65,14 +65,14 @@ export default async function checkoutInSession({ params }: {
                                         return (
                                             <CartTableRow
                                                 key={item.variant_id}
-                                                name={`${item.product_name} - ${item.brand_name}`}
+                                                name={`${item.product_name} - ${item.brand}`}
                                                 option={optionStr}
                                                 price={item.variant_price}
                                                 quantity={quantity}
                                                 totalCost={totalCost}
                                                 preview={{
-                                                    href: item.preview_image_url ?? NO_PREVIEW.href,
-                                                    alt: item.preview_image_alt ?? NO_PREVIEW.alt
+                                                    href: item.preview_image.image_url ?? NO_PREVIEW.href,
+                                                    alt: item.preview_image.image_alt ?? item.preview_image.image_caption ?? NO_PREVIEW.alt,
                                                 }}
                                             />
                                         )
@@ -88,7 +88,7 @@ export default async function checkoutInSession({ params }: {
                                             item.ram ? `${item.ram}GB` : null,
                                             item.storage ? `${item.storage}GB` : null,
                                             item.switch_type ? `${item.switch_type} switch` : null,
-                                            item.color_name,
+                                            item.color.color_name,
                                         ].filter(item => item !== null).join(", ");
 
                                         const quantity = getItemQuantity(cart, item.variant_id);
@@ -98,14 +98,14 @@ export default async function checkoutInSession({ params }: {
                                         return (
                                             <CartTableCard
                                                 key={item.variant_id}
-                                                name={`${item.product_name} - ${item.brand_name}`}
+                                                name={`${item.product_name} - ${item.brand}`}
                                                 option={optionStr}
                                                 price={item.variant_price}
                                                 quantity={quantity}
                                                 totalCost={totalCost}
                                                 preview={{
-                                                    href: item.preview_image_url ?? NO_PREVIEW.href,
-                                                    alt: item.preview_image_alt ?? NO_PREVIEW.alt
+                                                    href: item.preview_image.image_url ?? NO_PREVIEW.href,
+                                                    alt: item.preview_image.image_alt ?? item.preview_image.image_caption ?? NO_PREVIEW.alt,
                                                 }}
                                             />
                                         );

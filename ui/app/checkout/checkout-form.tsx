@@ -30,6 +30,8 @@ export default function CheckoutForm({ checkoutItems, checkoutId }: props) {
 
     const router = useRouter();
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleSubmitButton = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
@@ -72,6 +74,10 @@ export default function CheckoutForm({ checkoutItems, checkoutId }: props) {
         setHadClickSubmit(false);
     }, [isConfirm, guestInfo])
 
+    const canSubmit = isGuestInfoValid() && !isLoading;
+
+    const guestInfoError = getGuestInfoError();
+
     return (
         < form
             className="w-full lg:w-[900px] xl:w-[1000px] bg-white p-6 rounded-xl shadow flex flex-col gap-4"
@@ -82,12 +88,6 @@ export default function CheckoutForm({ checkoutItems, checkoutId }: props) {
                 )}>
                     Thông tin khách hàng:
                 </div>
-                <div className={clsx(
-                    {
-                        "text-red-500": !isGuestInfoValid(),
-                        "text-blue-500": isGuestInfoValid()
-                    }
-                )}>*{getGuestInfoError()}*</div>
             </div>
 
 
@@ -135,23 +135,45 @@ export default function CheckoutForm({ checkoutItems, checkoutId }: props) {
                 <input type="checkbox" required id="policy" name="confirm" checked={isConfirm} onChange={(e) => setIsConfirm(prev => !prev)} />
                 <label htmlFor="policy">Tôi đồng ý với Chính sách xử lý dữ liệu cá nhân của TechHouse</label>
             </div>
-            {hadClickSubmit && !isConfirm && <div className="text-sm text-red-500">Hãy đồng ý xác nhận</div>}
+            {<div className={clsx(
+                "text-red-500",
+                {
+                    "hidden": !(hadClickSubmit && !isConfirm)
+                }
+            )}>*Hãy đồng ý xác nhận*</div>}
+            {<div className={clsx(
+                "text-red-500",
+                {
+                    "hidden": !guestInfoError
+                }
+            )}>*{guestInfoError}*</div>}
 
             <div className="w-full px-3 mt-5 flex flex-col items-center gap-3">
                 <button
                     onClick={handleSubmitButton}
                     className={clsx(
-                        "bg-sky-500 hover:bg-sky-400 active:bg-blue-500 text-white w-full md:w-[400px] py-3 flex flex-row gap-5 justify-center items-center rounded-2xl shadow",
+                        "text-white w-full md:w-[400px] py-3 flex flex-row gap-5 justify-center items-center rounded-2xl shadow",
+                        {
+                            "bg-sky-500 hover:bg-sky-400 active:bg-blue-500": canSubmit,
+                            "bg-gray-500 opacity-70": !canSubmit,
+                        }
                     )}
                     type="button"
+                    disabled={!canSubmit}
                 >
 
                     <ChevronsUp className={clsx(
                         "rotate-90 animate-bounce",
+                        {
+                            "hidden": !canSubmit,
+                        }
                     )} />
                     <div>ĐẶT HÀNG</div>
                     <ChevronsUp className={clsx(
                         "-rotate-90 animate-bounce",
+                        {
+                            "hidden": !canSubmit,
+                        }
                     )} />
                 </button>
             </div>
