@@ -1,4 +1,5 @@
 import { PhoneCall } from "lucide-react";
+import Link from "next/link";
 
 export default function Footer() {
     return (
@@ -40,11 +41,11 @@ export default function Footer() {
                         </div>
                         <div className="pl-5">
                             <ul className="list-disc flex flex-col gap-4">
-                                <li className="hover:font-bold">Điện thoại</li>
-                                <li className="hover:font-bold">Laptop</li>
+                                <li className="hover:font-bold"><Link href={"/products/phone"}>Điện thoại</Link></li>
+                                <li className="hover:font-bold"><Link href={"/products/laptop"}>Laptop</Link></li>
                                 <li className="hover:font-bold">Tablet</li>
-                                <li className="hover:font-bold">Tai nghe</li>
-                                <li className="hover:font-bold">Bàn phím</li>
+                                <li className="hover:font-bold"><Link href={"/products/headphone"}>Tai nghe</Link></li>
+                                <li className="hover:font-bold"><Link href={"/products/keyboard"}>Bàn phím</Link></li>
                                 <li className="hover:font-bold">Sạc dự phòng</li>
                             </ul>
                         </div>

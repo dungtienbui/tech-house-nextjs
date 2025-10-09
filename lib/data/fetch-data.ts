@@ -1,4 +1,4 @@
-import { CheckoutSession, OrderDTO, ProductVariantDTO, ProductVariantInShortDTO, RecommendedVariantsInShortDTO, SpecKeyValueDTO } from "../definations/data-dto";
+import { CheckoutSession, OrderDTO, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
 import { ProductBrand, ProductImage } from "../definations/database-table-definations";
 import { ProductType } from "../definations/types";
 import { query } from "./db";
@@ -98,11 +98,11 @@ export async function fetchRecommendedVariantsByKey(key: string, numberItemOfPag
     `
 
   // console.log("queryString: ", queryString);
-  return query<RecommendedVariantsInShortDTO>(queryString, key !== "" ? [numberItemOfPage, offset, `%${key}%`] : [numberItemOfPage, offset]);
+  return query<RecommendedVariantDTO>(queryString, key !== "" ? [numberItemOfPage, offset, `%${key}%`] : [numberItemOfPage, offset]);
 }
 
-// Has sql injection attack in queries param ?????????
-export async function fetchProductVariantsInShort(
+// fetch variants by product type from db
+export async function fetchVariants(
   productType?: ProductType,
   optional?: {
     limit?: number;
@@ -139,8 +139,6 @@ export async function fetchProductVariantsInShort(
 
   }) : [];
 
-  // console.log("queriesStr: ", queriesStr);
-
   const whereArray = [...queriesStr, optionalStr];
 
   const whereStr = whereArray.length > 0 ? `where ${whereArray.join(" and ")
@@ -149,32 +147,31 @@ export async function fetchProductVariantsInShort(
   const limitStr = "limit $1 offset $2";
 
   const queryString = `
-SELECT
-v.variant_id,
-  v.stock,
-  v.variant_price,
-  v.date_added,
-  v.is_promoting,
-  v.ram,
-  v.storage,
-  v.switch_type,
-  --Thông tin từ product_base
-pb.product_base_id,
-  pb.product_name,
-  --Product brand
-pb2.brand_name,
-  pb.product_type,
-  pb.description,
-  pb.base_price,
-  --Thông tin màu sắc(có thể null)
-c.color_id,
-  c.color_name,
-  c.value AS color_value,
-    --Ảnh preview(có thể null)
-pi.image_id AS preview_image_id,
-  pi.image_url AS preview_image_url,
-      pi.image_caption AS preview_image_caption,
-      pi.image_alt AS preview_image_alt
+    SELECT
+      v.variant_id,
+      v.stock,
+      v.variant_price,
+      v.is_promoting,
+      v.ram,
+      v.storage,
+      v.switch_type,
+      v.date_added,
+      --Thông tin từ product_base
+      pb.product_base_id,
+      pb.product_name,
+      to_json(pb2) AS brand,
+        pb.product_type,
+        pb.description,
+        pb.base_price,
+        --Thông tin màu sắc(có thể null)
+      to_json(c) AS color,
+      --Ảnh preview(có thể null)
+      json_build_object(
+        'image_id', pi.image_id,
+        'image_url', pi.image_url,
+        'image_caption', pi.image_caption,
+        'image_alt', pi.image_alt
+      ) as preview_image
     FROM variant v
     LEFT JOIN product_base pb 
         ON v.product_base_id = pb.product_base_id
@@ -187,8 +184,8 @@ pi.image_id AS preview_image_id,
     ${whereStr}
     order by v.is_promoting DESC, v.date_added DESC
     ${limitStr}
-;
-`;
+    ;
+  `;
 
 
   const preparedStatement = [
@@ -199,10 +196,10 @@ pi.image_id AS preview_image_id,
   ].filter(item => item !== null);
 
 
-  return await query<ProductVariantInShortDTO>(queryString, preparedStatement);
+  return await query<ProductVariantDTO>(queryString, preparedStatement);
 }
 
-export async function fetchProductVariantsInShortTotalPage(
+export async function fetchVariantsTotalPage(
   productType?: ProductType,
   optional?: {
     limit?: number;
@@ -245,21 +242,21 @@ export async function fetchProductVariantsInShortTotalPage(
   const limitStr = `limit $1`;
 
   const queryString = `
-SELECT
-COUNT(*) AS count
-    FROM variant v
-    LEFT JOIN product_base pb 
-        ON v.product_base_id = pb.product_base_id
-    LEFT JOIN product_brand pb2
-      ON pb.brand_id = pb2.brand_id
-    LEFT JOIN color c 
-        ON v.color_id = c.color_id
-    LEFT JOIN product_image pi 
-        ON v.preview_id = pi.image_id
-    ${whereStr}
-    ${limitStr}
-;
-`;
+      SELECT
+      COUNT(*) AS count
+      FROM variant v
+      LEFT JOIN product_base pb 
+          ON v.product_base_id = pb.product_base_id
+      LEFT JOIN product_brand pb2
+        ON pb.brand_id = pb2.brand_id
+      LEFT JOIN color c 
+          ON v.color_id = c.color_id
+      LEFT JOIN product_image pi 
+          ON v.preview_id = pi.image_id
+      ${whereStr}
+      ${limitStr}
+      ;
+  `;
 
   // console.log("queryString: ", queryString);
 
@@ -274,59 +271,7 @@ COUNT(*) AS count
   return Math.ceil(resultQuery[0].count / numberItemOfPage);
 }
 
-export async function fetchVariantsOfProductBaseByVariantId(variantId: string) {
-  const queryString = `
-    WITH base AS(
-  SELECT 
-            v.product_base_id
-        FROM variant v
-        WHERE v.variant_id = $1
-)
-SELECT
-v.variant_id,
-  v.stock,
-  v.variant_price,
-  v.is_promoting,
-  v.ram,
-  v.storage,
-  v.switch_type,
-  v.date_added,
-  --Thông tin từ product_base
-pb.product_base_id,
-  pb.product_name,
-  to_json(pb2) AS brand,
-    pb.product_type,
-    pb.description,
-    pb.base_price,
-    --Thông tin màu sắc(có thể null)
-to_json(c) AS color,
-  --Ảnh preview(có thể null)
-json_build_object(
-  'image_id', pi.image_id,
-  'image_url', pi.image_url,
-  'image_caption', pi.image_caption,
-  'image_alt', pi.image_alt
-) as preview_image
-    FROM variant v
-    JOIN product_base pb 
-        ON v.product_base_id = pb.product_base_id
-    LEFT JOIN product_brand pb2 
-        ON pb.brand_id = pb2.brand_id
-    JOIN base b 
-        ON pb.product_base_id = b.product_base_id
-    LEFT JOIN color c 
-        ON v.color_id = c.color_id
-    LEFT JOIN product_image pi 
-        ON v.preview_id = pi.image_id
-    ORDER BY v.date_added DESC;
-`;
-
-  const resultQuery = query<ProductVariantDTO>(queryString, [variantId]);
-  return resultQuery;
-}
-
-
-export async function fetchImagesOfVariantById(variantId: string) {
+export async function fetchVariantImages(variantId: string) {
   const queryString = `
 SELECT
 pi.image_id,
@@ -355,31 +300,30 @@ export async function fetchSpecsOfVariant(variantId: string, productType: Produc
 
   const queryString = `
     WITH base AS(
+      SELECT
+        v.product_base_id,
+        v.variant_id,
+        v.ram,
+        v."storage",
+        v.switch_type,
+        c.color_name,
+        pb.description,
+        pb.product_type
+      FROM variant v
+      LEFT JOIN product_base pb on v.product_base_id = pb.product_base_id
+      LEFT JOIN color c ON v.color_id = c.color_id
+      WHERE v.variant_id = $1
+    )
     SELECT
-            v.product_base_id,
-    v.variant_id,
-    v.ram,
-    v."storage",
-    v.switch_type,
-    c.color_name,
-    pb.description,
-    pb.product_type
-        FROM variant v
-        LEFT JOIN product_base pb on v.product_base_id = pb.product_base_id
-        LEFT JOIN color c ON v.color_id = c.color_id
-        WHERE v.variant_id = $1
-  )
-SELECT
-  *
-  FROM base b
+      *
+    FROM base b
     LEFT JOIN ${joinSpec} ps ON b.product_base_id = ps.product_base_id;
-`;
+  `;
 
   const resultQuery = query<SpecKeyValueDTO>(queryString, [variantId]);
 
   return resultQuery
 }
-
 
 
 export async function fetchVariantsByVariantIdArray(
@@ -399,28 +343,27 @@ export async function fetchVariantsByVariantIdArray(
       v.variant_id,
       v.stock,
       v.variant_price,
-      v.date_added,
       v.is_promoting,
       v.ram,
       v.storage,
       v.switch_type,
+      v.date_added,
       --Thông tin từ product_base
       pb.product_base_id,
       pb.product_name,
-      --Product brand
-      pb2.brand_name,
-      pb.product_type,
-      pb.description,
-      pb.base_price,
-      --Thông tin màu sắc(có thể null)
-      c.color_id,
-      c.color_name,
-      c.value AS color_value,
-        --Ảnh preview(có thể null)
-      pi.image_id AS preview_image_id,
-      pi.image_url AS preview_image_url,
-      pi.image_caption AS preview_image_caption,
-      pi.image_alt AS preview_image_alt
+      to_json(pb2) AS brand,
+        pb.product_type,
+        pb.description,
+        pb.base_price,
+        --Thông tin màu sắc(có thể null)
+      to_json(c) AS color,
+      --Ảnh preview(có thể null)
+      json_build_object(
+        'image_id', pi.image_id,
+        'image_url', pi.image_url,
+        'image_caption', pi.image_caption,
+        'image_alt', pi.image_alt
+      ) as preview_image
     FROM variant v
     LEFT JOIN product_base pb 
       ON v.product_base_id = pb.product_base_id
@@ -435,7 +378,7 @@ export async function fetchVariantsByVariantIdArray(
 
   // console.log("queryString: ", queryString);
 
-  return await query<ProductVariantInShortDTO>(queryString, variantIdArray);
+  return await query<ProductVariantDTO>(queryString, variantIdArray);
 }
 
 export async function fetchVariantPrices(variantIds: string[]) {
@@ -555,7 +498,6 @@ export async function fetchCheckoutSessionById(
 
   return resultQuery[0];
 }
-
 
 export async function fetchVariantsByCheckoutSessionId(
   checkoutSessionId: string

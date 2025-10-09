@@ -24,6 +24,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <body
@@ -34,7 +35,7 @@ export default async function RootLayout({
             <div className="h-screen">
               <Header />
               <NavBar />
-              <main className="w-screen">{children}</main>
+              <main className="w-screen mb-5">{children}</main>
               <Footer />
             </div>
           </CartProvider>

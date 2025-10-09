@@ -1,4 +1,4 @@
-export default async function ProductOptionFormSkeleton() {
+export default async function ProductOptionSkeleton() {
     return (
         <div className="shimmer">
             <div className="h-8 bg-gray-300"></div>

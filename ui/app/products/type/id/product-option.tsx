@@ -1,17 +1,17 @@
-import { fetchVariantsOfProductBaseByVariantId } from "@/lib/data/fetch-data";
 import LinkHorizontalSelection from "@/ui/components/inputs/link-horizontal-selection";
-import { Circle, ShoppingCart } from "lucide-react";
+import { Circle } from "lucide-react";
 import { notFound } from "next/navigation";
 import SubmitOptionFormSection from "./submit-option-form-section";
+import { fetchVariantsByVariantIdArray } from "@/lib/data/fetch-data";
 
 
 interface props {
     variantId: string;
 }
 
-export default async function ProductOptionForm({ variantId }: props) {
+export default async function ProductOption({ variantId }: props) {
 
-    const productVariants = await fetchVariantsOfProductBaseByVariantId(variantId);
+    const productVariants = await fetchVariantsByVariantIdArray([variantId]);
 
 
     if (productVariants.length === 0) {
@@ -80,7 +80,7 @@ export default async function ProductOptionForm({ variantId }: props) {
         ")";
 
     return (
-        <form className="w-full flex flex-col gap-5">
+        <div className="w-full flex flex-col gap-5">
             <div className="flex flex-col gap-2">
                 <div className="text-xl md:text-2xl font-bold">{`${variant.product_name} ${productNameSub}`}</div>
                 <div className="grid grid-cols-2">
@@ -98,6 +98,6 @@ export default async function ProductOptionForm({ variantId }: props) {
             </div>
             <div className="w-full h-0 border-t border-gray-300" />
             <SubmitOptionFormSection varirantId={variant.variant_id} />
-        </form>
+        </div>
     )
 }

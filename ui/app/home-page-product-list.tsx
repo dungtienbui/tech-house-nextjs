@@ -1,9 +1,10 @@
-import { fetchProductVariantsInShort } from "@/lib/data/fetch-data";
 import { ProductType } from "@/lib/definations/types";
 import { getConvertKeyProductTypeToVN } from "@/lib/utils/types";
 import { ChevronRightIcon } from "lucide-react";
 import PreviewCard from "../components/preview-card/preview-card";
 import Link from "next/link";
+import { fetchVariants } from "@/lib/data/fetch-data";
+import { NO_PREVIEW } from "@/lib/definations/data-dto";
 
 
 interface BaseProps {
@@ -19,7 +20,7 @@ export default async function HomePageProductList({
     navigator,
 }: BaseProps) {
 
-    const productList = await fetchProductVariantsInShort(productType, {
+    const productList = await fetchVariants(productType, {
         isPromoting: true,
         limit,
     });
@@ -49,7 +50,7 @@ export default async function HomePageProductList({
                         [
                             product.ram && `${product.ram}GB`,
                             product.storage && `${product.storage}GB`,
-                            product.color_name && `${product.color_name}`,
+                            `${product.color.color_name}`,
                             product.switch_type && `${product.switch_type} switch`,
                         ]
                             .filter(Boolean)
@@ -59,13 +60,13 @@ export default async function HomePageProductList({
                         <PreviewCard
                             variantId={product.variant_id}
                             key={`${product.variant_id}-${index}`}
-                            title={`${product.brand_name}: ${product.product_name}`}
+                            title={`${product.brand}: ${product.product_name}`}
                             subtitle={subtitle}
                             price={product.variant_price.toString()}
                             navTo={`/products/${productType}/${product.variant_id}`}
                             image={{
-                                href: product.preview_image_url ?? "",
-                                alt: product.preview_image_url ?? product.preview_image_caption ?? "",
+                                href: product.preview_image.image_url ?? NO_PREVIEW.href,
+                                alt: product.preview_image.image_alt ?? product.preview_image.image_caption ?? NO_PREVIEW.alt,
                             }}
                         />
                     );

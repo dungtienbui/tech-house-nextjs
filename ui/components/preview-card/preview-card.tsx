@@ -12,10 +12,9 @@ interface props {
     href: string;
     alt: string;
   }
-  isPromoting?: boolean;
 }
 
-export default function PreviewCard({ title, subtitle, image, price, navTo, isPromoting, variantId }: props) {
+export default function PreviewCard({ title, subtitle, image, price, navTo, variantId }: props) {
 
   return (
     <Link

@@ -40,37 +40,7 @@ export interface ProductSpecsDTO {
 }
 
 //***********************************************************/
-
-export interface ProductVariantInShortDTO {
-    // Thông tin chung
-    variant_id: string;
-    product_base_id: string;
-    product_name: string;
-    product_type: ProductType;
-    stock: number;
-    variant_price: number;
-    is_promoting: boolean;
-
-    brand_name: string;
-
-    // Các thuộc tính biến thể
-    // Thông tin màu sắc
-    color_id: string;
-    color_name: string;
-    color_value: string;
-    // Các thuộc tính biến khác
-    ram?: number;
-    storage?: number;
-    switch_type?: string;
-
-    // Ảnh preview
-    preview_image_id: string | null;
-    preview_image_url: string | null;
-    preview_image_caption: string | null;
-    preview_image_alt: string | null;
-}
-
-export interface RecommendedVariantsInShortDTO {
+export interface RecommendedVariantDTO {
     // Thông tin chung
     variant_id: string;
     product_name: string;
@@ -189,7 +159,7 @@ export const GuestInfoSchema = z.object({
 export type GuestInfo = z.infer<typeof GuestInfoSchema>;
 
 
-export interface CartProductInfo extends ProductVariantInShortDTO {
+export interface CartProductInfo extends ProductVariantDTO {
     quantity: number;
 }
 

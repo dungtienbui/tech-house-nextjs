@@ -1,8 +1,8 @@
 import { Carousel } from "@/ui/components/embla-carousel/carousel";
-import ProductOptionForm from "./product-option-form";
 import { Suspense } from "react";
 import { CarouselSkeleton } from "@/ui/components/embla-carousel/carousel-skeleton";
-import ProductOptionFormSkeleton from "./product-option-form-skeleton";
+import ProductOption from "./product-option";
+import ProductOptionSkeleton from "./product-option-skeleton";
 
 
 export default function ProductOverview({ id }: { id: string }) {
@@ -16,8 +16,8 @@ export default function ProductOverview({ id }: { id: string }) {
             </div>
 
             <div className="flex-1">
-                <Suspense fallback={<ProductOptionFormSkeleton />}>
-                    <ProductOptionForm variantId={id} />
+                <Suspense fallback={<ProductOptionSkeleton />}>
+                    <ProductOption variantId={id} />
                 </Suspense>
             </div>
         </div >

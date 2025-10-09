@@ -2,7 +2,6 @@
 import { useCart } from "@/lib/context/card-context";
 import { CartItems, NO_PREVIEW } from "@/lib/definations/data-dto";
 import { ProductType } from "@/lib/definations/types";
-import { useCheckoutSession } from "@/lib/hook/checkout-session-hook";
 import clsx from "clsx";
 import { ChevronsUp, Square, SquareCheckBig } from "lucide-react";
 import Image from "next/image";
@@ -19,8 +18,6 @@ export default function Cart() {
 
 
     const [selected, setSelected] = useState<string[]>([]);
-
-    const { saveSessionId } = useCheckoutSession();
 
     function selectCartItem(id: string) {
         if (!selected.includes(id)) {
@@ -64,7 +61,7 @@ export default function Cart() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ checkoutItems }),
-                
+
             });
 
             const { apiQueryResult } = await queryApi.json();
@@ -127,7 +124,7 @@ export default function Cart() {
                                         item.ram ? `${item.ram}GB` : null,
                                         item.storage ? `${item.storage}GB` : null,
                                         item.switch_type ? `${item.switch_type} switch` : null,
-                                        item.color_name,
+                                        item.color.color_name,
                                     ].filter(item => item !== null).join(", ");
 
                                     const totalCost = item.variant_price * item.quantity;
@@ -139,14 +136,14 @@ export default function Cart() {
                                             id={item.variant_id}
                                             type={item.product_type}
                                             key={item.variant_id}
-                                            name={`${item.product_name} - ${item.brand_name}`}
+                                            name={`${item.product_name} - ${item.brand}`}
                                             option={optionStr}
                                             price={item.variant_price}
                                             quantity={item.quantity}
                                             totalCost={totalCost}
                                             preview={{
-                                                href: item.preview_image_url ?? NO_PREVIEW.href,
-                                                alt: item.preview_image_alt ?? NO_PREVIEW.alt
+                                                href: item.preview_image.image_url ?? NO_PREVIEW.href,
+                                                alt: item.preview_image.image_alt ?? item.preview_image.image_caption ?? NO_PREVIEW.alt,
                                             }}
                                             removeCallBack={() => removeFromCart(item.variant_id)}
                                             isSelected={isSelected}
@@ -170,7 +167,7 @@ export default function Cart() {
                                         item.ram ? `${item.ram}GB` : null,
                                         item.storage ? `${item.storage}GB` : null,
                                         item.switch_type ? `${item.switch_type} switch` : null,
-                                        item.color_name,
+                                        item.color.color_name,
                                     ].filter(item => item !== null).join(", ");
 
                                     const totalCost = item.variant_price * item.quantity;
@@ -182,14 +179,14 @@ export default function Cart() {
                                             id={item.variant_id}
                                             type={item.product_type}
                                             key={item.variant_id}
-                                            name={`${item.product_name} - ${item.brand_name}`}
+                                            name={`${item.product_name} - ${item.brand}`}
                                             option={optionStr}
                                             price={item.variant_price}
                                             quantity={item.quantity}
                                             totalCost={totalCost}
                                             preview={{
-                                                href: item.preview_image_url ?? NO_PREVIEW.href,
-                                                alt: item.preview_image_alt ?? NO_PREVIEW.alt
+                                                href: item.preview_image.image_url ?? NO_PREVIEW.href,
+                                                alt: item.preview_image.image_alt ?? item.preview_image.image_caption ?? NO_PREVIEW.alt,
                                             }}
                                             removeCallBack={() => removeFromCart(item.variant_id)}
                                             isSelected={isSelected}

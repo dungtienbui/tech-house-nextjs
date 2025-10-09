@@ -1,5 +1,5 @@
 'use client'
-import { useGuest } from "@/lib/context/guest-context";
+
 import { BookUser } from "lucide-react";
 import { useState } from "react";
 import { MouseEvent } from "react";
@@ -10,9 +10,7 @@ export default function FindPuschaseForm() {
 
     const router = useRouter();
 
-    const { guestInfo } = useGuest();
-
-    const [phone, setPhone] = useState(guestInfo.phone);
+    const [phone, setPhone] = useState("");
     const [error, setError] = useState<string | null>(null);
 
     const handleClickButton = (e: MouseEvent<HTMLButtonElement>) => {
@@ -36,7 +34,7 @@ export default function FindPuschaseForm() {
                         value={phone}
                         className="w-full py-3 pl-12 border border-gray-300 rounded-full"
                         type="text"
-                        placeholder="Nhập số điện thoại mua hàng"
+                        placeholder="Nhập số điện thoại"
                     />
                     <BookUser width={25} height={25} className="absolute top-1/2 left-3 -translate-y-3" />
                 </div>

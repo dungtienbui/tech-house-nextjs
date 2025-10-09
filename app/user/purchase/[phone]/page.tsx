@@ -36,7 +36,7 @@ export default async function PurchasesByPhonePage({
                     active: false
                 },
                 {
-                    label: `Đơn mua: ${trimmedPhone}`,
+                    label: `${trimmedPhone}`,
                     href: `/user/purchase/${trimmedPhone}`,
                     active: true
                 },
@@ -73,40 +73,39 @@ function OrderInfo({ order }: { order: OrderDTO }) {
     const getPaymentStatusLabelColor = (status: PaymentStatus) => {
         switch (status) {
             case "pending":
-                return "text-yellow-600 bg-yellow-100";
+                return "text-yellow-600";
             case "paid":
-                return "text-green-600 bg-green-100";
+                return "text-green-600";
             case "failed":
-                return "text-red-600 bg-red-100";
+                return "text-red-600";
             case "refunded":
-                return "text-blue-600 bg-blue-100";
+                return "text-blue-600";
             case "cancelled":
-                return "text-gray-600 bg-gray-100";
+                return "text-gray-600";
             default:
-                return "text-gray-600 bg-gray-100";
+                return "text-gray-600";
         }
     };
 
     return (
         <div className="border border-gray-300 rounded-md p-5 shadow">
-            <div className="relative flex flex-col items-start gap-3">
+            <div className="flex flex-row justify-between">
                 <div>
-                    <span className="text-sm font-semibold">Mã hoá đơn: </span>
-                    <span>{order.order_id}</span>
+                    <span className="text-sm font-semibold">Đơn hàng: </span>
+                    <span>#{order.order_id}</span>
                 </div>
+                <div>
+                    <span className={`font-bold ${getPaymentStatusLabelColor(order.payment_status as PaymentStatus)}`}>{getPaymentStatusLabel(order.payment_status as PaymentStatus)}</span>
+                </div>
+            </div>
+            <Devider border="border-b" borderColor="border-gray-300" margin="my-3" />
+            <div className="relative flex flex-col items-start gap-3">
                 <div>
                     <span className="text-sm font-semibold">Ngày tạo: </span>
                     <span>{new Date(order.order_created_at).toLocaleString()}</span>
                 </div>
-                <div className="lg:absolute top-0 right-0">
-                    <div className="lg:hidden">
-                        <span className="text-sm font-semibold">Trạng thái: </span>
-                        <span>{getPaymentStatusLabel(order.payment_status as PaymentStatus)}</span>
-                    </div>
-                    <span className={`hidden lg:block px-5 py-3 rounded-full border ${getPaymentStatusLabelColor(order.payment_status as PaymentStatus)}`}>{getPaymentStatusLabel(order.payment_status as PaymentStatus)}</span>
-                </div>
                 <div>
-                    <span className="hidden lg:inline text-sm font-semibold">Người mua hàng: </span>
+                    <span className="hidden lg:inline text-sm font-semibold">Khách hàng: </span>
                     <span className="inline lg:hidden text-sm font-semibold">Anh/Chị: </span>
                     <span>{order.buyer_name}</span>
                 </div>
