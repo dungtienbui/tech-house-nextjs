@@ -1,6 +1,5 @@
 import { CircleUserRound } from "lucide-react";
 import HeaderCart from "./header-cart-item";
-import { SignedOut, SignInButton, SignUpButton, SignedIn, UserButton } from "@clerk/nextjs";
 import AccountButton from "./account-button";
 
 export default function Utility() {

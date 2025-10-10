@@ -294,7 +294,6 @@ pi.image_id,
   return resultQuery
 }
 
-
 export async function fetchProductSpecs(variantId: string, productType: ProductType) {
 
   const joinSpec = `${productType}_spec`;
@@ -338,7 +337,6 @@ export async function fetchProductDescription(variantId: string) {
 
   return resultQuery
 }
-
 
 export async function fetchVariantsByVariantIdArray(
   variantIdArray: string[]
