@@ -19,7 +19,6 @@ export function getConvertKeyProductTypeToVN(pt: ProductType): string {
 
 // Mapping key sang tiếng Việt
 const specKeyVNMap: Record<keyof SpecKeyValueDTO, string> = {
-    description: 'Mô tả',
     product_type: 'Loại sản phẩm',
     weight: 'Trọng lượng (g)',
     screen_size: 'Kích thước màn hình (inch)',

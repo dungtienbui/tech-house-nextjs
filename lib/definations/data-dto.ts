@@ -95,7 +95,6 @@ export interface SpecKeyValueDTO {
     // Common fields across specs
     product_base_id?: string;
     variant_id?: string;
-    description?: string;
     product_type?: ProductType;
 
     weight?: number | null;

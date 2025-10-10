@@ -6,7 +6,7 @@ import Breadcrumbs from "@/ui/components/breadcrumbs/breadcrumbs";
 import { notFound } from "next/navigation";
 
 
-export default async function ProductDetailPage({
+export default async function ProductDetailDefaultPage({
     params,
 }: {
     params: Promise<{ type: string, id: string }>

@@ -1,6 +1,7 @@
 import { CheckoutSession, OrderDTO, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
 import { ProductBrand, ProductImage } from "../definations/database-table-definations";
 import { ProductType } from "../definations/types";
+import { wait } from "../utils/funcs";
 import { query } from "./db";
 
 export async function fetchColors() {
@@ -294,7 +295,7 @@ pi.image_id,
 }
 
 
-export async function fetchSpecsOfVariant(variantId: string, productType: ProductType) {
+export async function fetchProductSpecs(variantId: string, productType: ProductType) {
 
   const joinSpec = `${productType}_spec`;
 
@@ -307,7 +308,6 @@ export async function fetchSpecsOfVariant(variantId: string, productType: Produc
         v."storage",
         v.switch_type,
         c.color_name,
-        pb.description,
         pb.product_type
       FROM variant v
       LEFT JOIN product_base pb on v.product_base_id = pb.product_base_id
@@ -321,6 +321,20 @@ export async function fetchSpecsOfVariant(variantId: string, productType: Produc
   `;
 
   const resultQuery = query<SpecKeyValueDTO>(queryString, [variantId]);
+
+  return resultQuery
+}
+
+export async function fetchProductDescription(variantId: string) {
+  const queryString = `
+    SELECT
+      pb.description
+    FROM variant v
+    LEFT JOIN product_base pb on v.product_base_id = pb.product_base_id
+    WHERE v.variant_id = $1
+  `;
+
+  const resultQuery = query<{ description: string }>(queryString, [variantId]);
 
   return resultQuery
 }
