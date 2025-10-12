@@ -63,7 +63,7 @@ export default function CheckoutForm({ checkoutItems, checkoutId }: props) {
 
             checkoutItems.forEach(item => removeFromCart(item.variant_id));
 
-            router.push(`/user/purchase/${guestInfo.phone}`);
+            router.push(`/user/purchases`);
 
         } catch (error) {
             console.error("error: ", error);

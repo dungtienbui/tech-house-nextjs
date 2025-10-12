@@ -2,36 +2,18 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- =====================
--- TẠO BẢNG CHÍNH (CÓ FOREIGN KEY TRỰC TIẾP)
+-- TẠO BẢNG CHÍNH
 -- =====================
-CREATE TABLE
-  "account" (
-    "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "email" VARCHAR,
-    "username" VARCHAR,
-    "password" VARCHAR,
-    "full_name" VARCHAR,
-    "phone_number" VARCHAR UNIQUE,
-    "address" VARCHAR,
-    "gender" VARCHAR,
-    "date_of_birth" DATE,
-    "role" VARCHAR,
-    "registration_date" TIMESTAMPTZ DEFAULT now ()
-  );
+CREATE TABLE users (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  phone VARCHAR(15) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-CREATE TABLE
-  "employee" (
-    "employee_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "national_id" VARCHAR UNIQUE,
-    CONSTRAINT fk_employee_account FOREIGN KEY ("employee_id") REFERENCES "account" ("id")
-  );
-
-CREATE TABLE
-  "customer" (
-    "customer_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    "customer_points" INT,
-    CONSTRAINT fk_customer_account FOREIGN KEY ("customer_id") REFERENCES "account" ("id")
-  );
+--  /////////////////////////////////
 
 CREATE TABLE
   "color" (

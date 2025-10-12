@@ -15,9 +15,10 @@ export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
 
 export const PaymentStatusSchema = z.enum([
     "pending",    // Đang chờ xử lý
-    "paid",       // Đã thanh toán thành công
-    "failed",     // Thanh toán thất bại
-    "refunded",   // Đã hoàn tiền
+    "confirmed",     // Đã xác nhận
+    "shipping",       // Đang chuyển hàng
+    "delivered",   // Đã giao hàng
+    "completed",   // Đơn thành công
     "cancelled"   // Đơn đã hủy
 ]);
 export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;

@@ -94,16 +94,19 @@ export function isPhoneNumberValid(phone: string) {
     return true;
 }
 
+
 export function getPaymentStatusLabel(status: PaymentStatus): string {
     switch (status) {
         case "pending":
-            return "Đang chờ xử lý";
-        case "paid":
-            return "Đã thanh toán";
-        case "failed":
-            return "Thanh toán thất bại";
-        case "refunded":
-            return "Đã hoàn tiền";
+            return "Chờ xử lý";
+        case "confirmed":
+            return "Đã xác nhận";
+        case "shipping":
+            return "Đang chuyển hàng";
+        case "delivered":
+            return "Đã giao hàng";
+        case "completed":
+            return "Thành công";
         case "cancelled":
             return "Đã hủy đơn";
         default:

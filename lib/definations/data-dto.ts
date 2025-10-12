@@ -191,4 +191,47 @@ export interface OrderDTO {
     products: OrderProductDTO[];
 }
 
+export const SignupFormSchema = z.object({
+    name: z
+        .string()
+        .min(2, { message: 'Tên phải có ít nhất 2 ký tự.' })
+        .trim(),
+    phone: z
+        .string()
+        // Regex đơn giản cho SĐT Việt Nam (10 số, bắt đầu bằng 03, 05, 07, 08, 09)
+        .regex(/^(0[3|5|7|8|9])+([0-9]{8})\b/, {
+            message: 'Vui lòng nhập số điện thoại hợp lệ.',
+        }),
+    password: z
+        .string()
+        .min(8, { message: 'Mật khẩu phải có ít nhất 8 ký tự.' })
+        .regex(/[a-zA-Z]/, { message: 'Phải chứa ít nhất một chữ cái.' })
+        .regex(/[0-9]/, { message: 'Phải chứa ít nhất một chữ số.' })
+        // .regex(/[^a-zA-Z0-9]/, {
+        //     message: 'Phải chứa ít nhất một ký tự đặc biệt.',
+        // })
+        .trim(),
+});
 
+export const SigninFormSchema = z.object({
+    phone: z
+        .string()
+        .regex(/^(0[3|5|7|8|9])+([0-9]{8})\b/, {
+            message: "Số điện thoại không hợp lệ.",
+        }),
+    password: z
+        .string()
+        .min(8, { message: "Mật khẩu phải có ít nhất 8 ký tự." }),
+});
+
+export type AuthFormState =
+    | {
+        errors?: {
+            name?: string[];
+            phone?: string[];
+            password?: string[];
+            other?: string[];
+        }
+        message?: string;
+    }
+    | undefined

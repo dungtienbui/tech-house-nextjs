@@ -88,7 +88,7 @@ export function GuestProvider({ children }: { children: React.ReactNode }) {
         const phoneRegex = /^(0|\+84)(\d{9})$/;
         if (!phoneRegex.test(phone)) return "Số điện thoại không hợp lệ";
 
-        return null; // ✅ Không có lỗi
+        return null; // Không có lỗi
     }
 
     return (

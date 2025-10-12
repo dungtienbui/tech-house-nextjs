@@ -1,6 +1,8 @@
+import { randomUUID } from "crypto";
 import { CartItem, CartItems, CartItemsSchema, GuestInfo } from "../definations/data-dto";
-import { Color, ProductImage, ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase } from "../definations/database-table-definations";
+import { Color, ProductImage, ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase, User } from "../definations/database-table-definations";
 import { PaymentMethod, ProductType, SpecResult } from "../definations/types";
+import { saltAndHashPassword } from "../utils/password";
 import { query } from "./db";
 import { fetchVariantPrices } from "./fetch-data";
 
@@ -318,3 +320,30 @@ export async function deleteCheckoutSession(
     return resultQuery[0];
 }
 
+
+export async function insertUser({
+    name,
+    phone,
+    password,
+}: {
+    name: string;
+    phone: string;
+    password: string;
+}) {
+
+    const queryStr = `
+      INSERT INTO users (id, name, phone, password)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, name, phone, created_at, updated_at;
+    `;
+
+    const id = randomUUID();
+
+    const hashedPassword = await saltAndHashPassword(password);
+
+    const values = [id, name, phone, hashedPassword];
+
+    const resultQuery = await query<User>(queryStr, values);
+
+    return resultQuery[0];
+}

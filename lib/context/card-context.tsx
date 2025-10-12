@@ -3,9 +3,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { CartItem, CartProductInfo, ProductVariantDTO } from "../definations/data-dto";
 
-
-
-
 type CartContextType = {
     readonly cart: CartItem[];
     readonly cartProductInfo: CartProductInfo[];
@@ -22,7 +19,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cartProductInfo, setCartProductInfo] = useState<CartProductInfo[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // 1️⃣ Load cart từ localStorage
+    // Load cart từ localStorage
     useEffect(() => {
         try {
             const saved = localStorage.getItem("cart");
@@ -34,19 +31,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    // 2️⃣ Lưu cart vào localStorage
+    // Lưu cart vào localStorage
     useEffect(() => {
         localStorage.setItem("cart", JSON.stringify(cart));
     }, [cart]);
 
-    // 3️⃣ Fetch thông tin sản phẩm khi cart thay đổi
+    // Fetch thông tin sản phẩm khi cart thay đổi
     useEffect(() => {
+        setLoading(true);
+
         if (cart.length === 0) {
             setCartProductInfo([]);
             return;
         }
 
-        setLoading(true);
         const ids = cart.map((item) => item.variant_id);
 
         fetch("/api/cart", {
@@ -75,7 +73,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             .finally(() => setLoading(false));
     }, [cart]);
 
-    // 4️⃣ Các hàm thao tác với cart
+    // Các hàm thao tác với cart
     function addToCart(variantId: string, quantity = 1, replaceQuantity = false) {
         setCart((prev) => {
             const existCardItem = prev.find((item) => item.variant_id === variantId);

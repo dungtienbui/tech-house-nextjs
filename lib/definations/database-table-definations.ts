@@ -3,30 +3,15 @@
 import { ProductType } from "./types";
 
 // =====================
-// Account & Roles
+// user
 // =====================
-export interface Account {
-    id: string; // UUID
-    email?: string;
-    username: string;
+export interface User {
+    id: string;
+    name: string;
+    phone: string;
     password: string;
-    full_name: string;
-    phone_number: string;
-    address?: string;
-    gender?: string;
-    date_of_birth?: string; // ISO Date string
-    role: string;
-    registration_date: string; // ISO Timestamp
-}
-
-export interface Employee {
-    employee_id: string; // FK to Account.id
-    national_id: string;
-}
-
-export interface Customer {
-    customer_id: string; // FK to Account.id
-    customer_points: number;
+    created_at: string;
+    updated_at: string;
 }
 
 // =====================

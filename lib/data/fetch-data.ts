@@ -1,7 +1,6 @@
 import { CheckoutSession, OrderDTO, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
-import { ProductBrand, ProductImage } from "../definations/database-table-definations";
-import { ProductType } from "../definations/types";
-import { wait } from "../utils/funcs";
+import { ProductBrand, ProductImage, User } from "../definations/database-table-definations";
+import { PaymentStatus, ProductType } from "../definations/types";
 import { query } from "./db";
 
 export async function fetchColors() {
@@ -102,7 +101,6 @@ export async function fetchRecommendedVariantsByKey(key: string, numberItemOfPag
   return query<RecommendedVariantDTO>(queryString, key !== "" ? [numberItemOfPage, offset, `%${key}%`] : [numberItemOfPage, offset]);
 }
 
-// fetch variants by product type from db
 export async function fetchVariants(
   productType?: ProductType,
   optional?: {
@@ -419,7 +417,8 @@ export async function fetchVariantPrices(variantIds: string[]) {
   return priceMap;
 }
 
-export async function fetchOrdersByPhoneNumber(phone: string): Promise<OrderDTO[]> {
+export async function fetchOrdersByPhoneNumber(phone: string, status?: PaymentStatus): Promise<OrderDTO[]> {
+
   const queryStr = `
     SELECT
       o.order_id,
@@ -455,12 +454,11 @@ export async function fetchOrdersByPhoneNumber(phone: string): Promise<OrderDTO[
       JOIN color c ON v.color_id = c.color_id
       JOIN product_image pi ON v.preview_id = pi.image_id
 
-      WHERE b.phone_number = $1
+      WHERE b.phone_number = $1 ${status ? "and o.payment_status = $2" : ""}
       ORDER BY o.order_created_at DESC
   `;
 
-
-  const result = await query(queryStr, [phone]);
+  const result = await query(queryStr, status ? [phone, status] : [phone]);
 
   // Gom nhóm theo order_id
   const ordersMap = new Map<string, OrderDTO>();
@@ -524,7 +522,15 @@ export async function fetchVariantsByCheckoutSessionId(
   return varriants;
 }
 
+export async function fetchUserByPhone(phone: string): Promise<User | null> {
+  const result = await query<User>("SELECT * FROM users WHERE phone = $1", [phone]);
+  return result[0] || null;
+}
 
+export async function fetchUserById(id: string): Promise<User | null> {
+  const result = await query<User>("SELECT * FROM users WHERE id = $1", [id]);
+  return result[0] || null;
+}
 
 
 
