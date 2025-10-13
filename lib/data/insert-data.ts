@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
-import { CartItem, CartItems, CartItemsSchema, GuestInfo } from "../definations/data-dto";
-import { Color, ProductImage, ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase, User } from "../definations/database-table-definations";
+import { Address, CartItem, CartItems, CartItemsSchema, GuestInfo, GuestOrderData } from "../definations/data-dto";
+import { Color, ProductImage, ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase, User, UserResponse } from "../definations/database-table-definations";
 import { PaymentMethod, ProductType, SpecResult } from "../definations/types";
 import { saltAndHashPassword } from "../utils/password";
-import { query } from "./db";
+import { pool, query } from "./db";
 import { fetchVariantPrices } from "./fetch-data";
 
 export async function resetTable(tableName: string) {
@@ -215,72 +215,6 @@ export async function insertProductBase(item: ProductBase) {
 }
 
 
-export async function insertOrder(
-    cart: CartItems,
-    guest: GuestInfo,
-    paymentMethod: PaymentMethod,
-    checkoutSessionId: string
-): Promise<string> {
-
-    if (!checkoutSessionId) {
-        throw new Error("Not find checkout session id");
-    }
-
-    const deletedCheckoutSession = await deleteCheckoutSession(checkoutSessionId);
-
-
-    if (Object.keys(deletedCheckoutSession).length === 0) {
-        throw new Error("Not find checkout id");
-    }
-
-    if (!cart || cart.length === 0) {
-        console.warn("No cart");
-        throw new Error("Cart is empty");
-    }
-
-    const variantIds = cart.map(c => c.variant_id);
-    const variantPrices = await fetchVariantPrices(variantIds);
-
-    // Chuyển mảng cart thành JSON để truyền vào Postgres function
-    const data = cart.map((item) => ({
-        variant_id: item.variant_id,
-        quantity: item.quantity,
-        variant_price: variantPrices[item.variant_id],
-    }))
-
-    const productsJson = JSON.stringify(data);
-
-    // TODO: tính totalAmount thực tế (tốt nhất nên fetch giá từ DB)
-    const totalAmount = data.reduce((acc, curr) => acc + curr.variant_price * curr.quantity, 0);
-
-    const rewardPoints = Math.floor(totalAmount / 100);
-
-    const sql = `
-    SELECT insert_order(
-      $1, $2, $3, $4, $5,
-      $6, $7, $8,
-      $9::jsonb
-    ) AS order_id;
-  `;
-
-    const params = [
-        paymentMethod,   // $1 p_payment_method
-        "pending",       // $2 p_payment_status
-        totalAmount,     // $3 p_total_amount
-        rewardPoints,    // $4 p_reward_points
-        null,            // $5 p_customer_id (null = khách vãng lai)
-        guest.name,      // $6 p_buyer_name
-        guest.phone,     // $7 p_phone_number
-        guest.address,   // $8 p_address
-        productsJson,    // $9 p_products
-    ];
-
-    const result = await query<{ order_id: string }>(sql, params);
-
-    return result[0].order_id;
-}
-
-
 export async function insertCheckoutSession(
     checkoutItems: CartItems,
 ) {
@@ -332,18 +266,207 @@ export async function insertUser({
 }) {
 
     const queryStr = `
-      INSERT INTO users (id, name, phone, password)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO users (name, phone, password)
+      VALUES ($1, $2, $3)
       RETURNING id, name, phone, created_at, updated_at;
     `;
 
-    const id = randomUUID();
-
     const hashedPassword = await saltAndHashPassword(password);
 
-    const values = [id, name, phone, hashedPassword];
+    const values = [name, phone, hashedPassword];
 
     const resultQuery = await query<User>(queryStr, values);
 
     return resultQuery[0];
+}
+
+export async function updateUserAdderss({
+    userId,
+    address
+}: {
+    userId: string;
+    address: Address;
+}) {
+
+    const queryStr = `
+        UPDATE "users"
+        SET
+            "province" = $1,
+            "ward" = $2,
+            "street" = $3,
+            "updated_at" = CURRENT_TIMESTAMP
+        WHERE
+            "id" = $4
+        RETURNING id, name, phone, province, ward, street, created_at, updated_at;
+    `;
+
+    const values = [
+        address.province,
+        address.ward,
+        address.street,
+        userId
+    ]
+
+    const resultQuery = await query<UserResponse>(queryStr, values);
+
+    return resultQuery[0];
+}
+
+export async function updateUserName({
+    userId,
+    name
+}: {
+    userId: string;
+    name: string;
+}) {
+
+    const queryStr = `
+        UPDATE "users"
+        SET
+            "name" = $1,
+            "updated_at" = CURRENT_TIMESTAMP
+        WHERE
+            "id" = $2
+        RETURNING id, name, phone, province, ward, street, created_at, updated_at;
+    `;
+
+    const resultQuery = await query<UserResponse>(queryStr, [userId, name]);
+
+    return resultQuery[0];
+}
+
+export async function insertGuestOrder(
+    orderData: GuestOrderData
+): Promise<string> {
+
+    if (orderData.items.length === 0) {
+        throw new Error("Không có sản phẩm nào trong đơn hàng");
+    }
+
+    // Lấy một client từ connection pool
+    const client = await pool.connect();
+
+    try {
+        // Bắt đầu một transaction
+        await client.query('BEGIN');
+
+        // 1. Chèn vào bảng "order"
+        const insertOrderQuery = `
+        INSERT INTO "order" (
+            payment_method, payment_status, total_amount, reward_points,
+            user_id, buyer_name, phone_number, province, ward, street
+        )
+        VALUES ($1, $2, $3, $4, NULL, $5, $6, $7, $8, $9)
+        RETURNING order_id;
+        `;
+
+        const orderValues = [
+            orderData.payment_method,
+            orderData.payment_status,
+            orderData.total_amount,
+            orderData.reward_points,
+            orderData.buyer_name,
+            orderData.phone_number,
+            orderData.province,
+            orderData.ward,
+            orderData.street,
+        ];
+
+        // Thực thi câu lệnh và lấy order_id trả về
+        const orderResult = await client.query<{ order_id: string }>(insertOrderQuery, orderValues);
+        const newOrderId = orderResult.rows[0].order_id;
+
+        if (!newOrderId) {
+            throw new Error('Failed to create order, could not retrieve order_id.');
+        }
+
+        // 2. Chèn vào bảng "order_product" cho từng sản phẩm
+        const insertProductQuery = `
+        INSERT INTO "order_product" (order_id, variant_id, quantity, variant_price)
+        VALUES ($1, $2, $3, $4);
+        `;
+
+        // Tạo một mảng các promise để chèn tất cả sản phẩm
+        const productInsertPromises = orderData.items.map(item => {
+            const productValues = [
+                newOrderId,
+                item.variant_id,
+                item.quantity,
+                item.variant_price,
+            ];
+            return client.query(insertProductQuery, productValues);
+        });
+
+        // Chờ tất cả các promise chèn sản phẩm hoàn thành
+        await Promise.all(productInsertPromises);
+
+        // 3. Cập nhật "stock"
+        const updateStockQuery = `
+            UPDATE variant AS v
+            SET
+                stock = new_data.stock
+            FROM
+                (
+                    SELECT
+                        unnest($1::UUID[]) AS variant_id,
+                        unnest($2::INT[]) AS stock
+                ) AS new_data
+            WHERE
+                v.variant_id = new_data.variant_id
+            RETURNING *
+        `;
+
+
+        const variantIds = orderData.items.map(item => item.variant_id);
+        const stocks = orderData.items.map(item => item.newStock);
+
+        const updateStockResult = await client.query<Variant>(updateStockQuery, [variantIds, stocks]);
+
+        // Nếu mọi thứ thành công, commit transaction
+        await client.query('COMMIT');
+
+        return newOrderId;
+    } catch (error) {
+        // Nếu có lỗi, rollback lại tất cả các thay đổi
+        await client.query('ROLLBACK');
+        console.error('Error inserting guest order:', error);
+        throw new Error('Could not create the order.');
+    } finally {
+        // Luôn luôn giải phóng client trở lại pool
+        client.release();
+    }
+}
+
+
+export async function InsertItemsToCart(userId: string, items: CartItem[]): Promise<{
+    user_id: string, variant_id: string, quantity: number
+}[]> {
+    if (items.length === 0) {
+        throw new Error("Mảng item bị rỗng");
+    }
+
+    const variantIds = items.map(item => item.variant_id);
+    const quantities = items.map(item => item.quantity);
+
+    const sql = `
+        INSERT INTO user_cart (user_id, variant_id, quantity)
+        SELECT
+            $1::UUID,
+            unnest($2::UUID[]) AS variant_id,
+            unnest($3::INT[]) AS quantity
+        ON CONFLICT (user_id, variant_id)
+        DO UPDATE SET
+            quantity = EXCLUDED.quantity
+        RETURNING user_id, variant_id, quantity
+    `;
+
+    try {
+        const resultQuery = await query<{ user_id: string, variant_id: string, quantity: number }>(sql, [userId, variantIds, quantities]);
+        console.log(`✅ Đã thêm/cập nhật ${items.length} sản phẩm vào giỏ hàng cho user ${userId}.`);
+        return resultQuery;
+
+    } catch (error) {
+        console.error("❌ Lỗi khi thao tác với giỏ hàng:", error);
+        throw new Error("Không thể thêm sản phẩm vào giỏ hàng.");
+    }
 }

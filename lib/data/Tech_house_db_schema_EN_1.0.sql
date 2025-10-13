@@ -4,14 +4,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- =====================
 -- TẠO BẢNG CHÍNH
 -- =====================
-CREATE TABLE users (
-  id VARCHAR(50) PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  phone VARCHAR(15) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 --  /////////////////////////////////
 
@@ -516,25 +508,55 @@ CREATE TABLE
     CONSTRAINT fk_product_promotion_promotion FOREIGN KEY ("promotion_id") REFERENCES "promotion" ("promotion_id")
   );
 
+
+CREATE TABLE 
+  "users" (
+    "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "name" VARCHAR(100) NOT NULL,
+    "phone" VARCHAR(15) UNIQUE NOT NULL,
+    "password" VARCHAR(255) NOT NULL,
+    "province" VARCHAR(255) NULL,
+    "ward" VARCHAR(255) NULL,
+    "street" VARCHAR(255) NULL,
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
+CREATE TABLE 
+  "user_cart" (
+    "user_id" UUID NOT NULL,
+    "variant_id" UUID NOT NULL,
+    "quantity" INT NOT NULL DEFAULT 1,
+    -- Khóa chính
+    PRIMARY KEY ("user_id", "variant_id"),
+    -- Khóa ngoại
+    CONSTRAINT fk_user
+        FOREIGN KEY ("user_id")
+        REFERENCES "users"("id")
+        ON DELETE CASCADE,
+    CONSTRAINT fk_variant
+        FOREIGN KEY ("variant_id")
+        REFERENCES "variant"("variant_id")
+        ON DELETE CASCADE
+  );
+
 CREATE TABLE
   "order" (
+    -- order info
     "order_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "order_created_at" TIMESTAMPTZ DEFAULT now (),
     "payment_method" VARCHAR,
     "payment_status" VARCHAR,
     "total_amount" NUMERIC(14, 2),
     "reward_points" INT,
-  );
-
-CREATE TABLE
-  "buyer_info" (
-    "customer_id" UUID NULL,
+    -- buyer info
+    "user_id" UUID NULL,
     "buyer_name" VARCHAR,
     "phone_number" VARCHAR,
-    "address" VARCHAR,
-    "order_id" UUID PRIMARY KEY,
-    CONSTRAINT fk_buyer_info_customer FOREIGN KEY ("customer_id") REFERENCES "customer" ("customer_id"),
-    CONSTRAINT fk_buyer_info_order FOREIGN KEY ("order_id") REFERENCES "order" ("order_id")
+    "province" VARCHAR(255),
+    "ward" VARCHAR(255),
+    "street" VARCHAR(255),
+    CONSTRAINT fk_order_user FOREIGN KEY ("user_id") REFERENCES "users" ("id")
   );
 
 CREATE TABLE

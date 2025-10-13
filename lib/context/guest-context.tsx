@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { GuestInfo } from "../definations/data-dto";
+import { GuestInfo, GuestInfoSchema } from "../definations/data-dto";
+import z from "zod";
 
 interface GuestContextType {
     readonly guestInfo: GuestInfo;
@@ -9,14 +10,21 @@ interface GuestContextType {
     saveGuestInfo: () => void;
     clearGuestInfo: () => void;
     isGuestInfoValid: () => boolean;
-    getGuestInfoError: () => string | null;
+    getGuestInfoError: () => {
+        name?: string[] | undefined;
+        phone?: string[] | undefined;
+        address?: string[] | undefined;
+    } | null;
 }
 
 const DEFAULT_GUEST: GuestInfo = {
     name: "",
     phone: "",
-    email: "",
-    address: "",
+    address: {
+        province: "",
+        ward: "",
+        street: ""
+    },
 };
 
 const GuestContext = createContext<GuestContextType | null>(null);
@@ -28,9 +36,19 @@ export function GuestProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         try {
             const saved = localStorage.getItem("guestInfo");
-            if (saved) setGuestInfoState(JSON.parse(saved));
-        } catch {
-            console.warn("Không đọc được guestInfo từ localStorage");
+
+            if (!saved) {
+                return;
+            }
+
+            const savedValidated = GuestInfoSchema.safeParse(JSON.parse(saved));
+
+            if (savedValidated.success) {
+                setGuestInfoState(savedValidated.data);
+            }
+
+        } catch (e) {
+            console.log("error: ", (e as Error).message);
         }
     }, []);
 
@@ -44,8 +62,8 @@ export function GuestProvider({ children }: { children: React.ReactNode }) {
         try {
             localStorage.setItem("guestInfo", JSON.stringify(guestInfo));
             console.log("Guest info đã được lưu!");
-        } catch {
-            console.error("Không lưu được guestInfo vào localStorage");
+        } catch (e) {
+            console.log("error: ", (e as Error).message);
         }
     }
 
@@ -57,36 +75,18 @@ export function GuestProvider({ children }: { children: React.ReactNode }) {
 
     // Kiểm tra hợp lệ
     function isGuestInfoValid(): boolean {
-        // Trim các trường để tránh chỉ chứa dấu cách
-        const { name, phone, email, address } = guestInfo;
-        if (!name.trim() || !phone.trim() || !email.trim() || !address.trim()) {
-            return false;
-        }
 
-        // Regex kiểm tra email đơn giản
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) return false;
+        const infoValidated = GuestInfoSchema.safeParse(guestInfo);
 
-        // Regex kiểm tra số điện thoại VN (tùy chỉnh)
-        const phoneRegex = /^(0|\+84)(\d{9})$/;
-        if (!phoneRegex.test(phone)) return false;
-
-        return true;
+        return infoValidated.success;
     }
 
-    function getGuestInfoError(): string | null {
-        const { name, phone, email, address } = guestInfo;
+    function getGuestInfoError() {
+        const infoValidated = GuestInfoSchema.safeParse(guestInfo);
 
-        if (!name.trim()) return "Vui lòng nhập tên";
-        if (!phone.trim()) return "Vui lòng nhập số điện thoại";
-        if (!email.trim()) return "Vui lòng nhập email";
-        if (!address.trim()) return "Vui lòng nhập địa chỉ";
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) return "Email không hợp lệ";
-
-        const phoneRegex = /^(0|\+84)(\d{9})$/;
-        if (!phoneRegex.test(phone)) return "Số điện thoại không hợp lệ";
+        if (!infoValidated.success) {
+            return z.flattenError(infoValidated.error).fieldErrors
+        }
 
         return null; // Không có lỗi
     }

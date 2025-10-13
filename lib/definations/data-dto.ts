@@ -146,49 +146,8 @@ export const CheckoutSessionSchema = z.object({
 // Kiểu TypeScript từ Zod
 export type CheckoutSession = z.infer<typeof CheckoutSessionSchema>;
 
-
-export const GuestInfoSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    phone: z.string().min(1, "Phone is required"),
-    email: z.email("Invalid email address"),
-    address: z.string().min(1, "Address is required"),
-});
-
-// Kiểu TypeScript từ Zod
-export type GuestInfo = z.infer<typeof GuestInfoSchema>;
-
-
 export interface CartProductInfo extends ProductVariantDTO {
     quantity: number;
-}
-
-
-export interface OrderProductDTO {
-    product_name: string;
-    variant_id: string;
-    product_type: ProductType;
-    quantity: number;
-    variant_price: number;
-    color_name: string | null;
-    ram: number | null;
-    storage: number | null;
-    switch_type: string | null;
-    preview_image_url: string | null;
-    preview_image_alt: string | null;
-
-}
-
-export interface OrderDTO {
-    order_id: string;
-    order_created_at: string;
-    payment_method: string | null;
-    payment_status: PaymentStatus | null;
-    total_amount: number;
-    reward_points: number;
-    buyer_name: string;
-    phone_number: string;
-    address: string;
-    products: OrderProductDTO[];
 }
 
 export const SignupFormSchema = z.object({
@@ -235,3 +194,119 @@ export type AuthFormState =
         message?: string;
     }
     | undefined
+
+
+export const AddressSchema = z.object({
+    province: z.string().min(1, 'Vui lòng nhập Tỉnh/Thành phố.'),
+    ward: z.string().min(1, 'Vui lòng nhập Phường/Xã.'),
+    street: z.string().min(3, 'Địa chỉ đường phải có ít nhất 3 ký tự.'),
+});
+
+export type Address = z.infer<typeof AddressSchema>;
+
+export type AddressFormState =
+    | {
+        errors?: {
+            province?: string[];
+            ward?: string[];
+            street?: string[];
+            other?: string[];
+        }
+        message?: string;
+    }
+    | undefined
+
+export const GuestInfoSchema = z.object({
+    name: z.string().min(1, "Tên khách hàng là bắt buộc"),
+    phone: z.string()
+        .min(1, "Số điện thoại là bắt buộc")
+        .regex(/^0\d{9}$/, "Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0"),
+    address: AddressSchema,
+});
+
+// Kiểu TypeScript từ Zod
+export type GuestInfo = z.infer<typeof GuestInfoSchema>;
+
+// Định nghĩa cấu trúc cho một sản phẩm trong đơn hàng
+export interface OrderProductDTO {
+    product_name: string;
+    variant_id: string;
+    product_type: ProductType;
+    quantity: number;
+    variant_price: number;
+    color_name: string | null;
+    ram: number | null;
+    storage: number | null;
+    switch_type: string | null;
+    preview_image_url: string | null;
+    preview_image_alt: string | null;
+
+}
+
+// Định nghĩa cấu trúc cho một đơn hàng hoàn chỉnh
+export interface OrderDetailsDTO {
+    order_id: string;
+    order_created_at: Date;
+    payment_method: string;
+    payment_status: string;
+    total_amount: string;
+    reward_points: number;
+    user_id: string | null; // user_id có thể là null cho khách vãng lai
+    buyer_name: string;
+    phone_number: string;
+    province: string;
+    ward: string;
+    street: string;
+    products: OrderProductDTO[]; // Mảng chứa các sản phẩm của đơn hàng
+}
+
+export interface GuestOrderData {
+    payment_method: string;
+    payment_status: string;
+    total_amount: number;
+    reward_points: number;
+    buyer_name: string;
+    phone_number: string;
+    province: string;
+    ward: string;
+    street: string;
+    items: {
+        variant_id: string;
+        quantity: number;
+        variant_price: number;
+        newStock: number;
+    }[]; // Mảng các sản phẩm trong đơn hàng
+}
+
+
+export interface OrderProductDTO {
+    product_name: string;
+    variant_id: string;
+    product_type: ProductType;
+    quantity: number;
+    variant_price: number;
+    color_name: string | null;
+    ram: number | null;
+    storage: number | null;
+    switch_type: string | null;
+    preview_image_url: string | null;
+    preview_image_alt: string | null;
+
+}
+
+// Định nghĩa cấu trúc cho một đơn hàng hoàn chỉnh
+export interface OrderDetailsDTO {
+    order_id: string;
+    order_created_at: Date;
+    payment_method: string;
+    payment_status: string;
+    total_amount: string;
+    reward_points: number;
+    user_id: string | null; // user_id có thể là null cho khách vãng lai
+    buyer_name: string;
+    phone_number: string;
+    province: string;
+    ward: string;
+    street: string;
+    products: OrderProductDTO[]; // Mảng chứa các sản phẩm của đơn hàng
+}

@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { CartItem, CartProductInfo, ProductVariantDTO } from "../definations/data-dto";
+import { CartItem, CartItemsSchema, CartProductInfo, ProductVariantDTO } from "../definations/data-dto";
+import { useSession } from "next-auth/react";
 
 type CartContextType = {
     readonly cart: CartItem[];
@@ -19,25 +20,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cartProductInfo, setCartProductInfo] = useState<CartProductInfo[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // Load cart từ localStorage
+    const { data: session } = useSession();
+
     useEffect(() => {
         try {
             const saved = localStorage.getItem("cart");
-            if (saved) {
-                setCart(JSON.parse(saved));
+
+            if (!saved) {
+                return;
             }
+
+            const itemsValidated = CartItemsSchema.safeParse(JSON.parse(saved));
+
+            if (!itemsValidated.success) {
+                return;
+            }
+
+            console.log("session: ", session);
+
+            setCart(itemsValidated.data);
         } catch {
             console.warn("Không đọc được cart từ localStorage");
         }
     }, []);
 
-    // Lưu cart vào localStorage
-    useEffect(() => {
-        localStorage.setItem("cart", JSON.stringify(cart));
-    }, [cart]);
-
     // Fetch thông tin sản phẩm khi cart thay đổi
     useEffect(() => {
+
+        console.log("use effect");
+
         setLoading(true);
 
         if (cart.length === 0) {
@@ -45,9 +56,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        localStorage.setItem("cart", JSON.stringify(cart));
+
         const ids = cart.map((item) => item.variant_id);
 
-        fetch("/api/cart", {
+        if (session?.user.id) {
+            fetch("/api/cart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: session?.user.id, items: cart }),
+            })
+                .catch((err) => console.error("Lỗi thêm items vào giỏ hàng:", err))
+        }
+
+        fetch("/api/products", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ids }),
@@ -71,9 +93,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             })
             .catch((err) => console.error("Lỗi fetch product info:", err))
             .finally(() => setLoading(false));
+
     }, [cart]);
 
-    // Các hàm thao tác với cart
     function addToCart(variantId: string, quantity = 1, replaceQuantity = false) {
         setCart((prev) => {
             const existCardItem = prev.find((item) => item.variant_id === variantId);
@@ -122,11 +144,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     function clearCart() {
         setCart([]);
     }
-
-    // function buyNow(variantId: string, quantity = 1) {
-    //     addToCart(variantId, quantity, true);
-    //     selectCartItem(variantId)
-    // }
 
     return (
         <CartContext.Provider

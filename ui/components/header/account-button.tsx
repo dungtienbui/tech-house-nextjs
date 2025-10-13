@@ -10,7 +10,7 @@ export default async function AccountButton() {
             href={session ? "/user/purchases" : "/signin"}
         >
             <CircleUserRound className="w-[30px]" />
-            <p className="hidden min-[550px]:block">Khách hàng</p>
+            <p className="hidden min-[550px]:block">{session ? session.user.name ?? "Khách hàng" : "Đăng nhập"}</p>
         </Link>
     );
 }

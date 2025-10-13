@@ -32,7 +32,7 @@ export default function PreviewCard({ title, subtitle, image, price, navTo, vari
       <div className="w-full">
         <div className="mb-2 group-hover:text-blue-500">
           <div className="mb-2">
-            <div className="font-medium text-sm">{title}</div>
+            <div className="font-medium text-sm line-clamp-2 h-10">{title}</div>
             <div className="text-xs">{subtitle}</div>
           </div>
           <div className="text-red-500 font-bold">${price}</div>

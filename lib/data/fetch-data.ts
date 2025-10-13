@@ -1,5 +1,5 @@
-import { CheckoutSession, OrderDTO, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
-import { ProductBrand, ProductImage, User } from "../definations/database-table-definations";
+import { Address, CartItem, CartItems, CheckoutSession, OrderDetailsDTO, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
+import { ProductBrand, ProductImage, User, UserResponse } from "../definations/database-table-definations";
 import { PaymentStatus, ProductType } from "../definations/types";
 import { query } from "./db";
 
@@ -417,86 +417,30 @@ export async function fetchVariantPrices(variantIds: string[]) {
   return priceMap;
 }
 
-export async function fetchOrdersByPhoneNumber(phone: string, status?: PaymentStatus): Promise<OrderDTO[]> {
+export async function fetchVariantStock(variantIds: string[]) {
+  if (variantIds.length === 0) return {};
 
-  const queryStr = `
-    SELECT
-      o.order_id,
-      o.order_created_at,
-      o.payment_method,
-      o.payment_status,
-      o.total_amount,
-      o.reward_points,
+  // Tạo danh sách placeholder an toàn để tránh SQL injection
+  const placeholders = variantIds.map((_, i) => `$${i + 1}`).join(",");
 
-      b.buyer_name,
-      b.phone_number,
-      b.address,
-
-      op.variant_id,
-      op.quantity,
-      op.variant_price,
-
-      c.color_name,
-      v.ram,
-      v.storage,
-      v.switch_type,
-      pi.image_url AS preview_image_url,
-      pi.image_alt AS preview_image_alt,
-
-      pb.product_name,
-      pb.product_type
-
-      FROM "order" o
-      JOIN buyer_info b ON b.order_id = o.order_id
-      JOIN order_product op ON op.order_id = o.order_id
-      JOIN variant v ON v.variant_id = op.variant_id
-      JOIN product_base pb ON pb.product_base_id = v.product_base_id
-      JOIN color c ON v.color_id = c.color_id
-      JOIN product_image pi ON v.preview_id = pi.image_id
-
-      WHERE b.phone_number = $1 ${status ? "and o.payment_status = $2" : ""}
-      ORDER BY o.order_created_at DESC
+  const sql = `
+    SELECT v.variant_id, v.stock
+    FROM variant v
+    WHERE v.variant_id IN (${placeholders});
   `;
 
-  const result = await query(queryStr, status ? [phone, status] : [phone]);
+  const result = await query<{ variant_id: string; stock: number }>(
+    sql,
+    variantIds
+  );
 
-  // Gom nhóm theo order_id
-  const ordersMap = new Map<string, OrderDTO>();
-
+  // Chuyển kết quả rows thành object { id: price }
+  const priceMap: Record<string, number> = {};
   for (const row of result) {
-    if (!ordersMap.has(row.order_id)) {
-      ordersMap.set(row.order_id, {
-        order_id: row.order_id,
-        order_created_at: row.order_created_at,
-        payment_method: row.payment_method,
-        payment_status: row.payment_status,
-        total_amount: Number(row.total_amount),
-        reward_points: row.reward_points,
-        buyer_name: row.buyer_name,
-        phone_number: row.phone_number,
-        address: row.address,
-        products: [],
-      });
-    }
-
-    const order = ordersMap.get(row.order_id)!;
-
-    order.products.push({
-      variant_id: row.variant_id,
-      quantity: row.quantity,
-      variant_price: Number(row.variant_price),
-      product_name: row.product_name,
-      color_name: row.color_name,
-      ram: row.ram,
-      storage: row.storage,
-      switch_type: row.switch_type,
-      preview_image_url: row.preview_image_url,
-      preview_image_alt: row.preview_image_alt,
-      product_type: row.product_type
-    });
+    priceMap[row.variant_id] = Number(row.stock);
   }
 
-  return Array.from(ordersMap.values());
+  return priceMap;
 }
 
 export async function fetchCheckoutSessionById(
@@ -522,15 +466,89 @@ export async function fetchVariantsByCheckoutSessionId(
   return varriants;
 }
 
-export async function fetchUserByPhone(phone: string): Promise<User | null> {
+export async function fetchUserByPhone(phone: string): Promise<UserResponse | null> {
+  const result = await query<User>("SELECT id, name, phone, province, ward, street, created_at, updated_at FROM users WHERE phone = $1", [phone]);
+  return result[0] || null;
+}
+
+export async function fetchUserFullByPhone(phone: string): Promise<User | null> {
   const result = await query<User>("SELECT * FROM users WHERE phone = $1", [phone]);
   return result[0] || null;
 }
 
-export async function fetchUserById(id: string): Promise<User | null> {
-  const result = await query<User>("SELECT * FROM users WHERE id = $1", [id]);
+export async function fetchUserById(id: string): Promise<UserResponse | null> {
+  const result = await query<UserResponse>("SELECT id, name, phone, province, ward, street, created_at, updated_at FROM users WHERE id = $1", [id]);
   return result[0] || null;
 }
 
+export async function fetchOrderByPhone(phoneNumber: string, queryStatus: PaymentStatus | "total"): Promise<OrderDetailsDTO[]> {
+  const sqlQuery = `
+      SELECT
+        o.order_id,
+        o.order_created_at,
+        o.payment_method,
+        o.payment_status,
+        o.total_amount,
+        o.reward_points,
+        o.user_id,
+        o.buyer_name,
+        o.phone_number,
+        o.province,
+        o.ward,
+        o.street,
+        -- Gộp các sản phẩm liên quan thành một mảng JSON
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'product_name', pb.product_name,
+              'variant_id', v.variant_id,
+              'product_type', pb.product_type,
+              'quantity', op.quantity,
+              'variant_price', op.variant_price,
+              'color_name', c.color_name,
+              'ram', v.ram,
+              'storage', v.storage,
+              'switch_type', v.switch_type,
+              'preview_image_url', pi.image_url,
+              'preview_image_alt', pi.image_alt
+            )
+          ) FILTER (WHERE op.order_id IS NOT NULL),
+          '[]'::json
+        ) AS products
+      FROM
+        "order" AS o
+      LEFT JOIN order_product op ON o.order_id = op.order_id
+      LEFT JOIN variant v ON v.variant_id = op.variant_id
+      LEFT JOIN product_base pb ON pb.product_base_id = v.product_base_id
+      LEFT JOIN color c ON v.color_id = c.color_id
+      LEFT JOIN product_image pi ON v.preview_id = pi.image_id
+      WHERE
+        o.phone_number = $1
+        ${queryStatus !== "total" ? "and o.payment_status = $2" : ""}
+      GROUP BY
+        o.order_id
+      ORDER BY
+        o.order_created_at DESC;
+    `;
 
+  const values = queryStatus !== "total" ? [phoneNumber, queryStatus] : [phoneNumber]
+  // Sử dụng hàm query bạn đã cung cấp
+  const orders = await query<OrderDetailsDTO>(sqlQuery, values);
 
+  return orders;
+
+}
+
+export async function fetchCartItemsByUserId(userId: string): Promise<CartItems | null> {
+
+  const queryString = `
+    SELECT
+      uc.variant_id,
+      uc.quantity
+    FROM user_cart AS uc
+    WHERE uc.user_id = $1;
+  `;
+
+  const result = await query<CartItem>(queryString, [userId]);
+  return result || null;
+}

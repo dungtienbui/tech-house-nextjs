@@ -14,6 +14,17 @@ export interface User {
     updated_at: string;
 }
 
+export interface UserResponse {
+    id: string;
+    name: string;
+    phone: string;
+    province?: string;
+    ward?: string;
+    street?: string;
+    created_at: string;
+    updated_at: string;
+}
+
 // =====================
 // Color
 // =====================
@@ -179,30 +190,6 @@ export interface ProductPromotion {
 // Orders
 // =====================
 
-export interface Order {
-    order_id: string;
-    order_created_at: string; // ISO Timestamp
-    payment_method: string; // FK PaymentMethod
-    payment_status: string; // FK PaymentStatus
-    payment_time: string; // ISO Timestamp
-    total_amount: number;
-    reward_points: number;
-}
-
-export interface BuyerInfo {
-    customer_id: string; // FK Customer
-    buyer_name: string;
-    phone_number: string;
-    address: string;
-    order_id: string; // FK Order
-}
-
-export interface OrderProduct {
-    order_id: string; // FK Order
-    specific_product_id: string; // FK Variant
-    quantity: number;
-    product_price: number;
-}
 
 // =====================
 // Inventory

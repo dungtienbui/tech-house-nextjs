@@ -1,6 +1,6 @@
 import { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { fetchUserByPhone } from "./lib/data/fetch-data";
+import { fetchUserByPhone, fetchUserFullByPhone } from "./lib/data/fetch-data";
 import { SigninFormSchema } from "./lib/definations/data-dto";
 import { comparePassword } from "./lib/utils/password";
 
@@ -15,7 +15,7 @@ export default {
                     const { phone, password } = parsed.data;
 
                     // logic to verify if the user exists
-                    const user = await fetchUserByPhone(phone);
+                    const user = await fetchUserFullByPhone(phone);
 
                     if (!user) {
                         return null;
@@ -70,11 +70,13 @@ export default {
         jwt({ token, user }) {
             if (user) {
                 token.phone = user.phone
+                token.id = user.id
             }
             return token
         },
         session({ session, token }) {
             session.user.phone = token.phone
+            session.user.id = token.id
             return session
         },
     },

@@ -1,6 +1,7 @@
 import { auth, signOut } from "@/auth";
-import { ClipboardList, MapPin, QrCode, Apple, Store } from "lucide-react";
+import { QrCode } from "lucide-react";
 import NavMenu from "./nav-menu";
+import Image from "next/image";
 
 export default async function UserSideBar() {
     const session = await auth();
@@ -38,7 +39,7 @@ export default async function UserSideBar() {
                 <p className="text-sm">Tổng điểm tích lũy: <span className="font-bold text-lg">8.970 điểm</span></p>
                 <div className="flex items-center justify-center my-4 space-x-4">
                     <div>
-                        <p className="font-bold">Tải app 👑 Quà Tặng VIP</p>
+                        <p className="font-bold">Tải app TECH HOUSE</p>
                         <p className="text-xs text-gray-500 mt-1">Tích & sử dụng điểm cho khách hàng thân thiết.</p>
                     </div>
                     <div className="p-1 border rounded-md">
@@ -46,14 +47,24 @@ export default async function UserSideBar() {
                     </div>
                 </div>
                 <div className="flex justify-center space-x-2">
-                    <a href="#" className="bg-black text-white px-3 py-2 rounded-md flex items-center space-x-2">
-                        <Apple size={24} />
-                        <div>
+                    <a href="#" className="border px-3 py-2 rounded-md flex items-center space-x-2">
+                        <Image
+                            src={"/apple.png"}
+                            alt={"Apple logo"}
+                            width={40}
+                            height={40}
+                        />
+                        <div className="flex-2">
                             <p className="font-semibold leading-tight">App Store</p>
                         </div>
                     </a>
-                    <a href="#" className="bg-black text-white px-3 py-2 rounded-md flex items-center space-x-2">
-                        <Store size={24} />
+                    <a href="#" className="border px-3 py-2 rounded-md flex items-center space-x-2">
+                        <Image
+                            src={"/android.png"}
+                            alt={"Android logo"}
+                            width={40}
+                            height={40}
+                        />
                         <div>
                             <p className="font-semibold leading-tight">Google Play</p>
                         </div>

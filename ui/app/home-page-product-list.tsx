@@ -45,6 +45,7 @@ export default async function HomePageProductList({
                 className="overflow-x-scroll grid grid-flow-col auto-cols-min gap-2 md:gap-5 pb-3"
             >
                 {productList.map((product, index) => {
+                    const title = `${product.brand.brand_name}: ${product.product_name}`;
                     const subtitle =
                         "(" +
                         [
@@ -60,7 +61,7 @@ export default async function HomePageProductList({
                         <PreviewCard
                             variantId={product.variant_id}
                             key={`${product.variant_id}-${index}`}
-                            title={`${product.brand}: ${product.product_name}`}
+                            title={title}
                             subtitle={subtitle}
                             price={product.variant_price.toString()}
                             navTo={`/products/${productType}/${product.variant_id}`}

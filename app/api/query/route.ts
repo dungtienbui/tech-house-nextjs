@@ -1,4 +1,3 @@
-import { fetchOrdersByPhoneNumber, fetchVariantsByVariantIdArray } from "@/lib/data/fetch-data";
 import { deleteCheckoutSession } from "@/lib/data/insert-data";
 import { NextResponse } from "next/server";
 
