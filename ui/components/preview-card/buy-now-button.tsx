@@ -1,5 +1,5 @@
 'use client'
-import { useCart } from "@/lib/context/card-context";
+import { useCart } from "@/lib/context/guest-card-context";
 import { CartItems } from "@/lib/definations/data-dto";
 import { useRouter } from "next/navigation";
 

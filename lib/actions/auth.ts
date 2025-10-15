@@ -4,8 +4,6 @@ import z from "zod"
 import { AuthFormState, SigninFormSchema, SignupFormSchema } from "../definations/data-dto"
 import { fetchUserByPhone } from "../data/fetch-data";
 import { insertUser } from "../data/insert-data";
-import { signIn } from "../../auth";
-import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 
 export async function signup(state: AuthFormState, formData: FormData): Promise<AuthFormState> {
@@ -41,51 +39,4 @@ export async function signup(state: AuthFormState, formData: FormData): Promise<
     const user = await insertUser({ name, phone, password });
 
     redirect(`/signin?phone=${user.phone}`);
-}
-
-export async function signin(state: AuthFormState, formData: FormData): Promise<AuthFormState> {
-
-    // Validate form fields
-    const validatedFields = SigninFormSchema.safeParse({
-        phone: formData.get('phone'),
-        password: formData.get('password'),
-    })
-
-    // If any form fields are invalid, return early
-    if (!validatedFields.success) {
-        return {
-            errors: z.flattenError(validatedFields.error).fieldErrors,
-        }
-    }
-
-    const { phone, password } = validatedFields.data;
-
-    try {
-        const res = await signIn('credentials', formData);
-
-        console.log(res);
-
-    } catch (error) {
-
-        console.log("error: ", (error as Error).message);
-        
-        if (error instanceof AuthError) {
-            switch (error.type) {
-                case 'CredentialsSignin':
-                    return {
-                        errors: {
-                            other: ["Thông tin đăng nhập không chính xác."]
-                        }
-                    }
-                default:
-                    return {
-                        errors: {
-                            other: ["Lỗi hệ thống, vui lòng thử lại."]
-                        }
-                    }
-            }
-        }
-
-        throw error;
-    }
 }

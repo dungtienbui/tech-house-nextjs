@@ -1,8 +1,9 @@
-import { NextAuthConfig } from "next-auth";
+import { DefaultSession, NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { fetchUserByPhone, fetchUserFullByPhone } from "./lib/data/fetch-data";
 import { SigninFormSchema } from "./lib/definations/data-dto";
 import { comparePassword } from "./lib/utils/password";
+import { JWT } from "next-auth/jwt"
 
 export default {
     providers: [
@@ -24,7 +25,11 @@ export default {
                     const isValid = await comparePassword(password, user.password);
 
                     if (isValid) {
-                        return user
+                        return {
+                            id: user.id,
+                            name: user.name,
+                            phone: user.phone
+                        }
                     }
                 }
 
@@ -69,14 +74,14 @@ export default {
 
         jwt({ token, user }) {
             if (user) {
-                token.phone = user.phone
-                token.id = user.id
+                token.id = user.id;
+                token.phone = user.phone;
             }
             return token
         },
         session({ session, token }) {
-            session.user.phone = token.phone
-            session.user.id = token.id
+            session.user.id = token.id;
+            session.user.phone = token.phone;
             return session
         },
     },

@@ -1,5 +1,5 @@
-import { Address, CartItem, CartItems, CheckoutSession, OrderDetailsDTO, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
-import { ProductBrand, ProductImage, User, UserResponse } from "../definations/database-table-definations";
+import { Address, CartItem, CartItems, CheckoutSession, OrderDetailsDTO, ProductBrand, ProductImage, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
+import { User, UserResponse } from "../definations/database-table-definations";
 import { PaymentStatus, ProductType } from "../definations/types";
 import { query } from "./db";
 
@@ -539,7 +539,7 @@ export async function fetchOrderByPhone(phoneNumber: string, queryStatus: Paymen
 
 }
 
-export async function fetchCartItemsByUserId(userId: string): Promise<CartItems | null> {
+export async function fetchCartItemsByUserId(userId: string): Promise<CartItems | []> {
 
   const queryString = `
     SELECT
@@ -550,5 +550,5 @@ export async function fetchCartItemsByUserId(userId: string): Promise<CartItems 
   `;
 
   const result = await query<CartItem>(queryString, [userId]);
-  return result || null;
+  return result || [];
 }

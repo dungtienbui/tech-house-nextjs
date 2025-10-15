@@ -7,7 +7,6 @@ import z from "zod";
 export async function POST(req: Request) {
     const { items, userId } = await req.json();
     try {
-
         const itemsValidated = CartItemsSchema.safeParse(items);
 
         if (!itemsValidated.success) {

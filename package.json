@@ -10,6 +10,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/line-clamp": "^0.4.4",
+    "@tanstack/react-query": "^5.90.3",
     "@types/pg": "^8.15.5",
     "bcryptjs": "^3.0.2",
     "clsx": "^2.1.1",

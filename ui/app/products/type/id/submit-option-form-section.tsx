@@ -1,7 +1,6 @@
 'use client'
 
-import { useCart } from "@/lib/context/card-context";
-import { CartItems } from "@/lib/definations/data-dto";
+import { useCart } from "@/lib/hook/use-cart-hook";
 import { Minus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -55,30 +54,6 @@ export default function SubmitOptionFormSection({ varirantId }: props) {
             console.error("Quantity is not a number ?");
             return;
         }
-
-
-        const checkoutItems: CartItems = [{
-            variant_id: varirantId,
-            quantity: quantityNumberParse.data
-        }];
-
-        try {
-            const queryApi = await fetch("/api/checkout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ checkoutItems }),
-
-            });
-
-            const { apiQueryResult } = await queryApi.json();
-
-            router.push(`/checkout/${apiQueryResult.checkout_id}`)
-
-        } catch (e) {
-            console.error((e as Error).message)
-        }
     };
 
     return (
@@ -104,7 +79,9 @@ export default function SubmitOptionFormSection({ varirantId }: props) {
                 </div>
             </div>
             <div className="flex-1 lg:flex-2 min-w-fit">
-                <button onClick={goToCheckout} type="button" className="px-2 w-full h-full flex flex-row justify-center items-center gap-1 lg:gap-3 py-2 border-2 border-sky-500 font-bold text-md text-blue-500 hover:bg-sky-500 hover:text-white hover:shadow-lg duration-300">
+                <button onClick={() => {
+                    console.log("Go to checkout")
+                }} type="button" className="px-2 w-full h-full flex flex-row justify-center items-center gap-1 lg:gap-3 py-2 border-2 border-sky-500 font-bold text-md text-blue-500 hover:bg-sky-500 hover:text-white hover:shadow-lg duration-300">
                     <div>Mua ngay</div>
                 </button>
             </div>

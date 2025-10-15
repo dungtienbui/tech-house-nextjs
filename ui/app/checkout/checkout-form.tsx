@@ -1,6 +1,6 @@
 'use client'
 
-import { useCart } from "@/lib/context/card-context";
+import { useCart } from "@/lib/context/guest-card-context";
 import { useGuest } from "@/lib/context/guest-context";
 import { CartItems, GuestInfo } from "@/lib/definations/data-dto";
 import { UserResponse } from "@/lib/definations/database-table-definations";

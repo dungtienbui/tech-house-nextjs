@@ -2,6 +2,7 @@ import { auth, signOut } from "@/auth";
 import { QrCode } from "lucide-react";
 import NavMenu from "./nav-menu";
 import Image from "next/image";
+import SignoutButton from "./signout-button";
 
 export default async function UserSideBar() {
     const session = await auth();
@@ -22,17 +23,7 @@ export default async function UserSideBar() {
             <NavMenu />
 
             {/* Nút đăng xuất */}
-            <div >
-                <button
-                    className="w-full text-center p-3 border border-red-500 text-red-500 rounded-md font-semibold hover:bg-red-50 transition-colors"
-                    onClick={async () => {
-                        "use server"
-                        await signOut({ redirectTo: "/" });
-                    }}
-                >
-                    Đăng Xuất
-                </button>
-            </div>
+            <SignoutButton />
 
             {/* Box tích điểm & tải app */}
             <div className="bg-white p-4 rounded-lg shadow-sm text-center border border-yellow-300" >

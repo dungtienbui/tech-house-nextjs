@@ -25,37 +25,6 @@ export interface UserResponse {
     updated_at: string;
 }
 
-// =====================
-// Color
-// =====================
-export interface Color {
-    color_id: string;
-    value: string;
-    color_name: string;
-}
-
-// =====================
-// Product Brand
-// =====================
-export interface ProductBrand {
-    brand_id: string;
-    brand_name: string;
-    product_type: ProductType;
-    country?: string | null;
-    logo_url?: string | null;
-};
-
-// =====================
-// Images
-// =====================
-export interface ProductImage {
-    image_id: string;
-    image_caption: string;
-    image_alt?: string | null;
-    image_url: string;
-    added_date: string; // ISO Timestamp
-}
-
 export interface ProductBaseImage {
     image_id: string; // FK Image
     product_base_id: string; // FK ProductBase

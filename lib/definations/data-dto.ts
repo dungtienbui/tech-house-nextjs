@@ -1,10 +1,40 @@
 import z from "zod";
-import { Color, ProductBrand } from "./database-table-definations";
 import { PaymentStatus, ProductType } from "./types";
 
 export const NO_PREVIEW = {
     href: "https://placehold.co/100x100.png?text=No+Preview",
     alt: "No preview image"
+}
+
+// =====================
+// Color
+// =====================
+export interface Color {
+    color_id: string;
+    value: string;
+    color_name: string;
+}
+
+// =====================
+// Product Brand
+// =====================
+export interface ProductBrand {
+    brand_id: string;
+    brand_name: string;
+    product_type: ProductType;
+    country?: string | null;
+    logo_url?: string | null;
+};
+
+// =====================
+// Images
+// =====================
+export interface ProductImage {
+    image_id: string;
+    image_caption: string;
+    image_alt?: string | null;
+    image_url: string;
+    added_date: string; // ISO Timestamp
 }
 
 //***********************************************************/
@@ -55,7 +85,6 @@ export interface RecommendedVariantDTO {
     preview_image_alt: string | null;
 }
 
-
 export interface ProductVariantDTO {
     // Thông tin variant
     variant_id: string;
@@ -82,12 +111,7 @@ export interface ProductVariantDTO {
 
 
     // JSON object ảnh preview (có thể null)
-    preview_image: {
-        image_id: string;
-        image_url: string;
-        image_caption: string;
-        image_alt: string;
-    };
+    preview_image: ProductImage
 }
 
 
@@ -121,30 +145,6 @@ export interface SpecKeyValueDTO {
 //***********************************************************/
 // zod
 //***********************************************************/
-// Schema cho 1 cart item
-export const CartItemSchema = z.object({
-    variant_id: z.uuid(),
-    quantity: z.number().int().positive(),
-});
-
-// Schema cho mảng cart items
-export const CartItemsSchema = z.array(CartItemSchema).min(1, "Cart must have at least one item");
-
-// Tạo type TypeScript tự động từ schema
-export type CartItem = z.infer<typeof CartItemSchema>;   // { variant_id: string; quantity: number; }
-export type CartItems = z.infer<typeof CartItemsSchema>; // CartItem[]
-
-
-
-export const CheckoutSessionSchema = z.object({
-    checkout_id: z.uuid(),
-    cart: CartItemsSchema,
-    expires_at: z.string().refine((val) => !isNaN(Date.parse(val))),
-    created_at: z.string().refine((val) => !isNaN(Date.parse(val))),
-});
-
-// Kiểu TypeScript từ Zod
-export type CheckoutSession = z.infer<typeof CheckoutSessionSchema>;
 
 export interface CartProductInfo extends ProductVariantDTO {
     quantity: number;
@@ -310,3 +310,28 @@ export interface OrderDetailsDTO {
     street: string;
     products: OrderProductDTO[]; // Mảng chứa các sản phẩm của đơn hàng
 }
+
+
+// Schema cho 1 cart item
+export const CartItemSchema = z.object({
+    variant_id: z.uuid(),
+    quantity: z.number().int().positive(),
+});
+
+// Schema cho mảng cart items
+export const CartItemsSchema = z.array(CartItemSchema);
+
+// Tạo type TypeScript tự động từ schema
+export type CartItem = z.infer<typeof CartItemSchema>;   // { variant_id: string; quantity: number; }
+export type CartItems = z.infer<typeof CartItemsSchema>; // CartItem[]
+
+
+export const CheckoutSessionSchema = z.object({
+    checkout_id: z.uuid(),
+    cart: CartItemsSchema,
+    expires_at: z.string().refine((val) => !isNaN(Date.parse(val))),
+    created_at: z.string().refine((val) => !isNaN(Date.parse(val))),
+});
+
+// Kiểu TypeScript từ Zod
+export type CheckoutSession = z.infer<typeof CheckoutSessionSchema>;

@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
-import { Address, CartItem, CartItems, CartItemsSchema, GuestInfo, GuestOrderData } from "../definations/data-dto";
-import { Color, ProductImage, ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase, User, UserResponse } from "../definations/database-table-definations";
+import { Address, CartItem, CartItems, CartItemsSchema, Color, GuestInfo, GuestOrderData, ProductImage } from "../definations/data-dto";
+import { ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase, User, UserResponse } from "../definations/database-table-definations";
 import { PaymentMethod, ProductType, SpecResult } from "../definations/types";
 import { saltAndHashPassword } from "../utils/password";
 import { pool, query } from "./db";
@@ -438,7 +438,7 @@ export async function insertGuestOrder(
 }
 
 
-export async function InsertItemsToCart(userId: string, items: CartItem[]): Promise<{
+export async function InsertMultipleItemsFormCart(userId: string, items: CartItem[]): Promise<{
     user_id: string, variant_id: string, quantity: number
 }[]> {
     if (items.length === 0) {
@@ -470,3 +470,73 @@ export async function InsertItemsToCart(userId: string, items: CartItem[]): Prom
         throw new Error("Không thể thêm sản phẩm vào giỏ hàng.");
     }
 }
+
+export async function updateCartItem(userId: string, variantId: string, newQuantity: number) {
+
+    const sql = `
+                UPDATE user_cart 
+                SET quantity = $1 
+                WHERE user_id = $2 AND variant_id = $3
+                RETURNING variant_id, quantity;
+            `;
+    const resultQuery = await query<CartItem>(sql, [newQuantity, userId, variantId]);
+
+    return resultQuery[0]
+}
+
+export async function insertItemToCart(userId: string, variantId: string, quantity: number = 1) {
+
+    const sql = `
+        INSERT INTO user_cart (user_id, variant_id, quantity)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (user_id, variant_id) 
+        DO UPDATE SET quantity = user_cart.quantity + $3
+        RETURNING variant_id, quantity;
+    `;
+
+
+    const resultQuery = await query<CartItem>(sql, [userId, variantId, quantity]);
+
+    return resultQuery[0];
+}
+
+export async function deleteItemFormCart(userId: string, variantId: string) {
+
+    const sql = `
+        DELETE FROM user_cart 
+        WHERE user_id = $1 AND variant_id = $2
+        RETURNING variant_id, quantity;
+    `;
+
+    const resultQuery = await query<CartItem>(sql, [userId, variantId]);
+
+    return resultQuery[0];
+}
+
+export async function deleteMultipleItemsFormCart(userId: string, variantIds: string[]) {
+
+    const sql = `
+        DELETE FROM user_cart 
+        WHERE user_id = $1 AND variant_id = ANY($2::uuid[])
+        RETURNING variant_id, quantity;
+    `;
+    // $2::uuid[] là cú pháp của PostgreSQL để truyền một mảng UUID
+
+    const resultQuery = await query<CartItem>(sql, [userId, variantIds]);
+
+    return resultQuery;
+}
+
+export async function deleteCart(userId: string) {
+
+    const sql = `DELETE 
+        FROM user_cart 
+        WHERE user_id = $1
+        RETURNING variant_id, quantity;
+    `;
+
+    const resultQuery = await query<CartItem>(sql, [userId]);
+
+    return resultQuery;
+}
+
