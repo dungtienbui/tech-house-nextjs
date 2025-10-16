@@ -260,8 +260,8 @@ export interface OrderDetailsDTO {
     products: OrderProductDTO[]; // Mảng chứa các sản phẩm của đơn hàng
 }
 
-export interface GuestOrderData {
-    payment_method: string;
+export interface OrderData {
+    payment_method: "cod" | "online-banking";
     payment_status: string;
     total_amount: number;
     reward_points: number;
@@ -275,7 +275,7 @@ export interface GuestOrderData {
         quantity: number;
         variant_price: number;
         newStock: number;
-    }[]; // Mảng các sản phẩm trong đơn hàng
+    }[];
 }
 
 

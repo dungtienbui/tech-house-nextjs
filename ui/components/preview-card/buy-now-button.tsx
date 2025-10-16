@@ -1,7 +1,11 @@
 'use client'
-import { useCart } from "@/lib/context/guest-card-context";
-import { CartItems } from "@/lib/definations/data-dto";
+
+import { useCreateCheckoutSession } from "@/lib/hook/use-checkout-session-hook";
+import { wait } from "@/lib/utils/funcs";
+import clsx from "clsx";
+import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 
 interface props {
@@ -11,44 +15,45 @@ interface props {
 
 export default function BuyNowButton({ id, quantity }: props) {
 
+    const { createSession, isPending, data } = useCreateCheckoutSession()
+
     const router = useRouter();
+    const param = new URLSearchParams();
 
-    const goToCheckout = async () => {
+    const goToCheckout = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        e.preventDefault();
 
-        const checkoutItems: CartItems = [{
+        const items = [{
             variant_id: id,
             quantity: quantity
         }];
 
-        try {
-            const queryApi = await fetch("/api/checkout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ checkoutItems }),
-
-            });
-
-            const { apiQueryResult } = await queryApi.json();
-
-            router.push(`/checkout/${apiQueryResult.checkout_id}`)
-
-        } catch (e) {
-            console.error((e as Error).message)
-        }
+        createSession(items)
     };
+
+    useEffect(() => {
+        if (data && data.success === true && data.sessionId) {
+            param.set("id", data.sessionId);
+            router.push(`/checkout?${param.toString()}`);
+        }
+    }, [data])
 
     return (
         <button
-            onClick={(e) => {
-                e.preventDefault();
-                goToCheckout();
-            }}
+            onClick={goToCheckout}
             type="button"
-            className="bg-sky-100 text-blue-500 w-full py-2 rounded-md cursor-pointer border border-sky-100 hover:border-sky-500 duration-500"
+            className={clsx(
+                "w-full py-2 rounded-md cursor-pointer border flex flex-row gap-2 justify-center",
+                {
+                    "bg-sky-100 text-blue-500 w-full py-2 rounded-md cursor-pointer border border-sky-100 hover:border-sky-500 duration-500": !isPending,
+                    "bg-gray-100 text-gray-500 w-full py-2 rounded-md cursor-pointer border border-gray-100": isPending,
+                }
+            )}
         >
-            Mua ngay
+            {isPending ? "Chuyển hướng..." : "Mua ngay"}
+            {isPending && <LoaderCircle className="animate-spin" />}
+
         </button>
     );
 }

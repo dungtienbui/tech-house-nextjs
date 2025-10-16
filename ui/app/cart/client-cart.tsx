@@ -5,17 +5,17 @@ import clsx from "clsx";
 import { ChevronsUp, Square, SquareCheckBig } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import CartTableCard from "../cart-table-card";
-import CartTableRow from "../cart-table-row";
+import { useEffect, useMemo, useState } from "react";
+import CartTableCard from "./cart-table-card";
+import CartTableRow from "./cart-table-row";
 import { useVariantsByIds } from "@/lib/hook/use-variants-hook";
 import { useCart } from "@/lib/hook/use-cart-hook";
+import CheckoutButton from "./check-out-button";
 
 
-export default function GuestCart() {
+export default function ClientCart() {
 
     const { items, removeFromCart } = useCart();
-
 
     const [selected, setSelected] = useState<string[]>([]);
 
@@ -41,9 +41,11 @@ export default function GuestCart() {
 
     const isSelectedAll = items.length > 0 && items.every(item => selected.includes(item.variant_id));
 
+    const checkoutItems = items.filter(item => selected.includes(item.variant_id));
+
     const variantIds = items.map(item => item.variant_id);
 
-    const { data: variants, isLoading, isError, error } = useVariantsByIds(variantIds);
+    const { data: variants } = useVariantsByIds(variantIds);
 
     const detailedCart = useMemo(() => {
 
@@ -82,6 +84,7 @@ export default function GuestCart() {
 
         return cost;
     }, [selected, detailedCart]);
+
 
     return (
         <div className="px-5 lg:px-10">
@@ -253,35 +256,7 @@ export default function GuestCart() {
                                 ${totalCost}
                             </div>
                         </div>
-                        <button
-                            disabled={!(selected.length > 0)}
-                            onClick={() => {
-                                console.log("Submit order items")
-                            }}
-                            className={clsx(
-                                "w-full flex flex-row justify-center items-center gap-5 px-5 py-2 rounded-md text-white",
-                                {
-                                    "bg-gray-300": !(selected.length > 0),
-                                    "bg-sky-500 hover:bg-sky-400": (selected.length > 0),
-                                }
-                            )}
-                        >
-                            <ChevronsUp className={clsx(
-                                "rotate-90 animate-bounce",
-                                {
-                                    "hidden": !(selected.length > 0),
-                                }
-                            )} />
-                            <div className="flex-1">
-                                MUA HÀNG
-                            </div>
-                            <ChevronsUp className={clsx(
-                                "-rotate-90 animate-bounce",
-                                {
-                                    "hidden": !(selected.length > 0),
-                                }
-                            )} />
-                        </button>
+                        <CheckoutButton disable={selected.length === 0} checkoutItems={checkoutItems} />
                     </div>
                 </div>
             )}

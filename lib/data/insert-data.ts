@@ -1,10 +1,10 @@
 import { randomUUID } from "crypto";
-import { Address, CartItem, CartItems, CartItemsSchema, Color, GuestInfo, GuestOrderData, ProductImage } from "../definations/data-dto";
+import { Address, CartItem, CartItems, CartItemsSchema, Color, GuestInfo, OrderData, ProductImage } from "../definations/data-dto";
 import { ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase, User, UserResponse } from "../definations/database-table-definations";
 import { PaymentMethod, ProductType, SpecResult } from "../definations/types";
 import { saltAndHashPassword } from "../utils/password";
 import { pool, query } from "./db";
-import { fetchVariantPrices } from "./fetch-data";
+import { fetchVariantPrices, fetchVariantStock } from "./fetch-data";
 
 export async function resetTable(tableName: string) {
     return await query(`TRUNCATE TABLE ${tableName} RESTART IDENTITY CASCADE;`);
@@ -216,13 +216,12 @@ export async function insertProductBase(item: ProductBase) {
 
 
 export async function insertCheckoutSession(
-    checkoutItems: CartItems,
+    items: CartItems,
 ) {
-    const parsed = CartItemsSchema.safeParse(checkoutItems);
 
-    if (!parsed.success) {
-        console.log(parsed.error);
-        throw new Error("Cart không hợp lệ");
+    if (items.length === 0) {
+        console.error("items is empty array");
+        throw new Error("items is empty array");
     }
 
     const queryStr = `
@@ -232,7 +231,7 @@ export async function insertCheckoutSession(
     `;
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // khoang 1 giờ từ bây giờ
 
-    const checkoutItemsJson = JSON.stringify(checkoutItems);
+    const checkoutItemsJson = JSON.stringify(items);
 
     const resultQuery = await query<{ checkout_id: string, created_at: string, expires_at: string }>(queryStr, [checkoutItemsJson, expiresAt])
 
@@ -335,8 +334,8 @@ export async function updateUserName({
     return resultQuery[0];
 }
 
-export async function insertGuestOrder(
-    orderData: GuestOrderData
+export async function insertOrder(
+    orderData: OrderData
 ): Promise<string> {
 
     if (orderData.items.length === 0) {
@@ -401,6 +400,10 @@ export async function insertGuestOrder(
         await Promise.all(productInsertPromises);
 
         // 3. Cập nhật "stock"
+        const variantIds = orderData.items.map(item => item.variant_id);
+
+        const newStock = orderData.items.map(item => item.newStock)
+
         const updateStockQuery = `
             UPDATE variant AS v
             SET
@@ -416,11 +419,7 @@ export async function insertGuestOrder(
             RETURNING *
         `;
 
-
-        const variantIds = orderData.items.map(item => item.variant_id);
-        const stocks = orderData.items.map(item => item.newStock);
-
-        const updateStockResult = await client.query<Variant>(updateStockQuery, [variantIds, stocks]);
+        const updateStockResult = await client.query<Variant>(updateStockQuery, [variantIds, newStock]);
 
         // Nếu mọi thứ thành công, commit transaction
         await client.query('COMMIT');

@@ -349,44 +349,43 @@ export async function fetchVariantsByVariantIdArray(
   }).join(",")
 
   const queryString = `
-    SELECT
-      v.variant_id,
-      v.stock,
-      v.variant_price,
-      v.is_promoting,
-      v.ram,
-      v.storage,
-      v.switch_type,
-      v.date_added,
-      --Thông tin từ product_base
-      pb.product_base_id,
-      pb.product_name,
-      to_json(pb2) AS brand,
-        pb.product_type,
-        pb.description,
-        pb.base_price,
-        --Thông tin màu sắc(có thể null)
-      to_json(c) AS color,
-      --Ảnh preview(có thể null)
-      json_build_object(
-        'image_id', pi.image_id,
-        'image_url', pi.image_url,
-        'image_caption', pi.image_caption,
-        'image_alt', pi.image_alt
-      ) as preview_image
-    FROM variant v
-    LEFT JOIN product_base pb 
-      ON v.product_base_id = pb.product_base_id
-    LEFT JOIN product_brand pb2
-      ON pb.brand_id = pb2.brand_id
-    LEFT JOIN color c 
-      ON v.color_id = c.color_id
-    LEFT JOIN product_image pi 
-      ON v.preview_id = pi.image_id
-    WHERE v.variant_id IN (${whereStr});
-`;
+      SELECT
+        v.variant_id,
+        v.stock,
+        v.variant_price,
+        v.is_promoting,
+        v.ram,
+        v.storage,
+        v.switch_type,
+        v.date_added,
+        --Thông tin từ product_base
+        pb.product_base_id,
+        pb.product_name,
+        to_json(pb2) AS brand,
+          pb.product_type,
+          pb.description,
+          pb.base_price,
+          --Thông tin màu sắc(có thể null)
+        to_json(c) AS color,
+        --Ảnh preview(có thể null)
+        json_build_object(
+          'image_id', pi.image_id,
+          'image_url', pi.image_url,
+          'image_caption', pi.image_caption,
+          'image_alt', pi.image_alt
+        ) as preview_image
+      FROM variant v
+      LEFT JOIN product_base pb 
+        ON v.product_base_id = pb.product_base_id
+      LEFT JOIN product_brand pb2
+        ON pb.brand_id = pb2.brand_id
+      LEFT JOIN color c 
+        ON v.color_id = c.color_id
+      LEFT JOIN product_image pi 
+        ON v.preview_id = pi.image_id
+      WHERE v.variant_id IN (${whereStr});
+  `;
 
-  // console.log("queryString: ", queryString);
 
   return await query<ProductVariantDTO>(queryString, variantIdArray);
 }
@@ -451,19 +450,6 @@ export async function fetchCheckoutSessionById(
   const resultQuery = await query<CheckoutSession>(queryString, [checkoutSessionId]);
 
   return resultQuery[0];
-}
-
-export async function fetchVariantsByCheckoutSessionId(
-  checkoutSessionId: string
-) {
-
-  const checkoutSession = await fetchCheckoutSessionById(checkoutSessionId);
-
-  const variantIdArray = checkoutSession.cart.map(item => item.variant_id);
-
-  const varriants = await fetchVariantsByVariantIdArray(variantIdArray);
-
-  return varriants;
 }
 
 export async function fetchUserByPhone(phone: string): Promise<UserResponse | null> {

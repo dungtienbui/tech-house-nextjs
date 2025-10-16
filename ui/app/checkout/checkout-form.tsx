@@ -1,231 +1,171 @@
-'use client'
+'use client';
 
-import { useCart } from "@/lib/context/guest-card-context";
-import { useGuest } from "@/lib/context/guest-context";
-import { CartItems, GuestInfo } from "@/lib/definations/data-dto";
-import { UserResponse } from "@/lib/definations/database-table-definations";
-import { PaymentMethod } from "@/lib/definations/types";
+import { useFormStatus } from 'react-dom';
+import { CartItems } from "@/lib/definations/data-dto";
 import clsx from "clsx";
 import { ChevronDown, ChevronsUp, LoaderCircle } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { MouseEvent } from "react";
+import { completeCheckoutAction } from '@/lib/actions/checkout';
+import { useActionState, useEffect } from 'react';
+import { redirect } from 'next/navigation';
+import { useCart } from '@/lib/hook/use-cart-hook';
+
 
 interface props {
-    checkoutItems: CartItems
-    checkoutId: string
+    checkoutItems: CartItems;
+    checkoutId: string;
+}
+
+// Component cho nút bấm để tách logic `useFormStatus`
+function SubmitButton() {
+    // Hook này phải được dùng trong component con của <form>
+    const { pending } = useFormStatus();
+    return (
+        <button
+            type="submit"
+            disabled={pending}
+            className={clsx(
+                "text-white w-full md:w-[400px] py-3 flex flex-row gap-5 justify-center items-center rounded-2xl shadow",
+                {
+                    "bg-sky-500 hover:bg-sky-400 active:bg-blue-500": !pending,
+                    "bg-gray-500 opacity-70 cursor-not-allowed": pending,
+                }
+            )}
+        >
+            {!pending && <ChevronsUp className="rotate-90 animate-bounce" />}
+            <div>{pending ? 'ĐANG XỬ LÝ...' : 'ĐẶT HÀNG'}</div>
+            {pending && <LoaderCircle className="animate-spin" />}
+            {!pending && <ChevronsUp className="-rotate-90 animate-bounce" />}
+        </button>
+    );
 }
 
 export default function CheckoutForm({ checkoutId, checkoutItems }: props) {
+    const PAYMENTMETHOD = [
+        {
+            id: "online-banking",
+            name: "Chuyển khoản ngân hàng"
+        },
+        {
+            id: "cod",
+            name: "Thanh toán khi nhận hàng"
+        },
+    ]
 
-    const { guestInfo, setGuestInfo, isGuestInfoValid, getGuestInfoError, saveGuestInfo } = useGuest();
+    const initialState = { message: '', errors: {} };
 
-    const { removeFromCart } = useCart();
+    // Dùng .bind để truyền các tham số không có trong form (checkoutId, checkoutItems)
+    const completeCheckoutActionWithData = completeCheckoutAction.bind(null, checkoutId, checkoutItems);
 
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+    const [state, dispatch] = useActionState(completeCheckoutActionWithData, initialState);
 
-    const [isConfirm, setIsConfirm] = useState(false);
-
-    const [hadClickSubmit, setHadClickSubmit] = useState(false);
-
-    const router = useRouter();
-
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleSubmitButton = async (e: MouseEvent<HTMLButtonElement>) => {
-
-        setIsLoading(true);
-
-        e.preventDefault();
-
-        if (!isConfirm) {
-            setHadClickSubmit(true);
-            return;
-        }
-
-        saveGuestInfo();
-
-        try {
-            const apiQuery = await fetch("/api/orders", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    guest: guestInfo,
-                    paymentMethod: paymentMethod,
-                    checkoutSessionId: checkoutId
-
-                })
-            })
-
-            const apiQueryData = await apiQuery.json();
-
-            if (apiQueryData.orderId === "") {
-                return;
-            }
-
-            checkoutItems.forEach(item => removeFromCart(item.variant_id));
-
-            router.push(`/user/purchases`);
-
-        } catch (error) {
-            console.error("error: ", error);
-        }
-
-        setIsLoading(false);
-    }
+    const { removeMultipleItems } = useCart();
 
     useEffect(() => {
-        setHadClickSubmit(false);
-    }, [isConfirm, guestInfo])
+        if (!!state.sussess) {
+            removeMultipleItems(checkoutItems.map(i => i.variant_id));
+            redirect("/user");
+        }
+    }, [state])
 
-    const canSubmit = isGuestInfoValid() && !isLoading;
-
-    const guestInfoError = getGuestInfoError();
-
-    const { data: session } = useSession()
-
-
-    const handleDefaultAddressButton = async (userId: string) => {
-        await fetch("/api/user/address", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: session?.user.id }),
-        })
-            .then((res) => res.json())
-            .then((data: UserResponse) => {
-                const guestSigninInfo: GuestInfo = {
-                    name: data.name,
-                    phone: data.phone,
-                    address: {
-                        province: data.province ?? "",
-                        ward: data.ward ?? "",
-                        street: data.street ?? ""
-                    }
-                };
-                setGuestInfo(guestSigninInfo);
-            })
-            .catch((err) => console.error("Lỗi fetch product info:", err))
-    }
-
+    console.log("Giá trị paymentMethod từ state:", state.fields?.paymentMethod);
+    console.log("Các tùy chọn hợp lệ:", PAYMENTMETHOD.map(item => item.id));
     return (
-        < form
+        <form
+            action={dispatch}
             className="w-full lg:w-[900px] xl:w-[1000px] bg-white p-6 rounded-xl shadow flex flex-col gap-4"
         >
-            <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
-                <div className={clsx(
-                    "text-lg font-bold"
-                )}>
-                    Thông tin khách hàng:
-                </div>
-                {session?.user.id && (
-                    <button
-                        type="button"
-                        className="text-blue-500 hover:cursor-pointer"
-                        onClick={() => {
-                            handleDefaultAddressButton(session.user.id);
-                        }}
-                    >
-                        Sử dụng địa chỉ mặc định
-                    </button>
-                )}
+            <div className="text-lg font-bold">
+                Thông tin khách hàng:
             </div>
 
-
+            {/* Các input giờ đây không cần `value` và `onChange` */}
             <input
-                value={guestInfo.name}
-                onChange={(e) => setGuestInfo({ name: e.target.value })}
+                name="name"
                 placeholder="Tên"
+                defaultValue={state.fields?.name?.toString()}
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
             />
-            <input
-                value={guestInfo.phone}
-                onChange={(e) => setGuestInfo({ phone: e.target.value })}
-                placeholder="Số điện thoại"
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-            />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {/* Tỉnh/ Thành phố */}
-                <input
-                    value={guestInfo.address.province}
-                    onChange={(e) => setGuestInfo({ address: { ...guestInfo.address, province: e.target.value } })}
-                    placeholder="Tỉnh/ Thành phố"
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-                />
+            {state?.errors?.name && state.errors.name.map((err, i) => (
+                <p key={i} className="text-sm text-red-500">{err}</p>
+            ))}
 
-                {/* Phường/ Xã */}
-                <input
-                    value={guestInfo.address.ward}
-                    onChange={(e) => setGuestInfo({ address: { ...guestInfo.address, ward: e.target.value } })}
-                    placeholder="Phường/ Xã"
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-                />
+            <input
+                name="phone"
+                placeholder="Số điện thoại"
+                defaultValue={state.fields?.phone?.toString()}
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
+            />
+            {state?.errors?.phone && state.errors.phone.map((err, i) => (
+                <p key={i} className="text-sm text-red-500">{err}</p>
+            ))}
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                    <input
+                        name="province"
+                        placeholder="Tỉnh/ Thành phố"
+                        defaultValue={state.fields?.address.province?.toString()}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    />
+                </div>
+                <div>
+                    <input
+                        name="ward"
+                        placeholder="Phường/ Xã"
+                        defaultValue={state.fields?.address.ward?.toString()}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    />
+                </div>
             </div>
 
             <input
-                value={guestInfo.address.street}
-                onChange={(e) => setGuestInfo({ address: { ...guestInfo.address, street: e.target.value } })}
+                name="street"
                 placeholder="Số Nhà, Tên Đường*"
+                defaultValue={state.fields?.address.street?.toString()}
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
             />
+            {state?.errors?.address && state.errors.address.map((err, i) => (
+                <p key={i} className="text-sm text-red-500">{err}</p>
+            ))}
 
             <div className="text-lg font-bold">Phương thức thanh toán:</div>
             <div className="relative w-full">
                 <select
+                    key={state.fields?.paymentMethod?.toString() || 'cod'}
+                    name="paymentMethod"
                     className="appearance-none w-full border border-gray-300 rounded-md p-2 pr-10 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+                    defaultValue={state.fields?.paymentMethod?.toString() ?? "cod"}
                 >
-                    <option value="online_banking">Chuyển khoản ngân hàng</option>
-                    <option value="cod">Thanh toán khi nhận hàng</option>
+                    {PAYMENTMETHOD.map((item) => {
+                        return (<option key={item.id} value={item.id}>{item.name}</option>);
+                    })}
                 </select>
-
                 <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
             </div>
 
             <div className="mt-5 flex flex-row gap-3 justify-start items-start">
-                <input className="mt-1" type="checkbox" required id="policy" name="confirm" checked={isConfirm} onChange={(e) => setIsConfirm(prev => !prev)} />
+                <input name="policy" className="mt-1" type="checkbox" id="policy" defaultChecked={state.fields?.policy?.toString() === "on"} />
                 <label htmlFor="policy">Tôi đồng ý với Chính sách xử lý dữ liệu cá nhân của TechHouse</label>
             </div>
+            {state?.errors?.policy && state.errors.policy.map((err, i) => (
+                <p key={i} className="text-sm text-red-500">{err}</p>
+            ))}
 
-            {/* Showing error */}
-            <div className="space-y-2">
-                {(hadClickSubmit && !isConfirm) && <div className="text-red-500">*Hãy đồng ý xác nhận*</div>}
-
-                {guestInfoError?.name?.map((err, i) => (
-                    <p key={i} className="text-sm text-red-500">{err}</p>
-                ))}
-                {guestInfoError?.phone?.map((err, i) => (
-                    <p key={i} className="text-sm text-red-500">{err}</p>
-                ))}
-                {guestInfoError?.address?.map((err, i) => (
-                    <p key={i} className="text-sm text-red-500">{err}</p>
-                ))}
-            </div>
-
-            <div className="w-full px-3 mt-5 flex flex-col items-center gap-3">
-                <button
-                    onClick={handleSubmitButton}
+            {/* Hiển thị lỗi chung từ server */}
+            {state?.message &&
+                <p
                     className={clsx(
-                        "text-white w-full md:w-[400px] py-3 flex flex-row gap-5 justify-center items-center rounded-2xl shadow",
                         {
-                            "bg-sky-500 hover:bg-sky-400 active:bg-blue-500": canSubmit,
-                            "bg-gray-500 opacity-70": !canSubmit,
+                            "text-sm text-red-500": !state?.sussess,
+                            "text-sm text-blue-500": state?.sussess,
                         }
                     )}
-                    type="button"
-                    disabled={!canSubmit}
                 >
-                    {canSubmit && <ChevronsUp className={clsx(
-                        "rotate-90 animate-bounce"
-                    )} />}
-                    <div>ĐẶT HÀNG</div>
-                    {isLoading && <LoaderCircle />}
-                    {canSubmit && <ChevronsUp className={clsx(
-                        "-rotate-90 animate-bounce"
-                    )} />}
+                    {state.message}
+                </p>}
 
-                </button>
+            <div className="w-full px-3 mt-5 flex flex-col items-center gap-3">
+                <SubmitButton />
             </div>
         </form >
     );
