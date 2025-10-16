@@ -1,7 +1,6 @@
 'use client'
 
 import { useCreateCheckoutSession } from "@/lib/hook/use-checkout-session-hook";
-import { wait } from "@/lib/utils/funcs";
 import clsx from "clsx";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";

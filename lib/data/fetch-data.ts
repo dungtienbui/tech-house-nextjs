@@ -538,3 +538,75 @@ export async function fetchCartItemsByUserId(userId: string): Promise<CartItems 
   const result = await query<CartItem>(queryString, [userId]);
   return result || [];
 }
+
+
+
+export async function fetchOrderByIdAndPhone(id: string, phone: string): Promise<OrderDetailsDTO> {
+  const sqlQuery = `
+      SELECT
+        o.order_id,
+        o.order_created_at,
+        o.payment_method,
+        o.payment_status,
+        o.total_amount,
+        o.reward_points,
+        o.user_id,
+        o.buyer_name,
+        o.phone_number,
+        o.province,
+        o.ward,
+        o.street,
+        -- Gộp các sản phẩm liên quan thành một mảng JSON
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'product_name', pb.product_name,
+              'variant_id', v.variant_id,
+              'product_type', pb.product_type,
+              'quantity', op.quantity,
+              'variant_price', op.variant_price,
+              'color_name', c.color_name,
+              'ram', v.ram,
+              'storage', v.storage,
+              'switch_type', v.switch_type,
+              'preview_image_url', pi.image_url,
+              'preview_image_alt', pi.image_alt
+            )
+          ) FILTER (WHERE op.order_id IS NOT NULL),
+          '[]'::json
+        ) AS products
+      FROM
+        "order" AS o
+      LEFT JOIN order_product op ON o.order_id = op.order_id
+      LEFT JOIN variant v ON v.variant_id = op.variant_id
+      LEFT JOIN product_base pb ON pb.product_base_id = v.product_base_id
+      LEFT JOIN color c ON v.color_id = c.color_id
+      LEFT JOIN product_image pi ON v.preview_id = pi.image_id
+      WHERE
+        o.phone_number = $1 and o.order_id = $2
+      GROUP BY
+        o.order_id;
+    `;
+
+  const orders = await query<OrderDetailsDTO>(sqlQuery, [phone, id]);
+
+  return orders[0];
+
+}
+
+
+export async function checkHasOrderByIdAndPhone(id: string, phone: string): Promise<{ order_id: string }> {
+  const sqlQuery = `
+      SELECT
+        o.order_id
+      FROM
+        "order" AS o
+      WHERE
+        o.phone_number = $1 and o.order_id = $2
+    `;
+
+  const orders = await query<{ order_id: string }>(sqlQuery, [phone, id]);
+
+  return orders[0];
+
+}

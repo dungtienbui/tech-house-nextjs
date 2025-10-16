@@ -67,8 +67,6 @@ export default function CheckoutForm({ checkoutId, checkoutItems }: props) {
         }
     }, [state])
 
-    console.log("Giá trị paymentMethod từ state:", state.fields?.paymentMethod);
-    console.log("Các tùy chọn hợp lệ:", PAYMENTMETHOD.map(item => item.id));
     return (
         <form
             action={dispatch}
