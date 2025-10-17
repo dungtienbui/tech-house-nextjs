@@ -1,23 +1,14 @@
-import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { Package, CheckCircle, Truck, Home, CreditCard, MapPin, User, Phone } from 'lucide-react';
-import { fetchOrderByIdAndPhone } from '@/lib/data/fetch-data';
+import { MapPin, User, Phone } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/funcs';
 import OrderStatusStepper from '@/ui/app/track-order/order/order-status-stepper';
-import Breadcrumbs from '@/ui/components/breadcrumbs/breadcrumbs';
+import { OrderDetailsDTO } from '@/lib/definations/data-dto';
 
 // === Component chính của trang ===
-export default async function OrderDetailPage({ searchParams }: { searchParams: Promise<{ id: string, phone: string }> }) {
-    const { id, phone } = await searchParams;
-
-    const order = await fetchOrderByIdAndPhone(id, phone);
-
-    if (!order) {
-        notFound();
-    }
+export default function OrderDetail({ order }: { order: OrderDetailsDTO }) {
 
     return (
-        <div className="bg-gray-50/50 min-h-screen p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-6">

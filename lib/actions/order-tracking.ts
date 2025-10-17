@@ -1,7 +1,8 @@
 'use server';
 
 import { z } from 'zod';
-import { checkHasOrderByIdAndPhone } from '../data/fetch-data';
+import { fetchOrderByIdAndPhone } from '../data/fetch-data';
+import { OrderDetailsDTO } from '../definations/data-dto';
 
 // 1. Định nghĩa Schema để validate dữ liệu từ form
 const TrackOrderSchema = z.object({
@@ -17,7 +18,7 @@ export type TrackOrderFormState = {
     };
     message?: string;
     success?: boolean;
-    data?: { id: string, phone: string }
+    data?: OrderDetailsDTO
 };
 
 // 3. Viết Action chính
@@ -46,7 +47,7 @@ export async function trackOrderAction(
 
     try {
         // Gọi hàm tìm kiếm đơn hàng trong database
-        const order = await checkHasOrderByIdAndPhone(validatedData.orderId, validatedData.phone);
+        const order = await fetchOrderByIdAndPhone(validatedData.orderId, validatedData.phone);
 
         // Nếu không tìm thấy đơn hàng
         if (!order) {
@@ -58,10 +59,7 @@ export async function trackOrderAction(
         return {
             success: true,
             message: "Đã tìm thấy đơn hàng",
-            data: {
-                id: validatedData.orderId,
-                phone: validatedData.phone
-            }
+            data: order
         }
 
         // Nếu tìm thấy, không trả về gì cả, chỉ redirect

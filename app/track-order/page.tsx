@@ -1,56 +1,37 @@
 'use client';
 
-import { useActionState, useEffect } from 'react'; // React 19+
-// import { useFormState } from 'react-dom'; // React 18
-import { Smartphone, ArrowRight, Hash, LoaderCircle } from 'lucide-react';
+import { useActionState, useEffect, useRef } from 'react';
+import { Smartphone, Hash } from 'lucide-react';
 import Link from 'next/link';
-import { useFormStatus } from 'react-dom';
 import { trackOrderAction } from '@/lib/actions/order-tracking';
 import clsx from 'clsx';
-import { useRouter } from 'next/navigation';
-
-// Component con cho nút bấm để quản lý trạng thái pending
-function SubmitButton() {
-    const { pending } = useFormStatus();
-
-    return (
-        <button
-            type="submit"
-            disabled={pending}
-            className="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-full transition duration-300 ease-in-out flex items-center justify-center gap-2 text-lg disabled:bg-gray-400"
-        >
-            {pending ? (
-                <>
-                    <LoaderCircle className="animate-spin" size={20} />
-                    ĐANG TÌM KIẾM...
-                </>
-            ) : (
-                <>
-                    TIẾP TỤC
-                    <ArrowRight size={20} />
-                </>
-            )}
-        </button>
-    );
-}
+import FindOrderButton from '@/ui/app/track-order/find-order-button';
+import OrderDetailClient from '@/ui/components/order/order-detail-client';
 
 export default function TrackOrderPage() {
     const initialState = { message: '', errors: {} };
     const [state, formAction] = useActionState(trackOrderAction, initialState);
 
-    const router = useRouter();
+    const orderDetailRef = useRef<HTMLDivElement>(null);
+
+    const data = {
+        phone: "0353260326",
+        orderId: "e7d98fbe-15c4-42e9-abf0-b65c44b635b3",
+    }
+
 
     useEffect(() => {
-        if (state && state.success && state.data) {
-            const params = new URLSearchParams();
-            params.set("id", state.data.id);
-            params.set("phone", state.data.phone);
-            router.push(`/track-order/order?${params.toString()}`);
+        if (state && state.data && orderDetailRef.current) {
+            const currY = orderDetailRef.current.getBoundingClientRect().top;
+            window.scrollBy({
+                top: currY - 150,
+                behavior: 'smooth'
+            });
         }
     }, [state])
 
     return (
-        <div className="min-h-[70vh] flex items-center justify-center pb-12 px-4">
+        <div className="min-h-[70vh] flex flex-col items-center justify-center py-12 px-4">
             <div className="max-w-4xl w-full bg-white rounded-2xl shadow-lg flex flex-col md:flex-row overflow-hidden">
                 {/* ... Cột trái giữ nguyên ... */}
                 <div className="w-full md:w-1/2 bg-sky-100/70 hidden md:flex items-center justify-center p-12">
@@ -81,6 +62,7 @@ export default function TrackOrderPage() {
                                         <Hash className="text-gray-400" size={20} />
                                     </div>
                                     <input
+                                        defaultValue={data.orderId}
                                         type="text"
                                         name="orderId"
                                         className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full text-lg focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
@@ -101,6 +83,7 @@ export default function TrackOrderPage() {
                                         <Smartphone className="text-gray-400" size={20} />
                                     </div>
                                     <input
+                                        defaultValue={data.phone}
                                         type="tel"
                                         name="phone"
                                         className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full text-lg focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
@@ -128,7 +111,7 @@ export default function TrackOrderPage() {
                                     {state.message}
                                 </p>}
 
-                            <SubmitButton />
+                            <FindOrderButton />
                         </form>
 
                         <div className="flex flex-row items-center gap-2 px-2 my-5">
@@ -148,6 +131,11 @@ export default function TrackOrderPage() {
                     </div>
                 </div>
             </div>
+            {state.success && state.data && (
+                <div ref={orderDetailRef} className='mt-10 sm:mt-5'>
+                    <OrderDetailClient order={state.data} />
+                </div>
+            )}
         </div>
     );
 }

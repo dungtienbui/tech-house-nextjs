@@ -5,6 +5,7 @@ import { PaymentStatus, PaymentStatusSchema } from '@/lib/definations/types';
 import { getPaymentStatusLabel } from '@/lib/utils/types';
 import clsx from 'clsx';
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 // Component chính của trang
@@ -55,6 +56,10 @@ export default async function UserPage(props: {
 
                     const numberOfProduct = order.products.length;
 
+                    const URLParams = new URLSearchParams(searchParams);
+                    URLParams.set("id", order.order_id);
+                    const detailLink = `/user/purchases/order?${URLParams.toString()}`
+
                     return (
                         <div
                             key={order.order_id}
@@ -62,7 +67,10 @@ export default async function UserPage(props: {
                         >
                             {/* Header của đơn hàng */}
                             <div className="flex flex-col gap-2 sm:flex-row justify-between sm:items-center pb-3 border-b">
-                                <span className="font-mono text-sm text-gray-700">Đơn hàng: #{order.order_id}</span>
+                                <div>
+                                    <p className="font-mono text-sm text-gray-700">Đơn hàng: <span className='font-bold'>#{order.order_id}</span></p>
+                                    <p className="font-mono text-sm text-gray-700">Ngày tạo: <span className='font-bold'>{order.order_created_at.toLocaleDateString('vi-VN')}</span></p>
+                                </div>
                                 <span
                                     className={clsx(
                                         "text-xs font-medium px-3 py-1 rounded-full w-fit",
@@ -125,6 +133,14 @@ export default async function UserPage(props: {
                             <div className="flex flex-row justify-between mt-4 border-t pt-4">
                                 <div className="font-bold text-nowrap">Tổng tiền thanh toán:</div>
                                 <div className="text-xl text-red-600 font-bold">{order.total_amount}</div>
+                            </div>
+                            <div className="flex flex-row justify-end mt-3">
+                                <Link
+                                    className="border border-blue-500 text-blue-500 px-5 py-1 rounded-md"
+                                    href={detailLink}
+                                >
+                                    Xem chi tiết
+                                </Link>
                             </div>
                         </div>
                     );
