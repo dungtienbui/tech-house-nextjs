@@ -5,8 +5,10 @@ import { auth } from '@/auth';
 import GoBackButton from '@/ui/app/user/purchases/order/go-back-button';
 
 // === Component chính của trang ===
-export default async function OrderDetailPage({ searchParams }: { searchParams: Promise<{ id: string }> }) {
-    const { id } = await searchParams;
+export default async function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
+    const { orderId } = await params;
+
+    console.log("orderId: ", orderId);
 
     const session = await auth();
 
@@ -14,7 +16,7 @@ export default async function OrderDetailPage({ searchParams }: { searchParams: 
         throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại");
     }
 
-    const order = await fetchOrderByIdAndPhone(id, session.user.phone);
+    const order = await fetchOrderByIdAndPhone(orderId, session.user.phone);
 
     if (!order) {
         notFound();

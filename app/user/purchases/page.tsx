@@ -56,9 +56,7 @@ export default async function UserPage(props: {
 
                     const numberOfProduct = order.products.length;
 
-                    const URLParams = new URLSearchParams(searchParams);
-                    URLParams.set("id", order.order_id);
-                    const detailLink = `/user/purchases/order?${URLParams.toString()}`
+                    const detailLink = `/user/purchases/${order.order_id}`
 
                     return (
                         <div
