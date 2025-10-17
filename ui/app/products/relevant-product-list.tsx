@@ -25,10 +25,11 @@ export default async function RelevantProductList({
         limit,
     )
 
-    // await wait(3000);
+    const title = productList.length === 0 ? "Không tìm thấy sản phẩm liên quan với từ khoá: " : "Các sản phẩm liên quan với từ khoá: ";
 
     return (
-        <div className="flex flex-col gap-5 items-center">
+        <div className="flex flex-col gap-5 items-center w-full">
+            <div>{title} {keyWord !== "" && (<b className="text-xl">{keyWord}</b>)}</div>
             <div
                 className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-5"
             >

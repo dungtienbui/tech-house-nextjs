@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { fetchUserById } from "@/lib/data/fetch-data";
 import { Address } from "@/lib/definations/data-dto";
 import AddressForm from "@/ui/app/user/profile/address-form";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export default async function UserProfilePage() {

@@ -1,4 +1,4 @@
-'use server';
+'use server'
 
 import { z } from 'zod';
 import { fetchOrderByIdAndPhone } from '../data/fetch-data';
