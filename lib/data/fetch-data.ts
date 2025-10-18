@@ -1,4 +1,4 @@
-import { Address, CartItem, CartItems, CheckoutSession, OrderDetailsDTO, ProductBrand, ProductImage, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
+import { Address, CartItem, CartItems, CheckoutSession, OrderDetailsDTO, ProductBrand, ProductImage, ProductReviewDisplayDTO, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
 import { User, UserResponse } from "../definations/database-table-definations";
 import { PaymentStatus, ProductType } from "../definations/types";
 import { query } from "./db";
@@ -541,7 +541,6 @@ export async function fetchCartItemsByUserId(userId: string): Promise<CartItems 
 }
 
 
-
 export async function fetchOrderByIdAndPhone(id: string, phone: string): Promise<OrderDetailsDTO> {
   const sqlQuery = `
       SELECT
@@ -662,5 +661,100 @@ export async function checkHasOrderByIdAndPhone(id: string, phone: string): Prom
   const orders = await query<{ order_id: string }>(sqlQuery, [phone, id]);
 
   return orders[0];
+
+}
+
+export async function fetchProductReviewsByVariantId(
+  variantId: string
+): Promise<ProductReviewDisplayDTO[]> {
+
+  const queryStr = `
+    SELECT
+      pr.review_id,
+      pr.user_id,
+      u.name AS user_name,
+      pr.rating,
+      pr.comment,
+      pr.created_at
+    FROM 
+      product_review AS pr
+    JOIN 
+      "users" AS u ON pr.user_id = u.id
+    JOIN 
+      variant AS v ON pr.variant_id = v.variant_id
+    WHERE 
+      v.variant_id = $1
+    ORDER BY 
+      pr.created_at DESC;
+  `;
+
+  const values = [variantId];
+
+  const resultQuery = await query<ProductReviewDisplayDTO>(queryStr, values);
+
+  // Hàm này trả về một mảng các review
+  return resultQuery;
+}
+
+
+export async function fetchProductReviewsByVariantIds(
+  variantIds: string[]
+): Promise<(ProductReviewDisplayDTO & { variant_id: string })[]> {
+
+  // Tránh lỗi SQL nếu mảng rỗng
+  if (!variantIds || variantIds.length === 0) {
+    return [];
+  }
+
+  const queryStr = `
+    SELECT
+      pr.review_id,
+      pr.user_id,
+      u.name AS user_name,
+      pr.rating,
+      pr.comment,
+      pr.created_at,
+      v.variant_id
+    FROM 
+      product_review AS pr
+    JOIN 
+      "users" AS u ON pr.user_id = u.id
+    JOIN 
+      variant AS v ON pr.variant_id = v.variant_id
+    WHERE 
+      v.variant_id = ANY($1)
+    ORDER BY 
+      pr.created_at DESC;
+  `;
+
+  const values = [variantIds]; // Truyền mảng vào làm một tham số
+
+  const resultQuery = await query<(ProductReviewDisplayDTO & { variant_id: string })>(
+    queryStr,
+    values
+  );
+
+  return resultQuery;
+}
+
+
+export async function purchaseCheck(orderId: string, variantId: string, userId: string): Promise<boolean> {
+  const queryString = `
+      SELECT op.quantity
+      FROM "order" o
+      JOIN order_product op ON o.order_id = op.order_id
+      WHERE o.order_id = $1 
+      AND op.variant_id = $2
+      AND o.user_id = $3;`;
+
+  const values = [orderId, variantId, userId];
+
+  const result = await query(queryString, values);
+
+  if (!result || result.length === 0) {
+    return false;
+  }
+
+  return true;
 
 }

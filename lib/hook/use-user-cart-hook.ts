@@ -2,7 +2,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { addToCartAction, clearCartAction, getUserCartAction, mergeCartAction, removeFromCartAction, removeMultipleItemsAction, updateItemQuantityAction } from '../actions/cart';
-import { useGuestCart } from './use-guest-cart-hook';
 import { CartItems } from '../definations/data-dto';
 
 type SessionStatus = "authenticated" | "loading" | "unauthenticated"

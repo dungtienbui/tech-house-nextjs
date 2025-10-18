@@ -480,6 +480,21 @@ CREATE TABLE
     CONSTRAINT fk_review_product FOREIGN KEY ("variant_id") REFERENCES "variant" ("variant_id")
   );
 
+CREATE TABLE 
+  "product_review" (
+    "review_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    "user_id" UUID NOT NULL REFERENCES "users"(id),
+    "variant_id" UUID NOT NULL REFERENCES "variant"(variant_id),
+    "order_id" UUID NOT NULL REFERENCES "order"(order_id),
+    "rating" INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    "comment" TEXT,
+    -- Đã sửa: Thêm dấu cách giữa NOT NULL và DEFAULT
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+    
+    -- Đảm bảo một người dùng chỉ có thể đánh giá một sản phẩm một lần cho mỗi đơn hàng
+    UNIQUE ("user_id", "variant_id", "order_id")
+);
+
 CREATE TABLE
   "promotion_type" (
     "promotion_type_id" UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),

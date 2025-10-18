@@ -28,8 +28,6 @@ export async function getUserCartAction(): Promise<CartItems> {
 
         const cartItems = await fetchCartItemsByUserId(userId);
 
-        console.log("cartItems: ", cartItems);
-
         return cartItems;
     } catch (error) {
         console.log("error: ", (error as Error).message);
@@ -82,7 +80,6 @@ export async function removeMultipleItemsAction(variantIds: string[]) {
         const resultDelete = await deleteMultipleItemsFormCart(userId, variantIds);
 
         console.log("resultDelete: ", resultDelete);
-
 
         revalidatePath('/cart');
     } catch (error) {

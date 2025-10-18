@@ -1,5 +1,5 @@
 import { fetchCheckoutSessionById, fetchVariantsByVariantIdArray } from "@/lib/data/fetch-data";
-import { CartItems, NO_PREVIEW } from "@/lib/definations/data-dto";
+import { NO_PREVIEW } from "@/lib/definations/data-dto";
 import CheckoutForm from "@/ui/app/checkout/checkout-form";
 import CheckoutItemCard from "@/ui/app/checkout/checkout-item-card";
 import CheckoutItemRow from "@/ui/app/checkout/checkout-item-row";

@@ -71,6 +71,7 @@ export default function ClientCart() {
 
     }, [items, variants]);
 
+
     const totalCost = useMemo(() => {
 
         const cost = selected.reduce((accumulator, selectedId) => {

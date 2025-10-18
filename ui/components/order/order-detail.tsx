@@ -1,8 +1,8 @@
-import Image from 'next/image';
 import { MapPin, User, Phone } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/funcs';
 import OrderStatusStepper from '@/ui/app/track-order/order/order-status-stepper';
 import { OrderDetailsDTO } from '@/lib/definations/data-dto';
+import OrderProduct from './order-product';
 
 // === Component chính của trang ===
 export default function OrderDetail({ order }: { order: OrderDetailsDTO }) {
@@ -31,25 +31,7 @@ export default function OrderDetail({ order }: { order: OrderDetailsDTO }) {
                         <h2 className="text-xl font-bold mb-4">Sản phẩm</h2>
                         <div className="space-y-4">
                             {order.products.map(item => (
-                                <div key={item.variant_id} className="flex items-start gap-4 border-b pb-4 last:border-b-0">
-                                    <Image
-                                        src={item.preview_image_url || '/placeholder.png'}
-                                        alt={item.preview_image_alt || item.product_name}
-                                        width={80}
-                                        height={80}
-                                        className="rounded-md object-cover"
-                                    />
-                                    <div className="flex-1">
-                                        <p className="font-semibold text-gray-800">{item.product_name}</p>
-                                        <p className="text-sm text-gray-500">
-                                            {item.color_name && `Màu: ${item.color_name}`}
-                                            {item.ram && `, RAM: ${item.ram}GB`}
-                                            {item.storage && `, Bộ nhớ: ${item.storage}GB`}
-                                        </p>
-                                        <p className="text-sm text-gray-500">Số lượng: {item.quantity}</p>
-                                    </div>
-                                    <p className="font-semibold text-gray-700">{formatCurrency(item.variant_price)}</p>
-                                </div>
+                                <OrderProduct key={item.variant_id} product={item} orderId={order.order_id} />
                             ))}
                         </div>
                     </div>

@@ -38,6 +38,7 @@ export default async function RootLayout({
             <NavBar />
             <main className="w-screen mb-5">{children}</main>
             <Footer />
+            <div id="modal-portal" />
           </div>
         </Providers>
       </body>

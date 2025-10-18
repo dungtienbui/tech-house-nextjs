@@ -53,7 +53,6 @@ export default function CheckoutForm({ checkoutId, checkoutItems }: props) {
 
     const initialState = { message: '', errors: {} };
 
-    // Dùng .bind để truyền các tham số không có trong form (checkoutId, checkoutItems)
     const completeCheckoutActionWithData = completeCheckoutAction.bind(null, checkoutId, checkoutItems);
 
     const [state, dispatch] = useActionState(completeCheckoutActionWithData, initialState);

@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { Address, CartItem, CartItems, CartItemsSchema, Color, GuestInfo, OrderData, ProductImage } from "../definations/data-dto";
+import { Address, CartItem, CartItems, CartItemsSchema, Color, GuestInfo, NewProductReviewInput, OrderData, ProductImage, ProductReview } from "../definations/data-dto";
 import { ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase, User, UserResponse } from "../definations/database-table-definations";
 import { PaymentMethod, ProductType, SpecResult } from "../definations/types";
 import { saltAndHashPassword } from "../utils/password";
@@ -538,4 +538,28 @@ export async function deleteCart(userId: string) {
 
     return resultQuery;
 }
+
+
+export async function insertProductReview({
+    user_id,
+    variant_id,
+    order_id,
+    rating,
+    comment,
+}: NewProductReviewInput): Promise<ProductReview> {
+
+    const queryStr = `
+    INSERT INTO product_review (user_id, variant_id, order_id, rating, comment)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *;
+  `;
+
+    const values = [user_id, variant_id, order_id, rating, comment || null];
+
+    const resultQuery = await query<ProductReview>(queryStr, values);
+
+    return resultQuery[0];
+}
+
+
 

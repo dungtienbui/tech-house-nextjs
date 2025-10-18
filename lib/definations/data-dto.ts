@@ -335,3 +335,33 @@ export const CheckoutSessionSchema = z.object({
 
 // Kiểu TypeScript từ Zod
 export type CheckoutSession = z.infer<typeof CheckoutSessionSchema>;
+
+export interface ProductReview {
+    review_id: string;
+    user_id: string;
+    variant_id: string;
+    order_id: string;
+    rating: number;
+    comment: string | null;
+    created_at: Date;
+}
+
+// Kiểu dữ liệu cho đầu vào khi tạo review mới
+export interface NewProductReviewInput {
+    user_id: string;
+    variant_id: string;
+    order_id: string;
+    rating: number;
+    comment?: string | null; // comment là tùy chọn
+}
+
+// Kiểu dữ liệu để hiển thị review, bao gồm cả tên người dùng
+export interface ProductReviewDisplayDTO {
+    review_id: string;
+    user_id: string;
+    user_name: string; // Lấy từ bảng "user"
+    rating: number;
+    comment: string | null;
+    created_at: Date;
+    // Bạn có thể thêm variant_id hoặc product_base_id nếu cần
+}

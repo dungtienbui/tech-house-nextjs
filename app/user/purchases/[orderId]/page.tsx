@@ -25,8 +25,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ or
 
 
     return (
-        <div className='flex flex-col items-start gap-2'>
-            <GoBackButton />
+        <div className='flex flex-col items-center gap-2'>
+            <div className='w-full text-start'>
+                <GoBackButton />
+            </div>
             <OrderDetail order={order} />
         </div>
     );
