@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { CartItems, CartItemsSchema, GuestInfoSchema } from '../definations/data-dto';
 import { insertCheckoutSession, insertOrder } from '../data/insert-data';
 import { fetchCheckoutSessionById, fetchVariantsByVariantIdArray } from '../data/fetch-data';
+import { auth } from '@/auth';
 
 export async function createCheckoutSession(items: CartItems): Promise<{
     success: boolean;
@@ -47,15 +48,15 @@ export type CheckoutFormState = {
     sussess?: boolean;
     message?: string;
     fields?: {
-        name: FormDataEntryValue | null;
-        phone: FormDataEntryValue | null;
-        address: {
-            province: FormDataEntryValue | null;
-            ward: FormDataEntryValue | null;
-            street: FormDataEntryValue | null;
+        name?: string;
+        phone?: string;
+        address?: {
+            province?: string;
+            ward?: string;
+            street?: string;
         };
-        paymentMethod: FormDataEntryValue | null;
-        policy: FormDataEntryValue | null;
+        paymentMethod?: string;
+        policy?: string;
     };
 };
 
@@ -85,15 +86,15 @@ export async function completeCheckoutAction(
 
     // 1. Trích xuất dữ liệu từ FormData
     const rawData = {
-        name: formData.get('name'),
-        phone: formData.get('phone'),
+        name: formData.get('name')?.toString(),
+        phone: formData.get('phone')?.toString(),
         address: {
-            province: formData.get('province'),
-            ward: formData.get('ward'),
-            street: formData.get('street'),
+            province: formData.get('province')?.toString(),
+            ward: formData.get('ward')?.toString(),
+            street: formData.get('street')?.toString(),
         },
-        paymentMethod: formData.get('paymentMethod'),
-        policy: formData.get('policy'),
+        paymentMethod: formData.get('paymentMethod')?.toString(),
+        policy: formData.get('policy')?.toString(),
     };
 
     // 2. Validate dữ liệu bằng Zod
@@ -158,11 +159,15 @@ export async function completeCheckoutAction(
         }
     })
 
-    const totalAmount = itemsData.reduce((acc, item) => acc + item.quantity * item.variant_price, 0)
+    const totalAmount = itemsData.reduce((acc, item) => acc + item.quantity * item.variant_price, 0);
+
+    const session = await auth();
+
+    const userId = session?.user.phone === validatedData.phone ? session?.user.id : null
 
     try {
-        // 3. Gọi logic nghiệp vụ (ví dụ: tạo đơn hàng)
-        const newOrder = await insertOrder({
+
+        const orderData = {
             payment_status: "pending",
             total_amount: totalAmount,
             reward_points: Math.floor(totalAmount / 100),
@@ -173,7 +178,11 @@ export async function completeCheckoutAction(
             street: validatedData.address.street,
             payment_method: validatedData.paymentMethod,
             items: itemsData,
-        });
+            user_id: userId
+        }
+
+        // 3. Gọi logic nghiệp vụ (ví dụ: tạo đơn hàng)
+        const newOrder = await insertOrder(orderData);
 
         return {
             sussess: true,

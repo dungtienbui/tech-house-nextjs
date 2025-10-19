@@ -1,4 +1,4 @@
-import { fetchCheckoutSessionById, fetchVariantsByVariantIdArray } from "@/lib/data/fetch-data";
+import { fetchCheckoutSessionById, fetchUserById, fetchVariantsByVariantIdArray } from "@/lib/data/fetch-data";
 import { NO_PREVIEW } from "@/lib/definations/data-dto";
 import CheckoutForm from "@/ui/app/checkout/checkout-form";
 import CheckoutItemCard from "@/ui/app/checkout/checkout-item-card";

@@ -79,7 +79,7 @@ export async function removeMultipleItemsAction(variantIds: string[]) {
 
         const resultDelete = await deleteMultipleItemsFormCart(userId, variantIds);
 
-        console.log("resultDelete: ", resultDelete);
+        console.log("resultDeleteMulti: ", resultDelete);
 
         revalidatePath('/cart');
     } catch (error) {

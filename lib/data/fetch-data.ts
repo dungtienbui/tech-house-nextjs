@@ -1,5 +1,4 @@
-import { Address, CartItem, CartItems, CheckoutSession, OrderDetailsDTO, ProductBrand, ProductImage, ProductReviewDisplayDTO, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO } from "../definations/data-dto";
-import { User, UserResponse } from "../definations/database-table-definations";
+import { CartItem, CartItems, CheckoutSession, OrderDetailsDTO, ProductBrand, ProductImage, ProductReviewDisplayDTO, ProductVariantDTO, RecommendedVariantDTO, SpecKeyValueDTO, UserDTO } from "../definations/data-dto";
 import { PaymentStatus, ProductType } from "../definations/types";
 import { query } from "./db";
 
@@ -452,18 +451,18 @@ export async function fetchCheckoutSessionById(
   return resultQuery[0];
 }
 
-export async function fetchUserByPhone(phone: string): Promise<UserResponse | null> {
-  const result = await query<User>("SELECT id, name, phone, province, ward, street, created_at, updated_at FROM users WHERE phone = $1", [phone]);
+export async function fetchUserByPhone(phone: string): Promise<UserDTO | null> {
+  const result = await query<UserDTO>("SELECT id, name, phone, province, ward, street, created_at, updated_at FROM users WHERE phone = $1", [phone]);
   return result[0] || null;
 }
 
-export async function fetchUserFullByPhone(phone: string): Promise<User | null> {
-  const result = await query<User>("SELECT * FROM users WHERE phone = $1", [phone]);
+export async function fetchUserFullByPhone(phone: string): Promise<UserDTO & { password: string } | null> {
+  const result = await query<UserDTO & { password: string }>("SELECT * FROM users WHERE phone = $1", [phone]);
   return result[0] || null;
 }
 
-export async function fetchUserById(id: string): Promise<UserResponse | null> {
-  const result = await query<UserResponse>("SELECT id, name, phone, province, ward, street, created_at, updated_at FROM users WHERE id = $1", [id]);
+export async function fetchUserById(id: string): Promise<UserDTO | null> {
+  const result = await query<UserDTO>("SELECT id, name, phone, province, ward, street, created_at, updated_at FROM users WHERE id = $1", [id]);
   return result[0] || null;
 }
 

@@ -15,7 +15,7 @@ import CheckoutButton from "./check-out-button";
 
 export default function ClientCart() {
 
-    const { items, removeFromCart } = useCart();
+    const { items, removeFromCart, removeMultipleItems } = useCart();
 
     const [selected, setSelected] = useState<string[]>([]);
 
@@ -236,9 +236,8 @@ export default function ClientCart() {
                             }
                         )}
                         onClick={() => {
-                            selected.forEach((item) => {
-                                removeFromCart(item);
-                            });
+                            console.log(" Nut xoa san pham lua chon");
+                            removeMultipleItems(selected);
                         }}
                     >
                         Xoá sản phẩm đã chọn

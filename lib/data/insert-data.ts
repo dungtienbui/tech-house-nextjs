@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
-import { Address, CartItem, CartItems, CartItemsSchema, Color, GuestInfo, NewProductReviewInput, OrderData, ProductImage, ProductReview } from "../definations/data-dto";
-import { ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase, User, UserResponse } from "../definations/database-table-definations";
+import { Address, CartItem, CartItems, CartItemsSchema, Color, GuestInfo, NewProductReviewInput, OrderData, ProductImage, ProductReview, UserDTO } from "../definations/data-dto";
+import { ProductBaseImage, Variant, VariantImage, PhoneSpec, LaptopSpec, KeyboardSpec, HeadphoneSpec, ProductBase } from "../definations/database-table-definations";
 import { PaymentMethod, ProductType, SpecResult } from "../definations/types";
 import { saltAndHashPassword } from "../utils/password";
 import { pool, query } from "./db";
@@ -274,7 +274,7 @@ export async function insertUser({
 
     const values = [name, phone, hashedPassword];
 
-    const resultQuery = await query<User>(queryStr, values);
+    const resultQuery = await query<UserDTO>(queryStr, values);
 
     return resultQuery[0];
 }
@@ -306,7 +306,7 @@ export async function updateUserAdderss({
         userId
     ]
 
-    const resultQuery = await query<UserResponse>(queryStr, values);
+    const resultQuery = await query<UserDTO>(queryStr, values);
 
     return resultQuery[0];
 }
@@ -329,7 +329,7 @@ export async function updateUserName({
         RETURNING id, name, phone, province, ward, street, created_at, updated_at;
     `;
 
-    const resultQuery = await query<UserResponse>(queryStr, [userId, name]);
+    const resultQuery = await query<UserDTO>(queryStr, [userId, name]);
 
     return resultQuery[0];
 }
@@ -355,7 +355,7 @@ export async function insertOrder(
             payment_method, payment_status, total_amount, reward_points,
             user_id, buyer_name, phone_number, province, ward, street
         )
-        VALUES ($1, $2, $3, $4, NULL, $5, $6, $7, $8, $9)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING order_id;
         `;
 
@@ -364,6 +364,7 @@ export async function insertOrder(
             orderData.payment_status,
             orderData.total_amount,
             orderData.reward_points,
+            orderData.user_id,
             orderData.buyer_name,
             orderData.phone_number,
             orderData.province,

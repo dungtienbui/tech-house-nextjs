@@ -2,29 +2,6 @@
 
 import { ProductType } from "./types";
 
-// =====================
-// user
-// =====================
-export interface User {
-    id: string;
-    name: string;
-    phone: string;
-    password: string;
-    created_at: string;
-    updated_at: string;
-}
-
-export interface UserResponse {
-    id: string;
-    name: string;
-    phone: string;
-    province?: string;
-    ward?: string;
-    street?: string;
-    created_at: string;
-    updated_at: string;
-}
-
 export interface ProductBaseImage {
     image_id: string; // FK Image
     product_base_id: string; // FK ProductBase

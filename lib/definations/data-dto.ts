@@ -276,6 +276,7 @@ export interface OrderData {
         variant_price: number;
         newStock: number;
     }[];
+    user_id: string | null;
 }
 
 
@@ -364,4 +365,16 @@ export interface ProductReviewDisplayDTO {
     comment: string | null;
     created_at: Date;
     // Bạn có thể thêm variant_id hoặc product_base_id nếu cần
+}
+
+
+export interface UserDTO {
+    id: string;
+    name: string;
+    phone: string;
+    province?: string;
+    ward?: string;
+    street?: string;
+    created_at: string;
+    updated_at: string;
 }
