@@ -4,7 +4,7 @@ import z from 'zod';
 import { revalidatePath } from 'next/cache';
 import { insertProductReview } from '@/lib/data/insert-data'; // Hàm bạn đã cung cấp
 import { auth } from '@/auth';
-import { purchaseCheck } from '../data/fetch-data';
+import { fetchProductReviewsByVariantId, purchaseCheck } from '../data/fetch-data';
 
 // Schema Zod để validate form
 const ReviewSchema = z.object({
@@ -82,5 +82,17 @@ export async function submitReviewAction(
         }
         console.error('Lỗi khi gửi đánh giá:', error);
         return { success: false, message: 'Đã xảy ra lỗi. Vui lòng thử lại.' };
+    }
+}
+
+export async function getVariantReviews(id: string) {
+    try {
+        const result = await fetchProductReviewsByVariantId(id);
+        console.log("getVariantReviews: ", result);
+    } catch (error) {
+        console.error('Lỗi khi lấy đánh giá:', error);
+        return {
+            success: false, message: "Không lấy được đánh giá sản phẩm."
+        }
     }
 }

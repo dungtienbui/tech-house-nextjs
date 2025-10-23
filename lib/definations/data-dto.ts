@@ -112,8 +112,9 @@ export interface ProductVariantDTO {
 
     // JSON object ảnh preview (có thể null)
     preview_image: ProductImage
-}
 
+    review?: { star: number; count: number }
+}
 
 export interface SpecKeyValueDTO {
     // Common fields across specs
@@ -356,7 +357,6 @@ export interface NewProductReviewInput {
     comment?: string | null; // comment là tùy chọn
 }
 
-// Kiểu dữ liệu để hiển thị review, bao gồm cả tên người dùng
 export interface ProductReviewDisplayDTO {
     review_id: string;
     user_id: string;
@@ -364,7 +364,6 @@ export interface ProductReviewDisplayDTO {
     rating: number;
     comment: string | null;
     created_at: Date;
-    // Bạn có thể thêm variant_id hoặc product_base_id nếu cần
 }
 
 

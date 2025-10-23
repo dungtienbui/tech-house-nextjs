@@ -2,9 +2,16 @@ import { ProductTabSkeleton } from "@/ui/app/products/type/id/tabs/product-tab-s
 import ProductReviews from "@/ui/app/products/type/id/tabs/product-review";
 import { Suspense } from "react";
 
-export default function ReviewsPage() {
+export default async function ReviewsPage({
+    params,
+}: {
+    params: Promise<{ type: string, id: string }>
+}) {
+
+    const { id } = await params;
+
     return (
         <Suspense fallback={<ProductTabSkeleton />}>
-            <ProductReviews />
+            <ProductReviews id={id} />
         </Suspense>);
 }

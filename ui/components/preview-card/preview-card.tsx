@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import BuyNowButton from "./buy-now-button";
+import Star from "./star";
+import { Circle } from "lucide-react";
 
 interface props {
   variantId: string;
@@ -12,9 +14,10 @@ interface props {
     href: string;
     alt: string;
   }
+  review?: { star: number; count: number }
 }
 
-export default function PreviewCard({ title, subtitle, image, price, navTo, variantId }: props) {
+export default function PreviewCard({ title, subtitle, image, price, navTo, variantId, review }: props) {
 
   return (
     <Link
@@ -36,6 +39,16 @@ export default function PreviewCard({ title, subtitle, image, price, navTo, vari
             <div className="text-xs">{subtitle}</div>
           </div>
           <div className="text-red-500 font-bold">${price}</div>
+          {
+            review && (
+              <div className="flex flex-row gap-1 justify-start items-center">
+                <Star fillPercentage={review.star / 5 * 100} size={15} />
+                <div className="text-sm">{parseFloat(String(review.star))}</div>
+                <Circle size={5} />
+                <div className="text-sm text-gray-500">{review.count} đánh giá</div>
+              </div>
+            )
+          }
         </div>
         <BuyNowButton id={variantId} quantity={1} />
       </div>

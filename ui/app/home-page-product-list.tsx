@@ -69,6 +69,7 @@ export default async function HomePageProductList({
                                 href: product.preview_image.image_url ?? NO_PREVIEW.href,
                                 alt: product.preview_image.image_alt ?? product.preview_image.image_caption ?? NO_PREVIEW.alt,
                             }}
+                            review={product.review}
                         />
                     );
                 })}

@@ -111,7 +111,7 @@ export async function fetchVariants(
     param: string,
     value: string[],
   }[]
-) {
+): Promise<ProductVariantDTO[]> {
 
   const numberItemOfPage = optional?.limit ?? 10;
   const currPage = optional?.currentPage ?? 1
@@ -193,8 +193,26 @@ export async function fetchVariants(
     optional?.isPromoting ? optional.isPromoting : null,
   ].filter(item => item !== null);
 
+  const variants = await query<ProductVariantDTO>(queryString, preparedStatement);
 
-  return await query<ProductVariantDTO>(queryString, preparedStatement);
+  const variantIds = variants.map(i => i.variant_id);
+
+  const reviews = await fetchProductReviewStatisticsByVariantIds(variantIds);
+
+  return variants.map((item) => {
+    const review = reviews.find(r => r.variant_id === item.variant_id);
+    if (!review) {
+      return item;
+    }
+
+    return {
+      ...item,
+      review: {
+        star: review.star,
+        count: review.count
+      }
+    }
+  })
 }
 
 export async function fetchVariantsTotalPage(
@@ -696,9 +714,15 @@ export async function fetchProductReviewsByVariantId(
 }
 
 
-export async function fetchProductReviewsByVariantIds(
+export interface ProductReviewStats {
+  variant_id: string;
+  star: number; // Điểm trung bình (Average rating)
+  count: number; // Tổng số đánh giá (Total count)
+}
+
+export async function fetchProductReviewStatisticsByVariantIds(
   variantIds: string[]
-): Promise<(ProductReviewDisplayDTO & { variant_id: string })[]> {
+): Promise<ProductReviewStats[]> {
 
   // Tránh lỗi SQL nếu mảng rỗng
   if (!variantIds || variantIds.length === 0) {
@@ -707,33 +731,30 @@ export async function fetchProductReviewsByVariantIds(
 
   const queryStr = `
     SELECT
-      pr.review_id,
-      pr.user_id,
-      u.name AS user_name,
-      pr.rating,
-      pr.comment,
-      pr.created_at,
-      v.variant_id
+      pr.variant_id,
+      -- Tính điểm trung bình (làm tròn đến 2 chữ số thập phân)
+      ROUND(AVG(pr.rating)::numeric, 2) AS star,
+      -- Đếm tổng số đánh giá
+      COUNT(pr.review_id) AS count
     FROM 
       product_review AS pr
-    JOIN 
-      "users" AS u ON pr.user_id = u.id
-    JOIN 
-      variant AS v ON pr.variant_id = v.variant_id
     WHERE 
-      v.variant_id = ANY($1)
+      pr.variant_id = ANY($1::uuid[])
+    GROUP BY 
+      pr.variant_id
     ORDER BY 
-      pr.created_at DESC;
+      pr.variant_id;
   `;
 
-  const values = [variantIds]; // Truyền mảng vào làm một tham số
+  const values = [variantIds];
 
-  const resultQuery = await query<(ProductReviewDisplayDTO & { variant_id: string })>(
-    queryStr,
-    values
-  );
-
-  return resultQuery;
+  try {
+    const resultQuery = await query<ProductReviewStats>(queryStr, values);
+    return resultQuery;
+  } catch (error) {
+    console.error("Error fetching product review statistics by variant IDs:", error);
+    throw new Error("Failed to fetch product review statistics.");
+  }
 }
 
 

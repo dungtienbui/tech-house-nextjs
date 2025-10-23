@@ -2,7 +2,8 @@ import LinkHorizontalSelection from "@/ui/components/inputs/link-horizontal-sele
 import { Circle } from "lucide-react";
 import { notFound } from "next/navigation";
 import SubmitOptionFormSection from "./submit-option-form-section";
-import { fetchVariantsByVariantIdArray } from "@/lib/data/fetch-data";
+import { fetchProductReviewsByVariantId, fetchVariantsByVariantIdArray } from "@/lib/data/fetch-data";
+import StarRating from "./tabs/star-rating";
 
 
 interface props {
@@ -79,6 +80,10 @@ export default async function ProductOption({ variantId }: props) {
             .join("-") +
         ")";
 
+    const reviews = await fetchProductReviewsByVariantId(variantId);
+
+    const avgReview = reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length;
+
     return (
         <div className="w-full flex flex-col gap-5">
             <div className="flex flex-col gap-2">
@@ -86,6 +91,9 @@ export default async function ProductOption({ variantId }: props) {
                 <div className="grid grid-cols-2">
                     <p className="text-gray-400">Thương hiệu: <b className="text-black">{variant.brand.brand_name}</b></p>
                     <p className="text-gray-400">Số lượng: <b className="text-black">{variant.stock}</b></p>
+                </div>
+                <div>
+                    <StarRating rating={avgReview} />
                 </div>
             </div>
             <div className="">
