@@ -15,24 +15,28 @@ import { usePathname } from 'next/navigation';
 
 // Map of links to display in the side navigation.
 const links = [
-  { name: 'Home', href: '/', icon: HomeIcon },
+  { id: 'home', name: 'Trang chủ', href: '/', icon: HomeIcon },
   {
+    id: 'phone',
     name: 'Điện thoại',
     href: '/products/phone',
     icon: DevicePhoneMobileIcon,
   },
-  { name: 'Laptop', href: '/products/laptop', icon: ComputerDesktopIcon },
+  { id: 'laptop', name: 'Laptop', href: '/products/laptop', icon: ComputerDesktopIcon },
   {
+    id: 'accessory',
     name: 'Phụ kiện',
     href: '/products/accessory',
     icon: MicrophoneIcon,
     menu: [
       {
+        id: 'headphone',
         name: 'Tai nghe',
         href: '/products/headphone',
         icon: Headphones,
       },
       {
+        id: 'keyboard',
         name: 'Bàn phím',
         href: '/products/keyboard',
         icon: Keyboard,
@@ -46,6 +50,10 @@ export default function NavLinks() {
 
   const pathname = usePathname();
 
+  const pathnameSplit = pathname.split("/").pop() ?? "";
+
+  const selectedType = ["headphone", "keyboard"].includes(pathnameSplit) ? "accessory" : pathnameSplit;
+
   return (
     <>
       {links.map((link) => {
@@ -54,7 +62,7 @@ export default function NavLinks() {
         if (link.menu) {
           return (
             <div
-              key={link.name}
+              key={link.id}
               className="relative group"
             >
               <div
@@ -62,8 +70,8 @@ export default function NavLinks() {
                 className={clsx(
                   "flex flex-none h-[42px] w-[100px] border border-gray-100 items-center justify-center rounded-full text-sm font-medium md:w-fit md:gap-2 md:px-5",
                   {
-                    'bg-blue-500 text-white border-blue-500': pathname === link.href,
-                    ' hover:bg-sky-100 hover:text-blue-600 hover:border-blue-100': pathname !== link.href
+                    'bg-blue-500 text-white border-blue-500': selectedType === link.id,
+                    ' hover:bg-sky-100 hover:text-blue-600 hover:border-blue-100': selectedType !== link.id
                   },
                 )}
               >
@@ -78,7 +86,7 @@ export default function NavLinks() {
                     return (
                       <Link
                         key={item.name}
-                        href={item.href}
+                        href={item.id}
                         className="flex items-center gap-2 px-4 py-2 hover:bg-sky-100 hover:text-blue-600"
                       >
                         <ItemIcon className="w-5" />

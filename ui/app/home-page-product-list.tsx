@@ -60,7 +60,7 @@ export default async function HomePageProductList({
                     return (
                         <PreviewCard
                             variantId={product.variant_id}
-                            key={`${product.variant_id}-${index}`}
+                            key={product.variant_id}
                             title={title}
                             subtitle={subtitle}
                             price={product.variant_price.toString()}

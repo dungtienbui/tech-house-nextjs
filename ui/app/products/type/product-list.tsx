@@ -57,6 +57,7 @@ export default async function ProductList({
                 className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-5"
             >
                 {productList.map((product, index) => {
+                    const title = `${product.brand.brand_name}: ${product.product_name}`;
                     const subtitle =
                         "(" +
                         [
@@ -71,8 +72,8 @@ export default async function ProductList({
                     return (
                         <PreviewCard
                             variantId={product.variant_id}
-                            key={`${product.variant_id}-${index}`}
-                            title={`${product.brand}: ${product.product_name}`}
+                            key={product.variant_id}
+                            title={title}
                             subtitle={subtitle}
                             price={product.variant_price.toString()}
                             navTo={`/products/${productType}/${product.variant_id}`}
