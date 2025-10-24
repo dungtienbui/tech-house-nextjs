@@ -50,9 +50,9 @@ export default function NavLinks() {
 
   const pathname = usePathname();
 
-  const pathnameSplit = pathname.split("/").pop() ?? "";
+  const isAccessory = pathname.startsWith("/products/headphone") || pathname.startsWith("/products/keyboard");
 
-  const selectedType = ["headphone", "keyboard"].includes(pathnameSplit) ? "accessory" : pathnameSplit;
+  const selectedType = isAccessory ? "accessory" : pathname === "/" ? "home" : pathname.split("/")[2] ?? "";
 
   return (
     <>
@@ -106,8 +106,8 @@ export default function NavLinks() {
               className={clsx(
                 "flex flex-none h-[42px] w-[100px] border border-gray-100 items-center justify-center rounded-full text-sm font-medium md:w-fit md:gap-2 md:px-5",
                 {
-                  'bg-blue-500 text-white border-blue-500': pathname === link.href,
-                  ' hover:bg-sky-100 hover:text-blue-600 hover:border-blue-100': pathname !== link.href
+                  'bg-blue-500 text-white border-blue-500': selectedType === link.id,
+                  ' hover:bg-sky-100 hover:text-blue-600 hover:border-blue-100': selectedType !== link.id
                 },
               )}
             >
