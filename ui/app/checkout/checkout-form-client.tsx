@@ -51,7 +51,7 @@ export default function CheckoutFormClient({ checkoutId, checkoutItems, user }: 
             removeMultipleItems(checkoutItems.map(i => i.variant_id));
             redirect("/user");
         }
-    }, [state])
+    }, [state, checkoutItems,removeMultipleItems])
 
     return (
         <form

@@ -11,14 +11,8 @@ interface ModalProps {
 }
 
 export function CustomModal({ isOpen, onClose, children }: ModalProps) {
-    // Dùng state để đảm bảo code chỉ chạy ở client (nơi có 'document')
-    const [isClient, setIsClient] = useState(false);
+    const [isClient, setIsClient] = useState(true);
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    // Ngăn cuộn trang nền khi modal đang mở
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';

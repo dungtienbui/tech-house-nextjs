@@ -4,9 +4,29 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { CartItems, CartItemsSchema } from "../definations/data-dto";
 
+const initializeCart = (): CartItems => {
+    // Chỉ chạy ở phía client (browser)
+    if (typeof window === 'undefined') {
+        return [];
+    }
+
+    try {
+        const savedCart = localStorage.getItem("guest_cart");
+        if (savedCart) {
+            const parsedCart: CartItems = JSON.parse(savedCart);
+            const parsedCartValidated = CartItemsSchema.safeParse(parsedCart);
+
+            if (parsedCartValidated.success) {
+                return parsedCartValidated.data;
+            }
+        }
+    } catch (error) {
+        console.warn("Không thể đọc giỏ hàng của khách từ localStorage.", error);
+    }
+    return [];
+};
+
 // 1. --- Định nghĩa các kiểu dữ liệu ---
-
-
 // Kiểu dữ liệu cho giá trị của Context
 type GuestCartContextType = {
     readonly items: CartItems;
@@ -23,41 +43,10 @@ export const GuestCartContext = createContext<GuestCartContextType | null>(null)
 
 // 3. --- Tạo Provider Component ---
 export function GuestCartProvider({ children }: { children: React.ReactNode }) {
-    const [items, setItems] = useState<CartItems>([]);
 
-    // Dùng ref để ngăn useEffect ghi vào localStorage trong lần render đầu tiên
-    const initialLoad = useRef(true);
-
-    // Effect này chỉ chạy một lần khi component được mount
-    // để đọc dữ liệu từ localStorage và khôi phục giỏ hàng.
+    const [items, setItems] = useState<CartItems>(initializeCart);
+    
     useEffect(() => {
-        try {
-            const savedCart = localStorage.getItem("guest_cart");
-            if (savedCart) {
-                const parsedCart: CartItems = JSON.parse(savedCart);
-                // Bạn có thể thêm bước kiểm tra dữ liệu (validation) ở đây nếu cần
-
-                const parsedCartValidated = CartItemsSchema.safeParse(parsedCart);
-
-                if (parsedCartValidated.success) {
-                    setItems(parsedCartValidated.data);
-                }
-
-            }
-        } catch (error) {
-            console.warn("Không thể đọc giỏ hàng của khách từ localStorage.", error);
-        }
-    }, []);
-
-    // Effect này chạy mỗi khi state 'items' thay đổi
-    // để lưu phiên bản mới nhất vào localStorage.
-    useEffect(() => {
-        // Bỏ qua lần chạy đầu tiên để không ghi đè state rỗng
-        // lên localStorage trước khi được khôi phục.
-        if (initialLoad.current) {
-            initialLoad.current = false;
-            return;
-        }
         localStorage.setItem("guest_cart", JSON.stringify(items));
     }, [items]);
 

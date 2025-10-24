@@ -15,9 +15,11 @@ export default function LazyImage({ src, alt, width, height }: LazyImageProps) {
     return (
         <div className="relative">
             {/* GIF loading hiển thị khi ảnh đang tải */}
-            <img src="/image-loading.gif"
+            <Image
+                src="/image-loading.gif"
                 alt="Loading..."
-                style={{ width: 150, height: 150 }}
+                width={150}
+                height={150}
                 className={clsx(
                     "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500",
                     {

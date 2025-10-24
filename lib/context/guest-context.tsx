@@ -27,30 +27,36 @@ const DEFAULT_GUEST: GuestInfo = {
     },
 };
 
-const GuestContext = createContext<GuestContextType | null>(null);
+const initializeGuest = (): GuestInfo => {
+    // Chỉ chạy ở phía client (browser)
+    if (typeof window === 'undefined') {
+        return DEFAULT_GUEST;
+    }
 
-export function GuestProvider({ children }: { children: React.ReactNode }) {
-    const [guestInfo, setGuestInfoState] = useState<GuestInfo>(DEFAULT_GUEST);
+    try {
+        const saved = localStorage.getItem("guestInfo");
 
-    // Load từ localStorage khi khởi tạo
-    useEffect(() => {
-        try {
-            const saved = localStorage.getItem("guestInfo");
-
-            if (!saved) {
-                return;
-            }
+        if (saved) {
 
             const savedValidated = GuestInfoSchema.safeParse(JSON.parse(saved));
 
             if (savedValidated.success) {
-                setGuestInfoState(savedValidated.data);
+                return savedValidated.data;
             }
-
-        } catch (e) {
-            console.log("error: ", (e as Error).message);
         }
-    }, []);
+
+    } catch (error) {
+        console.warn("Không thể đọc thông tin của khách từ localStorage.", error);
+    }
+
+    return DEFAULT_GUEST;
+};
+
+const GuestContext = createContext<GuestContextType | null>(null);
+
+export function GuestProvider({ children }: { children: React.ReactNode }) {
+    const [guestInfo, setGuestInfoState] = useState<GuestInfo>(initializeGuest);
+
 
     // Hàm cập nhật thông tin trong state
     function setGuestInfo(info: Partial<GuestInfo>) {

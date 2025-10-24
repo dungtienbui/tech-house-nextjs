@@ -40,7 +40,7 @@ export function GuestCartSync() {
             hasSynced.current = false;
 
         }
-    }, [status, queryClient]);
+    }, [status, queryClient, mergeCart, clearCart, items]);
 
     // Component này không render ra bất cứ thứ gì trên giao diện
     return null;

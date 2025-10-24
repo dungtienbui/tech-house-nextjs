@@ -146,7 +146,7 @@ export default async function UserPage(props: {
             }
             {
                 orders.length === 0 && (
-                    <p className='text-center'>Bạn không có đơn hàng nào {statusValid.success && <span className='font-bold'>"{getPaymentStatusLabel(statusValid.data)}"</span>}</p>
+                    <p className='text-center'>Bạn không có đơn hàng nào {statusValid.success && <span className='font-bold'>&quot;{getPaymentStatusLabel(statusValid.data)}&quot;</span>}</p>
                 )
             }
         </div >

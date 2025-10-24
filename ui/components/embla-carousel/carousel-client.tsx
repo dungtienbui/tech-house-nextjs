@@ -92,8 +92,7 @@ export const useSelectedSnapDisplay = (
 
     useEffect(() => {
         if (!emblaApi) return
-
-        updateScrollSnapState(emblaApi)
+        // updateScrollSnapState(emblaApi)
         emblaApi.on('select', updateScrollSnapState)
         emblaApi.on('reInit', updateScrollSnapState)
     }, [emblaApi, updateScrollSnapState])

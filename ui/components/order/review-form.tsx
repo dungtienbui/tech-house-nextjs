@@ -19,31 +19,25 @@ interface ReviewFormProps {
     variantId: string;
     orderId: string;
     productName: string;
-    onFormSuccess: () => void; // Hàm để gọi khi gửi thành công (đóng modal)
 }
 
-export function ReviewForm({ variantId, orderId, productName, onFormSuccess }: ReviewFormProps) {
+export function ReviewForm({ variantId, orderId, productName }: ReviewFormProps) {
     const initialState: ReviewFormState = { success: false, message: '', errors: {} };
+
     const submitReviewWithIds = submitReviewAction.bind(null, variantId, orderId);
+
     const [state, formAction] = useActionState(submitReviewWithIds, initialState);
 
-    const formRef = useRef<HTMLFormElement>(null);
     const [selectedRating, setSelectedRating] = useState(0);
 
-    useEffect(() => {
-        if (state.success) {
-            alert(state.message); // Bạn có thể thay bằng toast
-            onFormSuccess(); // Đóng modal
-            formRef.current?.reset();
-            setSelectedRating(0);
-        } else if (state.message) {
-            // Hiển thị lỗi chung (ví dụ: "Bạn đã đánh giá rồi")
-            alert(`Lỗi: ${state.message}`);
-        }
-    }, [state, onFormSuccess]);
+    if (state.success === false && state.message) {
+        return (
+            <div>{state.message}</div>
+        );
+    }
 
     return (
-        <form ref={formRef} action={formAction} className="space-y-4">
+        <form action={formAction} className="space-y-4">
             <h3 className="text-lg font-bold text-gray-900">{productName}</h3>
 
             <div>

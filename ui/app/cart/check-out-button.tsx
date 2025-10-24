@@ -26,7 +26,7 @@ export default function CheckoutButton(
         if (checkoutSessionData && checkoutSessionData.success && checkoutSessionData.sessionId) {
             router.push(`/checkout?id=${checkoutSessionData.sessionId}`);
         }
-    }, [checkoutSessionData])
+    }, [checkoutSessionData, router])
 
     const errorMessage = checkoutSessionData?.error || createCheckoutSessionError?.message;
 

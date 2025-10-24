@@ -28,7 +28,6 @@ export default function ReviewButton({ orderId, variantId, productName }: props)
                     orderId={orderId}
                     variantId={variantId}
                     productName={productName}
-                    onFormSuccess={() => setIsModalOpen(false)}
                 />
             </CustomModal>
         </div>

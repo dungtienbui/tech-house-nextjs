@@ -17,7 +17,6 @@ export default function BuyNowButton({ id, quantity }: props) {
     const { createSession, isPending, data } = useCreateCheckoutSession()
 
     const router = useRouter();
-    const param = new URLSearchParams();
 
     const goToCheckout = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
@@ -33,10 +32,11 @@ export default function BuyNowButton({ id, quantity }: props) {
 
     useEffect(() => {
         if (data && data.success === true && data.sessionId) {
+            const param = new URLSearchParams();
             param.set("id", data.sessionId);
             router.push(`/checkout?${param.toString()}`);
         }
-    }, [data])
+    }, [data, router])
 
     return (
         <button
