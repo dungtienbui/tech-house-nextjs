@@ -1,5 +1,5 @@
 import SigninForm from "@/ui/app/auth/signin-form";
 
-export default function LoginPage() {
+export default function SignInPage() {
     return <SigninForm />
 }

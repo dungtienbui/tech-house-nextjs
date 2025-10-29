@@ -1,6 +1,8 @@
 import Pagination from "./type/pagination";
 import PreviewCard from "../../components/preview-card/preview-card";
 import { fetchRecommendedVariantsByKey, fetchRecommendedVariantsByKeyTotalPage } from "@/lib/data/fetch-data";
+import { Suspense } from "react";
+import PaginationSkeleton from "./type/pagination-skeleton";
 
 interface BaseProps {
     keyWord?: string;
@@ -61,7 +63,9 @@ export default async function RelevantProductList({
                     );
                 })}
             </div>
-            <Pagination totalPages={totalPages} currentPage={currentPage} />
+            <Suspense fallback={<PaginationSkeleton />}>
+                <Pagination totalPages={totalPages} currentPage={currentPage} />
+            </Suspense>
         </div>
     );
 }

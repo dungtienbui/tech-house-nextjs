@@ -1,4 +1,4 @@
-import { SpecKeyValueDTO, GuestInfo, CartItem } from "../definations/data-dto";
+import { SpecKeyValueDTO, CartItem } from "../definations/data-dto";
 import { ProductType, PaymentStatus } from "../definations/types";
 
 
@@ -52,20 +52,6 @@ export function mapSpecToArray(spec: SpecKeyValueDTO): { name: string; value: st
             name: specKeyVNMap[key as keyof SpecKeyValueDTO] || key,
             value: String(value),
         }));
-}
-
-
-export const isGuestInfoValid = (guestInfo: GuestInfo): boolean => {
-    if (!guestInfo.name.trim() || !guestInfo.phone.trim() || !guestInfo.email.trim() || !guestInfo.address.trim()) {
-        return false;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(guestInfo.email)) return false;
-
-    const phoneRegex = /^(0|\+84)(\d{9})$/;
-    if (!phoneRegex.test(guestInfo.phone)) return false;
-
-    return true;
 }
 
 export function isCartItem(obj: unknown): obj is CartItem {
