@@ -3,6 +3,8 @@ import PreviewCard from "@/ui/components/preview-card/preview-card";
 import Pagination from "./pagination";
 import { fetchVariants, fetchVariantsTotalPage } from "@/lib/data/fetch-data";
 import { NO_PREVIEW } from "@/lib/definations/data-dto";
+import { Suspense } from "react";
+import PaginationSkeleton from "./pagination-skeleton";
 
 interface BaseProps {
     productType: ProductType;
@@ -85,7 +87,9 @@ export default async function ProductList({
                     );
                 })}
             </div>
-            <Pagination totalPages={totalPages} currentPage={currentPage} />
+            <Suspense fallback={<PaginationSkeleton />}>
+                <Pagination totalPages={totalPages} currentPage={currentPage} />
+            </Suspense>
         </div>
     );
 }

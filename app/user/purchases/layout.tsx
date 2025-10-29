@@ -1,4 +1,5 @@
 import StatusTabs from "@/ui/app/user/purchases/status-tabs";
+import { Suspense } from "react";
 
 export default function PurchasesLayout(
     { children }: { children: React.ReactNode }
@@ -16,7 +17,9 @@ export default function PurchasesLayout(
                 </div>
 
                 {/* Tabs trạng thái đơn hàng */}
-                <StatusTabs />
+                <Suspense>
+                    <StatusTabs />
+                </Suspense>
 
                 {/* Danh sách đơn hàng */}
                 {children}
