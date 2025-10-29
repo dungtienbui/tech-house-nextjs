@@ -86,7 +86,7 @@ export default function NavLinks() {
                     return (
                       <Link
                         key={item.name}
-                        href={item.id}
+                        href={item.href}
                         className="flex items-center gap-2 px-4 py-2 hover:bg-sky-100 hover:text-blue-600"
                       >
                         <ItemIcon className="w-5" />
