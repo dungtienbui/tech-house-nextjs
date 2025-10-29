@@ -1,42 +1,8 @@
 import { faker } from "@faker-js/faker";
-import { Account, Employee, Customer, ProductBase, Color, Variant, PromotionType, Promotion, ProductPromotion, Review, ProductImage, ProductBaseImage, VariantImage, HeadphoneSpec, KeyboardSpec, LaptopSpec, PhoneSpec, ProductBrand } from "../definations/database-table-definations";
 import { ProductType, SpecResults } from "../definations/types";
+import { Color, ProductBrand, ProductImage } from "../definations/data-dto";
+import { HeadphoneSpec, KeyboardSpec, LaptopSpec, PhoneSpec, ProductBase, ProductBaseImage, ProductPromotion, Promotion, PromotionType, Review, Variant, VariantImage } from "../definations/database-table-definations";
 
-// =====================
-// Account & Roles
-// =====================
-// Hàm tạo một account fake
-export function generateFakeAccount(): Account {
-  return {
-    id: faker.string.uuid(), // UUID
-    email: faker.internet.email(),
-    username: faker.internet.username(),
-    password: faker.internet.password(),
-    full_name: faker.person.fullName(),
-    phone_number: faker.phone.number(),
-    address: faker.location.streetAddress(),
-    gender: faker.helpers.arrayElement(['male', 'female', 'other']),
-    date_of_birth: faker.date.birthdate({ min: 18, max: 60, mode: 'age' }).toISOString().split('T')[0],
-    role: faker.helpers.arrayElement(['admin', 'employee', 'customer']),
-    registration_date: faker.date.past().toISOString(),
-  };
-}
-
-// Hàm tạo Employee fake
-export function generateFakeEmployee(account: Account): Employee {
-  return {
-    employee_id: account.id, // FK đến Account.id
-    national_id: faker.string.numeric(12), // số CMND/CCCD giả
-  };
-}
-
-// Hàm tạo Customer fake
-export function generateFakeCustomer(account: Account): Customer {
-  return {
-    customer_id: account.id, // FK đến Account.id
-    customer_points: faker.number.int({ min: 0, max: 5000 }), // điểm thưởng giả
-  };
-}
 
 // =====================
 // ProductBase
@@ -215,7 +181,7 @@ export function generateFakeReview(variant: Variant): Review {
 // =====================
 export function generateFakeImagePlacehold(size?: { width: number, height: number }): ProductImage {
 
-  const str = `${faker.lorem.words({ min: 3, max: 10 })}\\n${faker.lorem.words(3)}\\n${faker.lorem.words({ min: 3, max: 10 })}`.replaceAll(" ", "+");
+  const str = `${faker.lorem.words({ min: 3, max: 10 })}\\n${faker.lorem.words({ min: 3, max: 10 })}`.replaceAll(" ", "+");
   const image_url = `https://placehold.co/${size?.width ?? "600"}x${size?.height ?? "600"}.png?text=${str}`;
 
   return {

@@ -335,7 +335,8 @@ export async function updateUserName({
 }
 
 export async function insertOrder(
-    orderData: OrderData
+    orderData: OrderData,
+    checkoutSession: string
 ): Promise<string> {
 
     if (orderData.items.length === 0) {
@@ -420,7 +421,16 @@ export async function insertOrder(
             RETURNING *
         `;
 
-        const updateStockResult = await client.query<Variant>(updateStockQuery, [variantIds, newStock]);
+        await client.query<Variant>(updateStockQuery, [variantIds, newStock]);
+
+        // 4. Xoá checkout session
+        const deleteCheckoutSessionStr = `
+            DELETE FROM checkout_session cs
+            WHERE cs.checkout_id = $1
+        `;
+
+        await client.query(deleteCheckoutSessionStr, [checkoutSession]);
+
 
         // Nếu mọi thứ thành công, commit transaction
         await client.query('COMMIT');

@@ -4,10 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useGuestCart } from './use-guest-cart-hook';
 import { useUserCart } from './use-user-cart-hook';
 import { CartItems } from '../definations/data-dto';
-import { useEffect } from 'react';
 
-// (Tùy chọn nhưng khuyến khích) Định nghĩa một kiểu trả về chung
-// để đảm bảo hook luôn trả về một "shape" nhất quán.
 type CartHookReturn = {
     readonly items: CartItems;
     readonly numOfItems: number;
@@ -22,13 +19,6 @@ type CartHookReturn = {
 
 export function useCart(): CartHookReturn {
     const { data: session, status } = useSession();
-
-    // useEffect(() => {
-    //     console.log("Session status1: ", status);
-    // }, [status]);
-
-
-    // console.log("Session status2: ", status);
 
     // 1. --- Khởi tạo các hook con ---
     // Hook cho người dùng đã đăng nhập (sẽ không fetch nếu chưa authenticated)
@@ -79,7 +69,7 @@ export function useCart(): CartHookReturn {
     return {
         items: guestCart.items,
         numOfItems: guestCart.items.length,
-        isLoading: false, // localStorage không có trạng thái loading
+        isLoading: false,
         addToCart: guestCart.addToCart,
         removeFromCart: guestCart.removeFromCart,
         removeMultipleItems: guestCart.removeMultipleItems,

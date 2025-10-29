@@ -11,15 +11,13 @@ interface props {
 export default async function CheckoutForm({ checkoutId, checkoutItems }: props) {
     const session = await auth();
 
-    if (!session?.user.id) {
-        return <CheckoutFormClient checkoutItems={checkoutItems} checkoutId={checkoutId} />
+    if (session?.user.id) {
+        const user = await fetchUserById(session.user.id);
+
+        if (user) {
+            return <CheckoutFormClient checkoutItems={checkoutItems} checkoutId={checkoutId} user={user} />
+        }
     }
 
-    const user = await fetchUserById(session?.user.id);
-
-    if (!user) {
-        return <CheckoutFormClient checkoutItems={checkoutItems} checkoutId={checkoutId} />
-    }
-
-    return <CheckoutFormClient checkoutItems={checkoutItems} checkoutId={checkoutId} user={user} />
+    return <CheckoutFormClient checkoutItems={checkoutItems} checkoutId={checkoutId} />
 }

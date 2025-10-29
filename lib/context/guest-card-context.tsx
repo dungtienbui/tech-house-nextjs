@@ -1,7 +1,7 @@
 // context/GuestCartContext.tsx
 "use client";
 
-import { createContext, useContext, useState, useEffect, useRef } from "react";
+import { createContext, useState, useEffect } from "react";
 import { CartItems, CartItemsSchema } from "../definations/data-dto";
 
 const initializeCart = (): CartItems => {
@@ -45,7 +45,7 @@ export const GuestCartContext = createContext<GuestCartContextType | null>(null)
 export function GuestCartProvider({ children }: { children: React.ReactNode }) {
 
     const [items, setItems] = useState<CartItems>(initializeCart);
-    
+
     useEffect(() => {
         localStorage.setItem("guest_cart", JSON.stringify(items));
     }, [items]);

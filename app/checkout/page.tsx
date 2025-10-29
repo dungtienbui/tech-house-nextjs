@@ -81,10 +81,12 @@ export default async function checkoutInSession({ searchParams }: {
 
                                         const totalCost = item.variant_price * item.quantity;
 
+                                        const title = `${item.brand.brand_name}: ${item.product_name}`;
+
                                         return (
                                             <CheckoutItemRow
                                                 key={item.variant_id}
-                                                name={`${item.product_name} - ${item.brand}`}
+                                                name={title}
                                                 option={optionStr}
                                                 price={item.variant_price}
                                                 quantity={item.quantity}

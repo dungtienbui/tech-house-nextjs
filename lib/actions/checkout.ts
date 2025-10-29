@@ -5,6 +5,7 @@ import { CartItems, CartItemsSchema, GuestInfoSchema } from '../definations/data
 import { insertCheckoutSession, insertOrder } from '../data/insert-data';
 import { fetchCheckoutSessionById, fetchVariantsByVariantIdArray } from '../data/fetch-data';
 import { auth } from '@/auth';
+import { revalidatePath } from 'next/cache';
 
 export async function createCheckoutSession(items: CartItems): Promise<{
     success: boolean;
@@ -182,11 +183,12 @@ export async function completeCheckoutAction(
         }
 
         // 3. Gọi logic nghiệp vụ (ví dụ: tạo đơn hàng)
-        const newOrder = await insertOrder(orderData);
+        const newOrder = await insertOrder(orderData, checkoutSession.checkout_id);
 
         return {
             sussess: true,
-            message: "Tạo hoá đơn thành công"
+            message: "Tạo hoá đơn thành công",
+            fields: validatedData
         }
 
     } catch (error) {

@@ -1,7 +1,6 @@
 'use server';
 
 import { auth } from '@/auth';
-import { revalidatePath } from 'next/cache';
 import { CartItems } from '../definations/data-dto';
 import { fetchCartItemsByUserId } from '../data/fetch-data';
 import { deleteCart, deleteItemFormCart, deleteMultipleItemsFormCart, insertItemToCart, InsertMultipleItemsFormCart, updateCartItem } from '../data/insert-data';
@@ -45,7 +44,6 @@ export async function addToCartAction(variantId: string, quantity: number = 1) {
 
         console.log("resultInsert: ", resultInsert);
 
-        revalidatePath('/cart'); // Làm mới dữ liệu cho trang giỏ hàng
     } catch (error) {
         console.error("addToCartAction Error:", (error as Error).message);
         throw new Error("Không thể thêm vào giỏ hàng.");
@@ -62,7 +60,7 @@ export async function removeFromCartAction(variantId: string) {
 
         console.log("resultDelete: ", resultDelete);
 
-        revalidatePath('/cart');
+        
     } catch (error) {
         console.error("removeFromCartAction Error:", (error as Error).message);
         throw new Error("Không thể xóa sản phẩm khỏi giỏ hàng.");
@@ -79,9 +77,7 @@ export async function removeMultipleItemsAction(variantIds: string[]) {
 
         const resultDelete = await deleteMultipleItemsFormCart(userId, variantIds);
 
-        console.log("resultDeleteMulti: ", resultDelete);
-
-        revalidatePath('/cart');
+        
     } catch (error) {
         console.error("removeMultipleItemsAction Error:", (error as Error).message);
         throw new Error("Không thể xóa các sản phẩm đã chọn.");
@@ -104,7 +100,7 @@ export async function updateItemQuantityAction(variantId: string, newQuantity: n
 
         console.log("resultUpdate: ", resultUpdate);
 
-        revalidatePath('/cart');
+        
     } catch (error) {
         console.error("updateItemQuantityAction Error:", (error as Error).message);
         throw new Error("Không thể cập nhật số lượng sản phẩm.");
@@ -122,7 +118,7 @@ export async function clearCartAction() {
 
         console.log("resultClear: ", resultClear);
 
-        revalidatePath('/cart');
+        
     } catch (error) {
         console.error("clearCartAction Error:", (error as Error).message);
         throw new Error("Không thể xóa giỏ hàng.");
@@ -152,7 +148,7 @@ export async function mergeCartAction(guestItems: {
 
         console.log("resultMerge: ", resultMerge);
 
-        revalidatePath('/cart');
+        
 
         return { success: true, message: "Hợp nhất giỏ hàng thành công." };
 

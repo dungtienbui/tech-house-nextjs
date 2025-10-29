@@ -1,13 +1,14 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
-import { CartItems, UserDTO } from "@/lib/definations/data-dto";
+import { CartItems, GuestInfo, UserDTO } from "@/lib/definations/data-dto";
 import clsx from "clsx";
 import { ChevronDown, ChevronsUp, LoaderCircle } from "lucide-react";
 import { CheckoutFormState, completeCheckoutAction } from '@/lib/actions/checkout';
 import { useActionState, useEffect } from 'react';
-import { redirect } from 'next/navigation';
 import { useCart } from '@/lib/hook/use-cart-hook';
+import { useRouter } from 'next/navigation';
+import { loadGuestInfo, saveGuestInfo } from '@/lib/utils/guest-local-storage';
 
 
 interface props {
@@ -29,15 +30,15 @@ export default function CheckoutFormClient({ checkoutId, checkoutItems, user }: 
     ]
 
     const initialState: CheckoutFormState = {
-        message: '', errors: {}, fields: {
-            name: user?.name,
-            phone: user?.phone,
+        message: '', errors: {}, fields: user ? {
+            name: user.name,
+            phone: user.phone,
             address: {
-                province: user?.province,
-                ward: user?.ward,
-                street: user?.street
+                province: user.province,
+                ward: user.ward,
+                street: user.street
             }
-        }
+        } : loadGuestInfo()
     };
 
     const completeCheckoutActionWithData = completeCheckoutAction.bind(null, checkoutId, checkoutItems);
@@ -46,12 +47,35 @@ export default function CheckoutFormClient({ checkoutId, checkoutItems, user }: 
 
     const { removeMultipleItems } = useCart();
 
+    const router = useRouter();
+
     useEffect(() => {
         if (!!state.sussess) {
             removeMultipleItems(checkoutItems.map(i => i.variant_id));
-            redirect("/user");
+            if (!user) {
+                if (state.fields) {
+                    const data: GuestInfo = {
+                        name: state.fields.name ?? "",
+                        phone: state.fields.phone ?? "",
+                        address: {
+                            province: state.fields.address?.province ?? "",
+                            ward: state.fields.address?.ward ?? "",
+                            street: state.fields.address?.street ?? "",
+                        }
+                    }
+
+                    saveGuestInfo(data);
+
+                }
+
+                router.replace("/track-order");
+            } else {
+                router.replace("/user/purchases");
+            }
         }
-    }, [state, checkoutItems,removeMultipleItems])
+    }, [state.sussess])
+
+
 
     return (
         <form
@@ -62,7 +86,6 @@ export default function CheckoutFormClient({ checkoutId, checkoutItems, user }: 
                 Thông tin khách hàng:
             </div>
 
-            {/* Các input giờ đây không cần `value` và `onChange` */}
             <input
                 name="name"
                 placeholder="Tên"
@@ -155,9 +178,7 @@ export default function CheckoutFormClient({ checkoutId, checkoutItems, user }: 
     );
 }
 
-// Component cho nút bấm để tách logic `useFormStatus`
 function SubmitButton() {
-    // Hook này phải được dùng trong component con của <form>
     const { pending } = useFormStatus();
     return (
         <button
