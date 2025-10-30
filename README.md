@@ -17,7 +17,6 @@ Tiến độ:
 - Chuẩn bị hiện thực các chức năng chính cho Quản lý cửa hàng.
 
 Deploy: Vercel
-https://tech-house-nextjs-k3334qvod-bui-tien-dungs-projects-5c17eddd.vercel.app
 
 
 
